@@ -160,8 +160,8 @@ public class StockQuantRestService implements IStockQuantRestService {
         return JsonUtils.SUCCESS(stockQuantRpcService.traceQuant(quantId));
     }
     @POST
-    @Path("getItemLocationList")
-    public String getItemLocationList(Map<String, Object> mapQuery) {
-        return JsonUtils.SUCCESS(stockQuantRpcService.getItemLocationList(mapQuery));
+    @Path("getBackItemLocationList")
+    public String getBackItemLocationList(Map<String, Object> mapQuery) {
+        return JsonUtils.SUCCESS(stockQuantRpcService.getBackItemLocationList(mapQuery));
     }
 }

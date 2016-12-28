@@ -29,5 +29,5 @@ public interface IStockQuantRestService {
     String getLocationStockCount(Map<String, Object> mapQuery);
     String getLocationStockList(Map<String, Object> mapQuery);
     String traceQuant(Long quantId);
-    String getItemLocationList(Map<String, Object> mapQuery);
+    String getBackItemLocationList(Map<String, Object> mapQuery);
 }

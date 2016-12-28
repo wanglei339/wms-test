@@ -6,6 +6,7 @@ import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.stock.IStockQuantRpcService;
 import com.lsh.wms.core.constant.ContainerConstant;
+import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.constant.WriteOffConstant;
 import com.lsh.wms.core.service.container.ContainerService;
@@ -261,13 +262,19 @@ public class StockQuantRpcService implements IStockQuantRpcService {
     }
 
     public List<StockQuant> getItemLocationList(Map<String, Object> mapQuery) {
-        setExcludeLocationList(mapQuery);
-        List<BaseinfoLocation> excludeLocationList = (List<BaseinfoLocation>)mapQuery.get("excludeLocationList");
-        excludeLocationList.add(locationService.getCollectionArea());//集货区
-        excludeLocationList.add(locationService.getTemporaryArea());//暂存区
-        mapQuery.put("excludeLocationList", excludeLocationList);
         return quantService.getItemLocationList(mapQuery);
     }
+    //获取商品可退货的库存
+    public List<StockQuant> getBackItemLocationList(Map<String, Object> mapQuery) {
+        List<BaseinfoLocation> includeLocationList = new ArrayList<BaseinfoLocation>();
+        includeLocationList.addAll(locationService.getLocationsByType(LocationConstant.SHELFS));//货架
+        includeLocationList.addAll(locationService.getLocationsByType(LocationConstant.LOFTS));//阁楼
+        includeLocationList.addAll(locationService.getLocationsByType(LocationConstant.FLOOR));//地堆
+        includeLocationList.addAll(locationService.getLocationsByType(LocationConstant.SPLIT_AREA));//拆零
+        mapQuery.put("includeLocationList", includeLocationList);
+        return quantService.getItemLocationList(mapQuery);
+    }
+
     public Long getLotByReceiptContainerId(Long containerId) throws BizCheckedException {
         //根据托盘码查找 InbReceiptHeader
         Map<String,Object> queryMap = new HashMap<String, Object>();
