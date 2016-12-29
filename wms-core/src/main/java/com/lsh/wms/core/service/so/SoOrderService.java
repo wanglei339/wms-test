@@ -8,6 +8,7 @@ import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.stock.StockMoveService;
 import com.lsh.wms.core.service.stock.StockSummaryService;
 import com.lsh.wms.core.service.tu.TuService;
+import com.lsh.wms.core.service.utils.PackUtil;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.so.ObdDetail;
 import com.lsh.wms.model.so.ObdHeader;
@@ -77,7 +78,7 @@ public class SoOrderService {
             for (ObdDetail detail : obdDetailList) {
                 StockMove move = new StockMove();
                 move.setItemId(detail.getItemId());
-                move.setQty(detail.getOrderQty());
+                move.setQty(PackUtil.UomQty2EAQty(detail.getOrderQty(),detail.getPackName()));
                 move.setFromLocationId(locationService.getNullArea().getLocationId());
                 move.setToLocationId(locationService.getSoAreaInbound().getLocationId());
                 move.setTaskId(detail.getOrderId());
