@@ -14,15 +14,18 @@ import com.lsh.wms.core.service.stock.StockMoveService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.stock.StockSummaryService;
 import com.lsh.wms.core.service.system.ModifyLogService;
+import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.po.*;
 import com.lsh.wms.model.so.ObdDetail;
 import com.lsh.wms.model.stock.StockLot;
 import com.lsh.wms.model.stock.StockMove;
 import com.lsh.wms.model.system.ModifyLog;
+import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.wave.WaveDetail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.asm.commons.TableSwitchGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -85,6 +88,8 @@ public class PoReceiptService {
 
     @Autowired
     private PoOrderService poOrderService;
+    @Autowired
+    private BaseTaskService baseTaskService;
     /**
      * 插入InbReceiptHeader及List<InbReceiptDetail>
      * @param inbReceiptHeader
@@ -391,7 +396,8 @@ public class PoReceiptService {
      * 修改数量
      */
     @Transactional(readOnly = false)
-    public void updateReceiptQty(InbReceiptDetail inbReceiptDetail,List<ReceiveDetail> updateReceiveDetails,ModifyLog modifyLog,List<IbdDetail> updateIbdDetailList){
+    public void updateReceiptQty(InbReceiptDetail inbReceiptDetail, List<ReceiveDetail> updateReceiveDetails,
+                                 ModifyLog modifyLog, List<IbdDetail> updateIbdDetailList, List<TaskInfo> updateTaskInfos){
         this.updateInbReceiptDetail(inbReceiptDetail);
 
         for(ReceiveDetail receiveDetail : updateReceiveDetails){
@@ -399,6 +405,9 @@ public class PoReceiptService {
         }
         for (IbdDetail ibdDetail : updateIbdDetailList){
             poOrderService.updateInbPoDetail(ibdDetail);
+        }
+        if(updateTaskInfos != null && updateTaskInfos.size() > 0){
+            baseTaskService.batchUpdate(updateTaskInfos);
         }
         modifyLogService.addModifyLog(modifyLog);
     }
