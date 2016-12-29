@@ -8,6 +8,9 @@ import java.math.BigDecimal;
 public class PackUtil {
     public static String PackUnit2Uom(BigDecimal packUit, String eachUnitName){
         if(eachUnitName.compareTo("EA") == 0){
+            if(packUit.intValue()>100){
+                return String.format("H%02d", packUit.intValue()/10);
+            }
             return String.format("H%02d", packUit.intValue());
         }else if (eachUnitName.compareTo("KG") == 0){
             return String.format("H%.4fK", packUit.floatValue());
@@ -23,7 +26,9 @@ public class PackUtil {
         if(uom.equals("EA")){
             return new BigDecimal("1");
         }
-
+        if(uom.substring(0,1).equals("S")){
+            return new BigDecimal(uom.substring(1, uom.length()-1)).multiply(BigDecimal.valueOf(10));
+        }
         if(!uom.substring(0,1).equals("H")){
             return null;
         }
