@@ -184,7 +184,7 @@ public class SupplierBackRpcService implements ISupplierBackRpcService{
         locationMap.put("itemId",itemId);
         locationMap.put("locationId",locationId);
         //获取商品该库位的库存
-        List<StockQuant> quantList = iStockQuantRpcService.getItemLocationList(locationMap);
+        List<StockQuant> quantList = iStockQuantRpcService.getBackItemLocationList(locationMap);
         if(quantList == null || quantList.size() <= 0){
             return null;
         }

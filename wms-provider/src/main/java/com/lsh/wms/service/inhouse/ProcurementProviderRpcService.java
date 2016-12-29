@@ -288,7 +288,13 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
                             plan.setPackUnit(quant.getPackUnit());
                             if(nowQuant.compareTo(maxQty)>0){
                                 plan.setSubType(2L);//不够一拖，按箱补
-                                plan.setQty(maxQty.subtract(nowQuant.subtract(qty)));
+
+                                //去除小数
+                                BigDecimal needQty =  maxQty.subtract(nowQuant.subtract(qty));
+                                BigDecimal [] needDecimals = needQty.divideAndRemainder(item.getPackUnit());
+                                needQty = needQty.subtract(needDecimals[1]);
+
+                                plan.setQty(needQty);
                             }else {
                                 plan.setSubType(1L);//整托
                                 plan.setQty(qty);
@@ -489,7 +495,12 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
                             plan.setToLocationId(itemLocation.getPickLocationid());
                             plan.setPackName(quant.getPackName());
                             if(nowQuant.compareTo(maxQty)>0){
-                                plan.setQty(maxQty.subtract(nowQuant.subtract(qty)));
+                                //去除小数
+                                BigDecimal needQty =  maxQty.subtract(nowQuant.subtract(qty));
+                                BigDecimal [] needDecimals = needQty.divideAndRemainder(item.getPackUnit());
+                                needQty = needQty.subtract(needDecimals[1]);
+
+                                plan.setQty(needQty);
                             }else {
                                 plan.setQty(qty);
                             }
