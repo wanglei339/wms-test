@@ -293,7 +293,7 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
         BaseinfoLocation location = locationService.getLocation(detail.getAllocLocationId());
         BaseinfoItem item = itemService.getItem(info.getItemId());
         Map<String, Object> map = new HashMap<String, Object>();
-        map.put("taskId", taskId);
+        map.put("taskId", taskId.toString());
         map.put("locationId", location.getLocationId());
         map.put("locationCode", location.getLocationCode());
         map.put("qty", detail.getQty());
@@ -429,6 +429,7 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
         move.setFromLocationId(quant.getLocationId());
         move.setToLocationId(realLocationId);
         move.setTaskId(taskId);
+        move.setOperator(info.getOperator());
         move.setQty(realQty.multiply(info.getPackUnit()));
         move.setFromContainerId(quant.getContainerId());
         move.setToContainerId(containerId);

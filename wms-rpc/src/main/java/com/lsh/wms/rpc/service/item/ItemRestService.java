@@ -136,7 +136,7 @@ public class ItemRestService implements IItemRestService {
             if (items!=null && items.size() > 0) {
                 BaseinfoItem baseinfoItem = items.get(0);
                 if(!baseinfoItem.getCode().equals(request.getCode()) || baseinfoItem.getPackUnit().compareTo(request.getPackUnit())!=0){
-                    return JsonUtils.TOKEN_ERROR("箱规或国条不一致，不允许修改");
+                    return JsonUtils.TOKEN_ERROR("箱规或国条不一致，不允许修改,仓库箱规为:"+baseinfoItem.getPackUnit()+",国条为:"+baseinfoItem.getCode());
                 }
                 //itemService.updateBarcode(items.get(0).getItemId(),item.getCode());
                 ObjUtils.bean2bean(request, baseinfoItem);
