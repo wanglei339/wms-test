@@ -4,6 +4,7 @@ import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.datareport.ISkuMapRestService;
+import com.lsh.wms.core.constant.CsiConstan;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import org.slf4j.Logger;
@@ -34,9 +35,18 @@ public class SkuMapRestService implements ISkuMapRestService{
     @Path("addmap")
     @GET
     public String addMap() {
-        List<String> skuCodes = itemService.getSkuCodeList();
+        List<String> skuCodes = itemService.getSkuCodeList(CsiConstan.OWNER_WUMART);
 
         skuMapRpcService.insertSkuMap(skuCodes);
         return JsonUtils.SUCCESS();
     }
+
+    @Path("addErpMap")
+    @GET
+    public String addErpMap() {
+        List<String> skuCodes = itemService.getSkuCodeList(CsiConstan.OWNER_LSH);
+        skuMapRpcService.insertSkuMapFromErp(skuCodes);
+        return JsonUtils.SUCCESS();
+    }
+
 }

@@ -4,6 +4,7 @@ import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.fastjson.JSON;
 import com.lsh.base.common.utils.DateUtils;
+import com.lsh.wms.api.service.back.IDataBackService;
 import com.lsh.wms.api.service.datareport.ISkuMapRpcService;
 import com.lsh.wms.api.service.wumart.IWuMartSap;
 import com.lsh.wms.core.constant.CsiConstan;
@@ -28,6 +29,9 @@ public class SkuMapRpcService implements ISkuMapRpcService{
     private IWuMartSap wuMartSap;
     @Autowired
     private SkuMapService skuMapService;
+
+    @Reference
+    private IDataBackService dataBackService;
 
     public void insertSkuMap(List<String> skuCodes) {
 
@@ -56,4 +60,31 @@ public class SkuMapRpcService implements ISkuMapRpcService{
         skuMapService.batchModifySkuMap(addSkuMapList,updateSkuMapList);
 
     }
+
+    public void insertSkuMapFromErp(List<String> skuCodes) {
+
+        List<SkuMap> skuMaps = dataBackService.skuMapFromErp(skuCodes);
+        List<SkuMap> addSkuMapList = new ArrayList<SkuMap>();
+        List<SkuMap> updateSkuMapList = new ArrayList<SkuMap>();
+        if (skuMaps != null && skuMaps.size() > 0) {
+            for(SkuMap skuMap : skuMaps){
+                SkuMap oldSkuMap = skuMapService.getSkuMapBySkuCodeAndOwner(skuMap.getSkuCode(), CsiConstan.OWNER_LSH);
+                if(oldSkuMap == null){
+                    skuMap.setUpdatedAt(DateUtils.getCurrentSeconds());
+                    skuMap.setCreatedAt(DateUtils.getCurrentSeconds());
+                    addSkuMapList.add(skuMap);
+                }else{
+                    oldSkuMap.setMovingAveragePrice(skuMap.getMovingAveragePrice());
+                    oldSkuMap.setUpdatedAt(DateUtils.getCurrentSeconds());
+                    updateSkuMapList.add(oldSkuMap);
+                }
+            }
+            logger.info("~~~~~addSkuMapList :" + JSON.toJSONString(addSkuMapList));
+            logger.info("~~~~~updateSkuMapList : " + JSON.toJSONString(updateSkuMapList));
+
+            skuMapService.batchModifySkuMap(addSkuMapList,updateSkuMapList);
+        }
+    }
+
+
 }

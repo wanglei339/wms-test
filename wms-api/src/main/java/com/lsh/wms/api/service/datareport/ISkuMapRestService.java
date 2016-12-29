@@ -5,4 +5,6 @@ package com.lsh.wms.api.service.datareport;
  */
 public interface ISkuMapRestService {
     String addMap();
+
+    String addErpMap();
 }

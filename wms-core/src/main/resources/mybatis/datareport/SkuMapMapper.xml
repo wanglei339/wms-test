@@ -22,7 +22,7 @@
 
 	<insert id="batchInsert" parameterType="java.util.List">
 		insert into sku_map (
-		sku_code,moving_average_price,source_system,created_at,updated_at,#{ownerId}
+		sku_code,moving_average_price,source_system,created_at,updated_at,owner_id
 		) values
 		<foreach collection="list" item="item" index="index" separator=",">
 		(#{item.skuCode},#{item.movingAveragePrice},#{item.sourceSystem},#{item.createdAt},#{item.updatedAt},#{item.ownerId})

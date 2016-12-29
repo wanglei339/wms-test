@@ -3,6 +3,7 @@ package com.lsh.wms.integration.service.back;
 
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.lsh.base.common.config.PropertyUtils;
 import com.lsh.base.common.exception.BusinessException;
@@ -14,11 +15,10 @@ import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.api.model.po.IbdBackRequest;
 import com.lsh.wms.api.model.po.IbdItem;
-import com.lsh.wms.api.model.wumart.CreateIbdDetail;
-import com.lsh.wms.api.model.wumart.CreateIbdHeader;
-import com.lsh.wms.api.model.wumart.CreateObdDetail;
-import com.lsh.wms.api.model.wumart.CreateObdHeader;
+import com.lsh.wms.api.model.po.ReceiptItem;
+import com.lsh.wms.api.model.wumart.*;
 import com.lsh.wms.api.service.back.IDataBackService;
+import com.lsh.wms.core.constant.CsiConstan;
 import com.lsh.wms.core.constant.IntegrationConstan;
 import com.lsh.wms.core.constant.RedisKeyConstant;
 import com.lsh.wms.core.constant.SysLogConstant;
@@ -30,6 +30,8 @@ import com.lsh.wms.core.service.taking.StockTakingService;
 import com.lsh.wms.integration.model.OrderResponse;
 import com.lsh.wms.integration.service.common.utils.HttpUtil;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
+import com.lsh.wms.model.datareport.SkuMap;
+import com.lsh.wms.model.so.ObdDetail;
 import com.lsh.wms.model.stock.OverLossReport;
 import com.lsh.wms.model.system.SysLog;
 import com.lsh.wms.model.system.SysMsg;
@@ -37,8 +39,10 @@ import org.apache.xmlrpc.client.XmlRpcClient;
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.math.BigDecimal;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -46,7 +50,7 @@ import java.util.*;
 /**
  * Created by lixin-mac on 16/9/6.
  */
-@Service(protocol = "dubbo",async=true)
+@Service(protocol = "dubbo")
 public class DataBackService implements IDataBackService {
     private static Logger logger = LoggerFactory.getLogger(DataBackService.class);
 
@@ -371,6 +375,70 @@ public class DataBackService implements IDataBackService {
         return false;
     }
 
+    public List<SkuMap> skuMapFromErp(List<String> skuCodes) {
+        List<SkuMap> skuMaps = new ArrayList<SkuMap>();
+        try {
+            final XmlRpcClient models = new XmlRpcClient() {{
+                setConfig(new XmlRpcClientConfigImpl() {{
+                    setServerURL(new URL(String.format("%s/xmlrpc/2/object", PropertyUtils.getString("odoo_url"))));
+                }});
+            }};
+            Map<String,List<Object>> map = new HashMap<String, List<Object>>();
+            List<Object> list = new ArrayList<Object>();
+            list.add("default_code");
+            list.add("standard_price");//未税
+            list.add("tax_standard_price_in");//含税
+            map.put("fields",list);
+            List<Object> arr = new ArrayList<Object>();
+            arr.add("default_code");
+            arr.add("in");
+            arr.add(skuCodes);
+
+            logger.info("参数 : skucodes :" + arr + " map :" + map);
+
+            final Object ret1  = models.execute("execute_kw", Arrays.asList(
+                    PropertyUtils.getString("odoo_db"), Integer.valueOf(PropertyUtils.getString("odoo_uid")), PropertyUtils.getString("odoo_password"),
+                    "product.product", "search_read",
+                    Arrays.asList(Arrays.asList(arr)),map
+            ));
+
+//            List<ErpSkuMap> receiptItemList = JSON.parseArray((String)ret1, ErpSkuMap.class);
+//            System.out.println(JSON.toJSONString(receiptItemList));
+
+            String jsonStr = JSON.toJSONString(ret1);
+
+            JSONArray jsonArray = JSONObject.parseArray(jsonStr);
+
+
+            for(int i = 0; i< jsonArray.size();i++){
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                Long id = jsonObject.getLong("id");
+                BigDecimal taxPrice = jsonObject.getBigDecimal("tax_standard_price_in");
+                BigDecimal standardPrice = jsonObject.getBigDecimal("standard_price");
+                String skuCode = jsonObject.getString("default_code");
+                SkuMap skuMap = new SkuMap();
+                skuMap.setMovingAveragePrice(standardPrice);
+                skuMap.setSkuCode(skuCode);
+                skuMap.setOwnerId(CsiConstan.OWNER_LSH);
+                skuMap.setSourceSystem(2);
+                skuMaps.add(skuMap);
+            }
+
+
+            List<Object> list1 = new ArrayList<Object>();
+            ObjUtils.bean2bean(ret1,list1);
+            System.out.println(JSON.toJSONString(list1));
+
+            System.out.println("ret1 :" + JSON.toJSONString(ret1));
+
+        }catch (Exception e){
+            e.getMessage();
+            return new ArrayList<SkuMap>();
+        }
+
+        return skuMaps;
+    }
+
 
     private String getToken(String url){
         String jsonStr = HttpUtil.doPostToken(url);
@@ -390,10 +458,20 @@ public class DataBackService implements IDataBackService {
     }
 
     public static void main(String[] args) {
-        Date date = new Date();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        String s = sdf.format(date);
-        System.out.println(s);
+        List<SkuMap> list = new ArrayList<SkuMap>();
+        SkuMap skuMap1 = new SkuMap();
+        skuMap1.setOwnerId(2l);
+        skuMap1.setSkuCode("1111111");
+        skuMap1.setMovingAveragePrice(BigDecimal.ONE);
+        SkuMap skuMap2 = new SkuMap();
+        skuMap2.setOwnerId(2l);
+        skuMap2.setSkuCode("1111111");
+        skuMap2.setMovingAveragePrice(BigDecimal.ONE);
+        list.add(skuMap1);
+        list.add(skuMap2);
+        System.out.println(JSON.toJSONString(list));
+
+
     }
 
 }

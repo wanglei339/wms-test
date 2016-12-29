@@ -7,4 +7,6 @@ import java.util.List;
  */
 public interface ISkuMapRpcService {
     void insertSkuMap(List<String> skuCode);
+
+    void insertSkuMapFromErp(List<String> skuCodes);
 }

@@ -29,6 +29,6 @@ public class CsiConstan {
      */
     public static final Long OWNER_WUMART = 1L;
 
-    public static final Long OWNER_LSH = 1L;
+    public static final Long OWNER_LSH = 2L;
 
 }
