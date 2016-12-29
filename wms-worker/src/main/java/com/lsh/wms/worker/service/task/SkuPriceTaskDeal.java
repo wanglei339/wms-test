@@ -3,6 +3,7 @@ package com.lsh.wms.worker.service.task;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.lsh.base.common.utils.StrUtils;
 import com.lsh.wms.api.service.datareport.ISkuMapRpcService;
+import com.lsh.wms.core.constant.CsiConstan;
 import com.lsh.wms.core.service.item.ItemService;
 import com.taobao.pamirs.schedule.IScheduleTaskDealSingle;
 import com.taobao.pamirs.schedule.TaskItemDefine;
@@ -31,7 +32,7 @@ public class SkuPriceTaskDeal implements IScheduleTaskDealSingle<String> {
     public boolean execute(String s, String ownSign) throws Exception {
         try {
             logger.info("in execute:" + s);
-            List<String> skuCodes  = itemService.getSkuCodeList();
+            List<String> skuCodes  = itemService.getSkuCodeList(CsiConstan.OWNER_WUMART);
             skuMapRpcService.insertSkuMap(skuCodes);
             //iTransportService.dealOne(sysLogId);
         }catch (Exception e){
