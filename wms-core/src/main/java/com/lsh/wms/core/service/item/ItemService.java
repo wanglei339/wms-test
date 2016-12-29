@@ -285,9 +285,9 @@ public class ItemService {
     /**
      * 查找货主为物美的所有商品 返回商品编码集合
      */
-    public List<String> getSkuCodeList(){
+    public List<String> getSkuCodeList(Long ownerId){
         Map<String,Object> map = new HashMap<String, Object>();
-        map.put("ownerId", 1);
+        map.put("ownerId", ownerId);
         List<BaseinfoItem> itemList = itemDao.getBaseinfoItemList(map);
         List<String> skuCodes = new ArrayList<String>();
         for (BaseinfoItem item : itemList) {
