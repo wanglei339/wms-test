@@ -14,6 +14,7 @@ import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.transfer.StockTransferPlan;
+import com.lsh.wms.service.sync.AsyncEventService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -134,7 +135,8 @@ public class ProcurementProviderRestService implements IProcurementProviderRestS
     @Path("autoCreate")
     public String createProcurement()  throws BizCheckedException {
         try{
-            rpcService.createProcurement(true);
+//            rpcService.createProcurement(true);
+            AsyncEventService.post(true);
         } catch (BizCheckedException e) {
             throw e;
         } catch (Exception e) {
