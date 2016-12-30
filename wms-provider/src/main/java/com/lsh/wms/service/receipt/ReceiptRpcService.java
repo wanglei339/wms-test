@@ -1494,12 +1494,17 @@ public class ReceiptRpcService implements IReceiptRpcService {
         if(taskInfos == null || taskInfos.size() <= 0 ){
             throw new BizCheckedException("2028890");
         }
+
         for(TaskInfo taskInfo : taskInfos){
-            taskInfo.setTaskEaQty(qty);
-            taskInfo.setTaskPackQty(PackUtil.EAQty2UomQty(qty,inbReceiptDetail.getPackUnit()));
-            taskInfo.setQty(qty);
-            taskInfo.setQtyDone(taskInfo.getQtyDone().compareTo(BigDecimal.ZERO) == 0?taskInfo.getQtyDone():qty);
-            updateTaskInfos.add(taskInfo);
+
+            if(taskInfo.getType() == TaskConstant.TYPE_PO || taskInfo.getType() == TaskConstant.TYPE_SHELVE ||
+                    taskInfo.getType() == TaskConstant.TYPE_ATTIC_SHELVE || taskInfo.getType() == TaskConstant.TYPE_PICK_UP_SHELVE){
+                taskInfo.setTaskEaQty(qty);
+                taskInfo.setTaskPackQty(PackUtil.EAQty2UomQty(qty,inbReceiptDetail.getPackUnit()));
+                taskInfo.setQty(qty);
+                taskInfo.setQtyDone(taskInfo.getQtyDone().compareTo(BigDecimal.ZERO) == 0?taskInfo.getQtyDone():qty);
+                updateTaskInfos.add(taskInfo);
+            }
         }
 
         BigDecimal subQty = inboundQty.subtract(qty);
