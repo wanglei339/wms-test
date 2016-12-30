@@ -72,11 +72,12 @@ public class ObdOfcTransporter implements ITransporter{
         request.setWarehouseCode(warehouseCode);
         List<ObdOfcItem> items = new ArrayList<ObdOfcItem>();
         for (OutbDeliveryDetail detail : details) {
+            BaseinfoItem baseinfoItem = itemService.getItem(detail.getItemId());
             ObdOfcItem item = new ObdOfcItem();
-            item.setPackNum(detail.getPackUnit());
+            //取基础数据中的箱规
+            item.setPackNum(baseinfoItem.getPackUnit());
             BigDecimal outQty = detail.getDeliveryNum();
             item.setSkuQty(outQty);
-            BaseinfoItem baseinfoItem = itemService.getItem(detail.getItemId());
             item.setSupplySkuCode(SkuUtil.getSkuCode(baseinfoItem.getSkuCode()));
             items.add(item);
         }

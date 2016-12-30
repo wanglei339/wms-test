@@ -34,6 +34,7 @@ import com.lsh.wms.core.service.so.SoDeliveryService;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.stock.StockLotService;
 import com.lsh.wms.core.service.system.SysUserService;
+import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.core.service.utils.IdGenerator;
 import com.lsh.wms.core.service.utils.PackUtil;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
@@ -142,6 +143,8 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
     @Autowired
     private SoOrderService soOrderService;
+    @Autowired
+    private BaseTaskService baseTaskService;
 
     public Boolean throwOrder(String orderOtherId) throws BizCheckedException {
         IbdHeader ibdHeader = new IbdHeader();
@@ -1473,6 +1476,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
     public void modifyQty(Long receiptId, BigDecimal qty, Long uid) throws BizCheckedException {
         SysUser user = sysUserService.getSysUserByUid(uid.toString());
+        InbReceiptHeader header = poReceiptService.getInbReceiptHeaderByReceiptId(receiptId);
         List<InbReceiptDetail> details = poReceiptService.getInbReceiptDetailListByReceiptId(receiptId);
         InbReceiptDetail inbReceiptDetail = details.get(0);
 
@@ -1481,6 +1485,27 @@ public class ReceiptRpcService implements IReceiptRpcService {
         //先修改收货详情数量
         BigDecimal inboundQty = inbReceiptDetail.getInboundQty();
         inbReceiptDetail.setInboundQty(qty);
+        //修改收货任务 上架任务的数量
+        Map<String,Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("containerId",header.getContainerId());
+
+        List<TaskInfo> taskInfos = baseTaskService.getTaskInfoList(mapQuery);
+        List<TaskInfo> updateTaskInfos = new ArrayList<TaskInfo>();
+        if(taskInfos == null || taskInfos.size() <= 0 ){
+            throw new BizCheckedException("2028890");
+        }
+
+        for(TaskInfo taskInfo : taskInfos){
+
+            if(taskInfo.getType() == TaskConstant.TYPE_PO || taskInfo.getType() == TaskConstant.TYPE_SHELVE ||
+                    taskInfo.getType() == TaskConstant.TYPE_ATTIC_SHELVE || taskInfo.getType() == TaskConstant.TYPE_PICK_UP_SHELVE){
+                taskInfo.setTaskEaQty(qty);
+                taskInfo.setTaskPackQty(PackUtil.EAQty2UomQty(qty,inbReceiptDetail.getPackUnit()));
+                taskInfo.setQty(qty);
+                taskInfo.setQtyDone(taskInfo.getQtyDone().compareTo(BigDecimal.ZERO) == 0?taskInfo.getQtyDone():qty);
+                updateTaskInfos.add(taskInfo);
+            }
+        }
 
         BigDecimal subQty = inboundQty.subtract(qty);
 
@@ -1540,7 +1565,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
         String remark = StrUtils.formatString("用户{0}将数量由{1}改为{2},修改时间为:{3}",user.getUsername(),inboundQty,qty,date);
         modifyLog.setModifyMessage(remark);
 
-        poReceiptService.updateReceiptQty(inbReceiptDetail,updateReceiveDetails,modifyLog,updateIbdDetailList);
+        poReceiptService.updateReceiptQty(inbReceiptDetail,updateReceiveDetails,modifyLog,updateIbdDetailList,updateTaskInfos);
 
 
     }
