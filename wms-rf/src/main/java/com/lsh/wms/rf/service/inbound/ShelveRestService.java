@@ -20,6 +20,7 @@ import com.lsh.wms.core.service.shelve.ShelveTaskService;
 import com.lsh.wms.core.service.stock.StockLotService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.task.BaseTaskService;
+import com.lsh.wms.core.service.utils.PackUtil;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
@@ -146,12 +147,20 @@ public class ShelveRestService implements IShelveRestService {
                 BaseinfoLocation allocLocation = locationService.getLocation(taskHead.getAllocLocationId());
                 StockLot stockLot = stockLotService.getStockLotByLotId(taskHead.getLotId());
                 BaseinfoItem item = itemService.getItem(stockLot.getItemId());
+                // 获取quant
+                List<StockQuant> quants = stockQuantService.getQuantsByContainerId(containerId);
+                if (quants.size() < 1) {
+                    throw new BizCheckedException("2030001");
+                }
+                StockQuant quant = quants.get(0);
                 Map<String, Object> result = BeanMapTransUtils.Bean2map(taskHead);
                 result.put("allocLocationCode", allocLocation.getLocationCode());
                 result.put("itemId", item.getItemId());
                 result.put("skuName", item.getSkuName());
                 result.put("skuCode", item.getSkuCode());
                 result.put("barcode", item.getCode());
+                result.put("qty", PackUtil.EAQty2UomQty(quant.getQty(), quant.getPackName()));
+                result.put("packName", quant.getPackName());
                 result.put("pickLocationIdList", itemLocationService.getPickLocationsByItemId(item.getItemId()));
                 return JsonUtils.SUCCESS(result);
             } else {
@@ -173,12 +182,20 @@ public class ShelveRestService implements IShelveRestService {
         BaseinfoLocation allocLocation = locationService.getLocation(taskHead.getAllocLocationId());
         StockLot stockLot = stockLotService.getStockLotByLotId(taskHead.getLotId());
         BaseinfoItem item = itemService.getItem(stockLot.getItemId());
+        // 获取quant
+        List<StockQuant> quants = stockQuantService.getQuantsByContainerId(containerId);
+        if (quants.size() < 1) {
+            throw new BizCheckedException("2030001");
+        }
+        StockQuant quant = quants.get(0);
         Map<String, Object> result = BeanMapTransUtils.Bean2map(taskHead);
         result.put("allocLocationCode", allocLocation.getLocationCode());
         result.put("itemId", item.getItemId());
         result.put("skuName", item.getSkuName());
         result.put("skuCode", item.getSkuCode());
         result.put("barcode", item.getCode());
+        result.put("qty", PackUtil.EAQty2UomQty(quant.getQty(), quant.getPackName()));
+        result.put("packName", quant.getPackName());
         result.put("pickLocationIdList", itemLocationService.getPickLocationsByItemId(item.getItemId()));
         return JsonUtils.SUCCESS(result);
     }
@@ -233,12 +250,20 @@ public class ShelveRestService implements IShelveRestService {
         BaseinfoLocation allocLocation = locationService.getLocation(taskHead.getAllocLocationId());
         StockLot stockLot = stockLotService.getStockLotByLotId(taskHead.getLotId());
         BaseinfoItem item = itemService.getItem(stockLot.getItemId());
+        // 获取quant
+        List<StockQuant> quants = stockQuantService.getQuantsByContainerId(taskHead.getContainerId());
+        if (quants.size() < 1) {
+            throw new BizCheckedException("2030001");
+        }
+        StockQuant quant = quants.get(0);
         Map<String, Object> result = BeanMapTransUtils.Bean2map(taskHead);
         result.put("allocLocationCode", allocLocation.getLocationCode());
         result.put("itemId", item.getItemId());
         result.put("skuName", item.getSkuName());
         result.put("skuCode", item.getSkuCode());
         result.put("barcode", item.getCode());
+        result.put("qty", PackUtil.EAQty2UomQty(quant.getQty(), quant.getPackName()));
+        result.put("packName", quant.getPackName());
         result.put("pickLocationIdList", itemLocationService.getPickLocationsByItemId(item.getItemId()));
         return JsonUtils.SUCCESS(result);
     }
