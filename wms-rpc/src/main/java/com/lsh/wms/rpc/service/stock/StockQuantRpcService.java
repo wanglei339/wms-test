@@ -175,17 +175,21 @@ public class StockQuantRpcService implements IStockQuantRpcService {
         StockMove move = new StockMove();
         StockLot lot = lotService.getStockLotByLotId(quant.getLotId());
         BigDecimal qty = quantService.getQuantQtyByContainerId(quant.getContainerId());
-        if(qty.add(realQty).compareTo(BigDecimal.ZERO)<0){
-            throw new BizCheckedException("2550001");
+        if(realQty.compareTo(BigDecimal.ZERO)<0){
+            throw new BizCheckedException("2550085");
         }
-        if(realQty.compareTo(BigDecimal.ZERO) < 0) {
+        BigDecimal differenceQty= realQty.subtract(qty);
+        if(differenceQty.compareTo(realQty)==0){
+            return;
+        }
+        if(differenceQty.compareTo(BigDecimal.ZERO) < 0) {
             move.setTaskId(WriteOffConstant.WRITE_OFF_TASK_ID);
             move.setSkuId(quant.getSkuId());
             move.setItemId(quant.getItemId());
             move.setOwnerId(quant.getOwnerId());
             move.setStatus(TaskConstant.Done);
 
-            move.setQty(realQty.abs());
+            move.setQty(differenceQty.abs());
             move.setFromLocationId(quant.getLocationId());
             move.setFromContainerId(quant.getContainerId());
             move.setToLocationId(locationService.getNullArea().getLocationId());
@@ -196,7 +200,7 @@ public class StockQuantRpcService implements IStockQuantRpcService {
             move.setItemId(quant.getItemId());
             move.setOwnerId(quant.getOwnerId());
             move.setStatus(TaskConstant.Done);
-            move.setQty(realQty);
+            move.setQty(differenceQty);
             move.setFromLocationId(locationService.getNullArea().getLocationId());
             move.setToLocationId(quant.getLocationId());
             move.setToContainerId(quant.getContainerId());
