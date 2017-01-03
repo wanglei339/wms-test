@@ -41,6 +41,7 @@
 		<result property="pileX" column="pile_x"/>
 		<result property="pileY" column="pile_y"/>
 		<result property="pileZ" column="pile_z"/>
+		<result property="pileNumber" column="pile_number"/>
 		<result property="itemId" column="item_id"/>
 		<result property="unitName" column="unit_name"/>
 		<result property="l2Name" column="l2_name"/>
@@ -61,7 +62,7 @@
 		height,weight,l2_length,l2_width,l2_height,l2_weight,
 		l2_unit,pack_length,pack_width,pack_height,pack_weight,pack_unit,
 		sale_unit,item_level,created_at,updated_at,produce_place,batch_needed,
-		floor_available,storage_temperature,safety_qty,pile_x,pile_y,pile_z,
+		floor_available,storage_temperature,safety_qty,pile_x,pile_y,pile_z,pile_number,
 		item_id,status,unit_name,l2_name,pack_name,item_type,is_valuable,is_info_intact,is_shelfLife_valid,is_valid,pack_code
 		) values (
 		#{skuId},#{ownerId},#{skuCode},#{skuName},#{codeType},#{code},
@@ -69,7 +70,7 @@
 		#{height},#{weight},#{l2Length},#{l2Width},#{l2Height},#{l2Weight},
 		#{l2Unit},#{packLength},#{packWidth},#{packHeight},#{packWeight},#{packUnit},
 		#{saleUnit},#{itemLevel},#{createdAt},#{updatedAt},#{producePlace},#{batchNeeded},
-		#{floorAvailable},#{storageTemperature},#{safetyQty},#{pileX},#{pileY},#{pileZ},
+		#{floorAvailable},#{storageTemperature},#{safetyQty},#{pileX},#{pileY},#{pileZ},#{pileNumber},
 		#{itemId},#{status},#{unitName},#{l2Name},#{packName},#{itemType},#{isValuable},#{isInfoIntact},
 		#{isShelfLifeValid},#{isValid},#{packCode}
 		)
@@ -114,6 +115,7 @@
 			<if test="pileX != null">pile_x=#{pileX},</if>
 			<if test="pileY != null">pile_y=#{pileY},</if>
 			<if test="pileZ != null">pile_z=#{pileZ},</if>
+			<if test="pileNumber != null">pile_number=#{pileNumber},</if>
 			<if test="status != null">status=#{status},</if>
 			<if test="unitName != null">unit_name=#{unitName},</if>
 			<if test="l2Name != null">l2_name=#{l2Name},</if>
@@ -185,6 +187,7 @@
 			<if test="pileX != null">and pile_x=#{pileX}</if>
 			<if test="pileY != null">and pile_y=#{pileY}</if>
 			<if test="pileZ != null">and pile_z=#{pileZ}</if>
+			<if test="pileNumber != null">and pile_number=#{pileNumber}</if>
 			<if test="itemId != null">and item_id=#{itemId}</if>
 			<if test="status != null">and status=#{status}</if>
 			<if test="unitName != null">and unit_name=#{unitName}</if>
