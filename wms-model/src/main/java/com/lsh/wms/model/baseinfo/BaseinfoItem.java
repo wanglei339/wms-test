@@ -87,6 +87,8 @@ public class BaseinfoItem implements Serializable {
 	private Long pileY =1l;
 	/** 码盘规则 */
 	private Long pileZ =1l;
+	/** 码盘数量 */
+	private Long pileNumber;
 	/** 基本单位名称 */
 	private String unitName = "";
 	/** 二级单位名称 */
@@ -525,7 +527,13 @@ public class BaseinfoItem implements Serializable {
 	public void setWmThirdCat(String wmThirdCat) {
 		this.wmThirdCat = wmThirdCat;
 	}
+	public Long getPileNumber() {
+		return pileNumber;
+	}
 
+	public void setPileNumber(Long pileNumber) {
+		this.pileNumber = pileNumber;
+	}
 	@Override
 	public String toString() {
 		return "BaseinfoItem{" +
@@ -568,6 +576,7 @@ public class BaseinfoItem implements Serializable {
 				", pileX=" + pileX +
 				", pileY=" + pileY +
 				", pileZ=" + pileZ +
+				", pileNumber=" + pileNumber +
 				", unitName='" + unitName + '\'' +
 				", l2Name='" + l2Name + '\'' +
 				", packName='" + packName + '\'' +
@@ -582,4 +591,6 @@ public class BaseinfoItem implements Serializable {
 				", wmThirdCat='" + wmThirdCat + '\'' +
 				'}';
 	}
+
+
 }
