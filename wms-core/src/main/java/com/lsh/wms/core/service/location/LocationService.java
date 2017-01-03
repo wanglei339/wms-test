@@ -1240,10 +1240,10 @@ public class LocationService {
     @Transactional(readOnly = false)
     public BaseinfoLocation refreshContainerVol(Long locationId, Long containerVol) {
         BaseinfoLocation location = this.getLocation(locationId);
-        locationDao.lock(location.getId());
         if (location == null) {
             throw new BizCheckedException("2180001");
         }
+        locationDao.lock(location.getId());
         location.setCurContainerVol(containerVol);    //被占用
         //设置状态
         if (this.isOnThreshold(location, containerVol)) {
