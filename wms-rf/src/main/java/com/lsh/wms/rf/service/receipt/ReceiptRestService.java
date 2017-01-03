@@ -470,7 +470,7 @@ public class ReceiptRestService implements IReceiptRfService {
         orderInfoMap.put("batchNeeded", baseinfoItem.getBatchNeeded());
         //码盘规则
         //orderInfoMap.put("pile",baseinfoItem.getPileX()+ "*" + baseinfoItem.getPileY() + "*" + baseinfoItem.getPileZ());
-        orderInfoMap.put("pile",baseinfoItem.getPileX());
+        orderInfoMap.put("pile",baseinfoItem.getPileX()+ "*" + baseinfoItem.getPileZ()+"("+baseinfoItem.getPileNumber()+")");//// TODO: 17/1/3 需求变更
         Integer orderType = ibdHeader.getOrderType();
         if(orderType == PoConstant.ORDER_TYPE_CPO){
             //直流,根据商品类型判断是否需要输入
@@ -880,7 +880,7 @@ public class ReceiptRestService implements IReceiptRfService {
         map2.put("skuCode",Long.parseLong(baseinfoItem.getSkuCode()));
         map2.put("skuName",baseinfoItem.getSkuName());
         map2.put("isNeedProTime",isNeedProTime);
-        map2.put("pile",baseinfoItem.getPileX());
+        map2.put("pile",baseinfoItem.getPileX() + "*" + baseinfoItem.getPileZ()+"("+baseinfoItem.getPileNumber()+")");//// TODO: 17/1/3 需求变更修改
         map2.put("orderQty",obdDetailInfo.get("remainUomQtyTotal"));
         map2.put("packName",obdDetailInfo.get("packName"));
         map2.put("packUnit",obdDetailInfo.get("packUnit"));
