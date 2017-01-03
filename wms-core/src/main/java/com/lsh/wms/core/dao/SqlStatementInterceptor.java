@@ -141,8 +141,8 @@ public class SqlStatementInterceptor implements Interceptor {
                 }
             }
             builder.append(SEPARATOR).append("时间：").append(DATE_FORMAT.format(new Date(this.startTime)));
-            builder.append(SEPARATOR).append(" sql执行时间：").append(this.costTime);
-            builder.append(SEPARATOR).append(" 耗时：").append(this.endTime - this.startTime).append("ms");
+            builder.append(SEPARATOR).append(" sql执行时间： ").append(this.costTime).append(" ms");
+            builder.append(SEPARATOR).append(" 耗时：").append(this.endTime - this.startTime).append(" ms");
             if (this.throwable == null) {
                 SqlStatementInterceptor.logger.info(builder.toString());
             } else {
