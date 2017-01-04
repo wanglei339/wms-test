@@ -50,7 +50,7 @@ public class RolePermissionRestService implements IRolePermissionRestService {
             rolePermissionRpcService.insert(rolePermission);
         }catch (Exception e){
             logger.error(e.getCause()!=null ? e.getCause().getMessage():e.getMessage());
-            JsonUtils.EXCEPTION_ERROR("insert failed");
+            JsonUtils.TOKEN_ERROR("insert failed");
         }
 
         return JsonUtils.SUCCESS();
@@ -63,7 +63,7 @@ public class RolePermissionRestService implements IRolePermissionRestService {
             rolePermissionRpcService.update(rolePermission);
         }catch (Exception e){
             logger.error(e.getCause()!=null ? e.getCause().getMessage():e.getMessage());
-            JsonUtils.EXCEPTION_ERROR("update failed");
+            JsonUtils.TOKEN_ERROR("update failed");
         }
 
         return JsonUtils.SUCCESS();

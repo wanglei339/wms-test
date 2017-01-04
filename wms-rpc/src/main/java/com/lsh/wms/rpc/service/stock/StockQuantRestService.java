@@ -88,7 +88,7 @@ public class StockQuantRestService implements IStockQuantRestService {
             stockQuantService.create(quant);
         } catch (Exception ex) {
             logger.error(ex.getCause()!=null ? ex.getCause().getMessage():ex.getMessage());
-            return JsonUtils.EXCEPTION_ERROR("create failed");
+            return JsonUtils.TOKEN_ERROR("create failed");
         }
         return JsonUtils.SUCCESS();
     }

@@ -62,6 +62,8 @@ public class StockTakingDetail implements Serializable {
 	private Long status = 1L;
 	/** 分区id*/
 	private Long zoneId = 0L;
+	/** 第一次盘点任务的任务类型*/
+	private Long refTaskType = 0L;
 	/**  */
     private Long createdAt = DateUtils.getCurrentSeconds();
 	/**  */
@@ -305,6 +307,15 @@ public class StockTakingDetail implements Serializable {
 
 	public void setLocationCode(String locationCode) {
 		this.locationCode = locationCode;
+	}
+
+
+	public Long getRefTaskType() {
+		return refTaskType;
+	}
+
+	public void setRefTaskType(Long refTaskType) {
+		this.refTaskType = refTaskType;
 	}
 
 	@Override

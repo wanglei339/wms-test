@@ -37,6 +37,7 @@ import com.lsh.wms.model.taking.StockTakingRequest;
 import com.lsh.wms.model.task.StockTakingTask;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
+import com.lsh.wms.service.sync.AsyncEventService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -225,6 +226,14 @@ public class StockTakingRestService implements IStockTakingRestService {
         iStockTakingProviderRpcService.createPlanWarehouse(zoneIds, planner);
         return JsonUtils.SUCCESS();
     }
+    @POST
+    @Path("doneDetails")
+    public String doneDetails() throws BizCheckedException {
+        Map<String,Object> mapQuery = RequestUtils.getRequest();
+        List detailList = (List)(mapQuery.get("detailList"));
+        iStockTakingProviderRpcService.doneTaskDetail(detailList);
+        return JsonUtils.SUCCESS();
+    }
 
     @POST
     @Path("createPlanSales")
@@ -358,7 +367,7 @@ public class StockTakingRestService implements IStockTakingRestService {
         tmp.add(1l);
         request.setLocationList(JSON.toJSONString(tmp));
         request.setPlanner(123l);
-        iStockTakingProviderRpcService.createStockTaking(tmp, 5l, StockTakingConstant.TYPE_TEMPOARY,12l);
+        iStockTakingProviderRpcService.createStockTaking(tmp, 5l, StockTakingConstant.TYPE_TEMPOARY, 12l);
 
         return JsonUtils.SUCCESS();
     }
@@ -471,6 +480,18 @@ public class StockTakingRestService implements IStockTakingRestService {
             itemSet.add(relation.getItemId());
         }
         return JsonUtils.SUCCESS(itemSet);
+    }
+    @GET
+    @Path("fillTask")
+    public String fillTask(@QueryParam("taskId") Long taskId,@QueryParam("operator") Long operator)  throws BizCheckedException {
+        try{
+            return JsonUtils.SUCCESS(iStockTakingProviderRpcService.checkFillTask(taskId, operator));
+        } catch (BizCheckedException e) {
+            throw e;
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            return JsonUtils.TOKEN_ERROR(e.getMessage());
+        }
     }
     @GET
     @Path("getSupplierList")

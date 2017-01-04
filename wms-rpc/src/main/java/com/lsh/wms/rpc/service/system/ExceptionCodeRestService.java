@@ -33,7 +33,7 @@ public class ExceptionCodeRestService implements IExceptionCodeRestService{
             exceptionCodeRpcService.insert(baseinfoExceptionCode);
         }catch (Exception e){
             logger.error(e.getMessage());
-            return JsonUtils.EXCEPTION_ERROR("insert failed");
+            return JsonUtils.TOKEN_ERROR("insert failed");
         }
 
         return JsonUtils.SUCCESS();
@@ -46,7 +46,7 @@ public class ExceptionCodeRestService implements IExceptionCodeRestService{
             exceptionCodeRpcService.update(baseinfoExceptionCode);
         }catch (Exception e){
             logger.error(e.getMessage());
-            return JsonUtils.EXCEPTION_ERROR("update failed");
+            return JsonUtils.TOKEN_ERROR("update failed");
         }
 
         return JsonUtils.SUCCESS();

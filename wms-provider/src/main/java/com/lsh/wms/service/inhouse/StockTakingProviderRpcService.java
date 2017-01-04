@@ -12,7 +12,6 @@ import com.lsh.base.common.utils.StrUtils;
 import com.lsh.wms.api.service.inhouse.IStockTakingProviderRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.*;
-import com.lsh.wms.core.dao.baseinfo.ItemSkuRelationDao;
 import com.lsh.wms.core.dao.redis.RedisStringDao;
 import com.lsh.wms.core.service.container.ContainerService;
 import com.lsh.wms.core.service.csi.CsiSkuService;
@@ -24,10 +23,9 @@ import com.lsh.wms.core.service.taking.StockTakingService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.core.service.zone.WorkZoneService;
-import com.lsh.wms.model.baseinfo.BaseinfoContainer;
+import com.lsh.wms.model.taking.FillTakingPlanParam;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
-import com.lsh.wms.model.baseinfo.ItemSkuRelation;
 import com.lsh.wms.model.csi.CsiSku;
 import com.lsh.wms.model.datareport.SkuMap;
 import com.lsh.wms.model.stock.StockLot;
@@ -39,10 +37,10 @@ import com.lsh.wms.model.task.StockTakingTask;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.zone.WorkZone;
+import com.lsh.wms.service.sync.AsyncEventService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -139,6 +137,7 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
                 newDetail.setTakingId(head.getTakingId());
                 detail.setStatus(TaskConstant.Draft);
                 newDetail.setRound(detail.getRound() + 1);
+                newDetail.setRefTaskType(detail.getRefTaskType());
                 newDetail.setDetailId(detail.getDetailId());
                 newDetail.setLocationCode(detail.getLocationCode());
                 newDetail.setLocationId(detail.getLocationId());
@@ -627,6 +626,7 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
             detail.setLocationCode(locationService.getLocation(locationId).getLocationCode());
             detail.setDetailId(RandomUtils.genId());
             detail.setTakingId(head.getTakingId());
+            detail.setRefTaskType(takingType);
             details.add(detail);
             detail.setZoneId(zoneId);
         }
@@ -681,6 +681,7 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
             for (Long locationId : locations) {
                 StockTakingDetail detail = new StockTakingDetail();
                 detail.setLocationId(locationId);
+                detail.setRefTaskType(takingType);
                 detail.setDetailId(RandomUtils.genId());
                 detail.setTakingId(head.getTakingId());
                 detail.setLocationCode(locationService.getLocation(locationId).getLocationCode());
@@ -774,6 +775,7 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
         detail.setLocationId(locationId);
         detail.setDetailId(RandomUtils.genId());
         detail.setTakingId(head.getTakingId());
+        detail.setRefTaskType(info.getSubType());
         details.add(detail);
 
         info.setStatus(TaskConstant.Done);
@@ -788,5 +790,34 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
         entry.setTaskInfo(info);
         entry.setTaskDetailList(details);
         iTaskRpcService.createTask(head, entry);
+    }
+    public List<StockTakingDetail> fillTask(FillTakingPlanParam planParam) throws BizCheckedException {
+//        TaskInfo info = baseTaskService.getTaskInfoById(planParam.getTaskId());
+//        if(info.getStatus().compareTo(1L)==0){
+//            iTaskRpcService.assign(planParam.getTaskId(),planParam.getOperator());
+//        }
+        TaskEntry entry = iTaskRpcService.getTaskEntryById(planParam.getTaskId());
+        List<StockTakingDetail>  details = (List<StockTakingDetail>) (List<?>)entry.getTaskDetailList();
+
+        stockTakingService.fillDetails(details);
+        return details;
+    }
+    public List<StockTakingDetail> checkFillTask(Long taskId,Long operator) throws BizCheckedException {
+        TaskInfo info = baseTaskService.getTaskInfoById(taskId);
+        if(info==null){
+            return null;
+        }
+        if(info.getStatus().compareTo(TaskConstant.Assigned)==0 && operator.compareTo(info.getOperator())!=0){
+            return null;
+        }
+        if(info.getStatus().compareTo(TaskConstant.Draft)!=0 && info.getStatus().compareTo(TaskConstant.Assigned)!=0){
+            return null;
+        }
+        FillTakingPlanParam planParam = new FillTakingPlanParam(taskId,operator);
+        return this.fillTask(planParam);
+        //AsyncEventService.post(planParam);
+    }
+    public void doneTaskDetail(List detailList) throws BizCheckedException {
+        stockTakingService.doneDetails(detailList);
     }
 }

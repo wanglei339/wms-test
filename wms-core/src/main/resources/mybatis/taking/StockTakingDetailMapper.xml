@@ -33,18 +33,19 @@
 		<result property="skuName" column="sku_name"/>
 		<result property="status" column="status"/>
 		<result property="isFinal" column="is_final"/>
+		<result property="refTaskType" column="ref_task_type"/>
 	</resultMap>
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="StockTakingDetail">
 		insert into stock_taking_detail (
 			taking_id,detail_id,round,real_qty,theoretical_qty,container_id,
 			lot_id,sku_id,real_sku_id,location_id,operator,created_at,updated_at,task_id,item_id,real_item_id,owner_id,is_valid,
-			pack_unit,pack_name,is_final,status,zone_id,price,difference_price,barcode,sku_code,sku_name,location_code
+			pack_unit,pack_name,is_final,status,zone_id,price,difference_price,barcode,sku_code,sku_name,location_code,ref_task_type
     	) values (
 			#{takingId},#{detailId},#{round},#{realQty},#{theoreticalQty},#{containerId},
 			#{lotId},#{skuId},#{realSkuId},#{locationId},#{operator},#{createdAt},
 			#{updatedAt},#{taskId},#{itemId},#{realItemId},#{ownerId},#{isValid},#{packUnit},#{packName},#{isFinal},#{status},#{zoneId},
-			#{price},#{differencePrice},#{barcode},#{skuCode},#{skuName},#{locationCode}
+			#{price},#{differencePrice},#{barcode},#{skuCode},#{skuName},#{locationCode},#{refTaskType}
     	)
 	</insert>
 
@@ -59,7 +60,7 @@
 			(#{item.takingId},#{item.detailId},#{item.round},#{item.realQty},#{item.theoreticalQty},#{item.containerId},
 			#{item.lotId},#{item.skuId},#{item.realSkuId},#{item.locationId},#{item.operator},#{item.createdAt},
 			#{item.updatedAt},#{item.taskId},#{item.itemId},#{item.realItemId},#{item.ownerId},#{item.isValid},#{item.packUnit},#{item.packName},#{item.isFinal},#{item.status},#{item.zoneId},
-			#{item.price},#{item.difference_price},#{item.barcode},#{item.sku_code},#{item.sku_name},#{item.location_code}
+			#{item.price},#{item.differencePrice},#{item.barcode},#{item.skuCode},#{item.skuName},#{item.locationCode},#{item.refTaskType}
 			)
 		</foreach>
 	</insert>
@@ -95,7 +96,8 @@
 			<if test="skuCode !=null">sku_code=#{skuCode},</if>
 			<if test="skuName !=null">sku_name=#{skuName},</if>
 			<if test="locationCode !=null">location_code=#{locationCode},</if>
-			<if test="isFinal !=null">is_final=#{isFinal}</if>
+			<if test="isFinal !=null">is_final=#{isFinal},</if>
+			<if test="refTaskType !=null">ref_task_type=#{refTaskType}</if>
 		</set>
 		where id=#{id}
 	</update>
@@ -176,8 +178,10 @@
 			<if test="barcode !=null"> and barcode=#{barcode}</if>
 			<if test="skuCode !=null"> and sku_code=#{skuCode}</if>
 			<if test="skuName !=null"> and sku_name=#{skuName}</if>
+			<if test="refTaskType !=null"> and ref_task_type=#{refTaskType}</if>
 			<if test="locationCode !=null"> and location_code=#{locationCode}</if>
 			<if test="valid !=null"> and status in (1,2,3)</if>
+			<if test="doingTask !=null"> and status in (1,2)</if>
 			<if test="validItem !=null"> and item_id !=0 </if>
 			<if test="endTime != null">and updated_at&gt;=#{endTime}</if>
 			<if test="beginTime != null">and updated_at&lt;=#{beginTime}</if>

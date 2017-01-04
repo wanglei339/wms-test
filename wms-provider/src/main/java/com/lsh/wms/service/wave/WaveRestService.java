@@ -101,7 +101,7 @@ public class WaveRestService implements IWaveRestService {
     public String getWave(@QueryParam("waveId") long iWaveId) {
         WaveHead wave = waveService.getWave(iWaveId);
         if(wave == null){
-            return JsonUtils.EXCEPTION_ERROR("not exist");
+            return JsonUtils.TOKEN_ERROR("not exist");
         }
         return JsonUtils.SUCCESS(wave);
     }
@@ -223,7 +223,7 @@ public class WaveRestService implements IWaveRestService {
 
         }catch (Exception e){
             logger.error(e.getCause()!=null ? e.getCause().getMessage():e.getMessage());
-            return JsonUtils.EXCEPTION_ERROR("failed");
+            return JsonUtils.TOKEN_ERROR("failed");
         }
 
         return JsonUtils.SUCCESS();
@@ -254,7 +254,7 @@ public class WaveRestService implements IWaveRestService {
             modelService.createPickModelTemplate(tpl);
         }catch (Exception e){
             logger.error(e.getCause()!=null ? e.getCause().getMessage():e.getMessage());
-            return JsonUtils.EXCEPTION_ERROR("create failed");
+            return JsonUtils.TOKEN_ERROR("create failed");
         }
         return JsonUtils.SUCCESS();
     }
@@ -266,7 +266,7 @@ public class WaveRestService implements IWaveRestService {
             modelService.updatePickModelTpl(tpl);
         }catch (Exception e){
             logger.error(e.getCause()!=null ? e.getCause().getMessage():e.getMessage());
-            return JsonUtils.EXCEPTION_ERROR("update failed");
+            return JsonUtils.TOKEN_ERROR("update failed");
         }
         return JsonUtils.SUCCESS();
     }
@@ -295,7 +295,7 @@ public class WaveRestService implements IWaveRestService {
             modelService.createPickModel(model);
         }catch (Exception e ){
             logger.error(e.getCause()!=null ? e.getCause().getMessage():e.getMessage());
-            return JsonUtils.EXCEPTION_ERROR("create failed");
+            return JsonUtils.TOKEN_ERROR("create failed");
         }
         return JsonUtils.SUCCESS();
     }
@@ -307,7 +307,7 @@ public class WaveRestService implements IWaveRestService {
             modelService.updatePickModel(model);
         }catch (Exception e){
             logger.error(e.getCause()!=null ? e.getCause().getMessage():e.getMessage());
-            JsonUtils.EXCEPTION_ERROR("update failed");
+            JsonUtils.TOKEN_ERROR("update failed");
         }
         return JsonUtils.SUCCESS();
     }
