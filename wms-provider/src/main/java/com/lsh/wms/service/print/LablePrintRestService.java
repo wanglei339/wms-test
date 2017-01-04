@@ -52,7 +52,7 @@ public class LablePrintRestService implements ILablePrintRestService {
                 }
 
             }
-                return JsonUtils.EXCEPTION_ERROR("参数错误");
+                return JsonUtils.TOKEN_ERROR("参数错误");
 
 
     }
@@ -62,7 +62,7 @@ public class LablePrintRestService implements ILablePrintRestService {
     @Path("getMergeLable")
     public String getMergeLable(@QueryParam("number") Integer number){
         if(number == null ){
-            return JsonUtils.EXCEPTION_ERROR("参数错误");
+            return JsonUtils.TOKEN_ERROR("参数错误");
         }
         Set<String> lableSet = new HashSet<String>();
 
