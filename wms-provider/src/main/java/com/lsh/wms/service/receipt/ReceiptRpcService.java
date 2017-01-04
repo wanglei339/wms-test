@@ -861,7 +861,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
         request.setOwnerId(ibdHeader.getOwnerUid());
 
         //根据返仓单中的orderOtherRefId找到对应的出库单
-        ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderOtherId(ibdHeader.getOrderOtherRefId());
+        //ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderOtherId(ibdHeader.getOrderOtherRefId());
 
         List<ReceiptItem> items = new ArrayList<ReceiptItem>();
 
@@ -874,9 +874,9 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 throw new BizCheckedException("2900001");
             }
             //BaseinfoItem baseinfoItem = baseinfoItems.get(baseinfoItems.size()-1);
-            Map<String,Object> mapQuery = new HashMap<String, Object>();
-            mapQuery.put("orderId", obdHeader.getOrderId());
-            mapQuery.put("skuCode",ibdDetail.getSkuCode());
+//            Map<String,Object> mapQuery = new HashMap<String, Object>();
+//            mapQuery.put("orderId", obdHeader.getOrderId());
+//            mapQuery.put("skuCode",ibdDetail.getSkuCode());
 //            List<ObdDetail> obdDetails = soOrderService.getOutbSoDetailList(mapQuery);
 //            if(obdDetails == null || obdDetails.size() <= 0){
 //                throw new BizCheckedException("2022224");
