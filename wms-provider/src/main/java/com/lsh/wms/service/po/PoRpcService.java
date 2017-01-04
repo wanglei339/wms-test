@@ -78,17 +78,20 @@ public class PoRpcService implements IPoRpcService {
         ibdHeader.setOrderStatus(PoConstant.ORDER_DELIVERY);
         ibdHeader.setCreatedAt(DateUtils.getCurrentSeconds());
         if(PoConstant.ORDER_TYPE_SO_BACK == orderType){
-            //返仓单的下单用户
-            String orderUser = ibdHeader.getOrderUser();
-            //返仓的置为新增
-            ibdHeader.setOrderStatus(PoConstant.ORDER_YES);
-            if(orderUser == null){
-                throw new BizCheckedException("2020010");
-            }
-            //使用so orderOtherId 与 type确定so
-            ObdHeader soHeader = soOrderService.getOutbSoHeaderByOrderOtherIdAndType(ibdHeader.getOrderOtherRefId(),SoConstant.ORDER_TYPE_SO);
-            if(null == soHeader){
-                throw new BizCheckedException("2020001");
+            //自动下单做校验
+            if(request.getAutoDone() == 1){
+                //返仓单的下单用户
+                String orderUser = ibdHeader.getOrderUser();
+                //返仓的置为新增
+                ibdHeader.setOrderStatus(PoConstant.ORDER_YES);
+                if(orderUser == null){
+                    throw new BizCheckedException("2020010");
+                }
+                //使用so orderOtherId 与 type确定so
+                ObdHeader soHeader = soOrderService.getOutbSoHeaderByOrderOtherIdAndType(ibdHeader.getOrderOtherRefId(),SoConstant.ORDER_TYPE_SO);
+                if(null == soHeader){
+                    throw new BizCheckedException("2020001");
+                }
             }
         }else{
             String supplierCode = ibdHeader.getSupplierCode();
