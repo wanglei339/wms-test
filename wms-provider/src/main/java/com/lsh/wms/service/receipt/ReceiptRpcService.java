@@ -869,26 +869,27 @@ public class ReceiptRpcService implements IReceiptRpcService {
             ReceiptItem item = new ReceiptItem();
 
             //这里从obd订单中取skuId
-//            List<BaseinfoItem> baseinfoItems = itemService.getItemsBySkuCode(ibdHeader.getOwnerUid(),ibdDetail.getSkuCode());
-//            if(baseinfoItems.size() <= 0){
-//                throw new BizCheckedException("2900001");
-//            }
-//            BaseinfoItem baseinfoItem = baseinfoItems.get(baseinfoItems.size()-1);
+            BaseinfoItem baseinfoItem = itemService.getItemsBySkuCode(ibdHeader.getOwnerUid(),ibdDetail.getSkuCode());
+            if(baseinfoItem == null){
+                throw new BizCheckedException("2900001");
+            }
+            //BaseinfoItem baseinfoItem = baseinfoItems.get(baseinfoItems.size()-1);
             Map<String,Object> mapQuery = new HashMap<String, Object>();
             mapQuery.put("orderId", obdHeader.getOrderId());
             mapQuery.put("skuCode",ibdDetail.getSkuCode());
-            List<ObdDetail> obdDetails = soOrderService.getOutbSoDetailList(mapQuery);
-            if(obdDetails == null || obdDetails.size() <= 0){
-                throw new BizCheckedException("2022224");
-            }
-            ObdDetail obdDetail = obdDetails.get(0);
+//            List<ObdDetail> obdDetails = soOrderService.getOutbSoDetailList(mapQuery);
+//            if(obdDetails == null || obdDetails.size() <= 0){
+//                throw new BizCheckedException("2022224");
+//            }
+//            ObdDetail obdDetail = obdDetails.get(0);
             item.setArriveNum(ibdDetail.getOrderQty());
             item.setOrderId(ibdHeader.getOrderId());
             //item.setBarCode(obdDetail);
             item.setInboundQty(ibdDetail.getOrderQty());
             item.setPackName(ibdDetail.getPackName());
             item.setPackUnit(ibdDetail.getPackUnit());
-            item.setSkuId(obdDetail.getSkuId());
+            //item.setSkuId(obdDetail.getSkuId());
+            item.setSkuId(baseinfoItem.getSkuId());
             item.setSkuName(ibdDetail.getSkuName());
             item.setDetailOtherId(ibdDetail.getDetailOtherId());
             items.add(item);
