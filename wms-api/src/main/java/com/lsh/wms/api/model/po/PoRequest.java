@@ -181,7 +181,7 @@ public class PoRequest implements Serializable {
     }
 
     public String getSupplierName() {
-        return supplierName;s
+        return supplierName;
     }
 
     public void setSupplierName(String supplierName) {
