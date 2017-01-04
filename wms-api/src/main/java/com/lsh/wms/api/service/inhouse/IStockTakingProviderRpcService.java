@@ -1,10 +1,7 @@
 package com.lsh.wms.api.service.inhouse;
 
 import com.lsh.base.common.exception.BizCheckedException;
-import com.lsh.wms.model.taking.LocationListRequest;
-import com.lsh.wms.model.taking.StockTakingDetail;
-import com.lsh.wms.model.taking.StockTakingHead;
-import com.lsh.wms.model.taking.StockTakingRequest;
+import com.lsh.wms.model.taking.*;
 
 import javax.ws.rs.QueryParam;
 import java.math.BigDecimal;
@@ -30,4 +27,7 @@ public interface IStockTakingProviderRpcService {
     void replay(List<Long> detailList,Long planner) throws BizCheckedException;
     void calcelTask(Long taskId) throws BizCheckedException;
     void createAndDoTmpTask(Long locationId,BigDecimal qty,String barcode,Long planner) throws BizCheckedException;
+    List<StockTakingDetail>  fillTask(FillTakingPlanParam planParam) throws BizCheckedException;
+    List<StockTakingDetail> checkFillTask(Long taskId,Long operator) throws BizCheckedException;
+    void doneTaskDetail(List detailList) throws BizCheckedException;
 }

@@ -33,6 +33,7 @@ public class LablePrintRestService implements ILablePrintRestService {
     private LablePrintRpcService lablePrintRpcService;
     @Autowired
     private RedisStringDao redisStringDao;
+    private Integer maxNumber = 3000;
 
     //生成托盘码
     @GET
@@ -41,8 +42,8 @@ public class LablePrintRestService implements ILablePrintRestService {
                                    @QueryParam("containerCode") String containerCode) throws BizCheckedException{
 
             if (number != null && number > 0) {
-                if(number > 3000){
-                    throw new BizCheckedException("2000005");
+                if(number > maxNumber){
+                    throw new BizCheckedException("2000005",maxNumber,"");
                 }
                 //批量生成
                 return JsonUtils.SUCCESS(lablePrintRpcService.getContainerCode(number));
@@ -55,7 +56,7 @@ public class LablePrintRestService implements ILablePrintRestService {
                 }
 
             }
-                return JsonUtils.EXCEPTION_ERROR("参数错误");
+                return JsonUtils.TOKEN_ERROR("参数错误");
 
 
     }
@@ -65,7 +66,7 @@ public class LablePrintRestService implements ILablePrintRestService {
     @Path("getMergeLable")
     public String getMergeLable(@QueryParam("number") Integer number){
         if(number == null ){
-            return JsonUtils.EXCEPTION_ERROR("参数错误");
+            return JsonUtils.TOKEN_ERROR("参数错误");
         }
         Set<String> lableSet = new HashSet<String>();
 

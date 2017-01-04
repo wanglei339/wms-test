@@ -58,7 +58,7 @@ public class StockLotRestService implements IStockLotRestService {
             stockLotRpcService.insert(lot);
         } catch (Exception e) {
             logger.error(e.getCause()!=null ? e.getCause().getMessage():e.getMessage());
-            return JsonUtils.EXCEPTION_ERROR("insert failed");
+            return JsonUtils.TOKEN_ERROR("insert failed");
         }
         return JsonUtils.SUCCESS();
     }
@@ -70,7 +70,7 @@ public class StockLotRestService implements IStockLotRestService {
             stockLotRpcService.update(lot);
         } catch (Exception e) {
             logger.error(e.getCause()!=null ? e.getCause().getMessage():e.getMessage());
-            return JsonUtils.EXCEPTION_ERROR("update failed");
+            return JsonUtils.TOKEN_ERROR("update failed");
         }
         return JsonUtils.SUCCESS();
     }

@@ -93,7 +93,7 @@ public class ItemTypeRestService implements IItemTypeRestService {
             itemTypeRpcService.updateItemType(baseinfoItemType);
         }catch (Exception e){
             logger.error(e.getMessage());
-            return JsonUtils.EXCEPTION_ERROR("update failed");
+            return JsonUtils.TOKEN_ERROR("update failed");
         }
 
         return JsonUtils.SUCCESS();

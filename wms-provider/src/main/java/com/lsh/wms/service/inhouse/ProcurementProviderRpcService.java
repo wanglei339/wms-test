@@ -25,7 +25,6 @@ import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
-import com.lsh.wms.model.baseinfo.BaseinfoLocationBin;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.stock.StockQuantCondition;
 import com.lsh.wms.model.task.TaskEntry;
@@ -66,7 +65,6 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
 
     @Autowired
     private LocationService locationService;
-
 
     @Reference
     private ILocationRpcService locationRpcService;
@@ -385,7 +383,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
         }
         
 
-        Long taskId = this.getNextTask(list.get(list.size()-1).getTaskInfo().getToLocationId());
+        Long taskId = this.getNextTask(list.get(list.size() - 1).getTaskInfo().getToLocationId());
         if(taskId.compareTo(0L)==0){
             return 0L;
         }
@@ -526,7 +524,6 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
         this.createShelfProcurement(canMax);
         this.createLoftProcurement(canMax);
     }
-
     public void scanFromLocation(Map<String, Object> params) throws BizCheckedException {
         core.outbound(params);
     }

@@ -1,8 +1,10 @@
 package com.lsh.wms.service.sync;
 
+import com.alibaba.dubbo.config.annotation.Reference;
 import com.google.common.eventbus.Subscribe;
-import com.lsh.wms.service.inhouse.ProcurementProviderRpcService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.lsh.wms.api.service.inhouse.IProcurementProveiderRpcService;
+import com.lsh.wms.api.service.inhouse.IStockTakingProviderRpcService;
+import com.lsh.wms.model.taking.FillTakingPlanParam;
 import org.springframework.stereotype.Component;
 
 
@@ -17,8 +19,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class AsyncEventListener {
 
-    @Autowired
-    private ProcurementProviderRpcService procurementProviderRpcService;
+    @Reference
+    private IProcurementProveiderRpcService procurementProveiderRpcService;
+    @Reference
+    private IStockTakingProviderRpcService stockTakingProviderRpcService;
+
 
 
     /**
@@ -27,7 +32,14 @@ public class AsyncEventListener {
      */
     @Subscribe
     public void createProcurement(final Boolean canMax) {
-        procurementProviderRpcService.createProcurement(canMax);
-
+        procurementProveiderRpcService.createProcurement(canMax);
+    }
+    /**
+     * 填充盘点任务详情
+     * @param  fillTakingPlanParam taskId:盘点任务ID，operator:操作人
+     */
+    @Subscribe
+    public void fillTakingTask(FillTakingPlanParam fillTakingPlanParam) {
+        stockTakingProviderRpcService.fillTask(fillTakingPlanParam);
     }
 }

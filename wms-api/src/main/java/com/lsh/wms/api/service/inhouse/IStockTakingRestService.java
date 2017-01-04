@@ -4,8 +4,6 @@ import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.wms.model.taking.LocationListRequest;
 import com.lsh.wms.model.taking.StockTakingRequest;
 
-import javax.ws.rs.QueryParam;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -38,5 +36,7 @@ public interface IStockTakingRestService {
     String test();
     String createPlanWarehouse(Map<String,Object> mapQuery) throws BizCheckedException;
     String createPlanSales(Map<String,Object> mapQuery) throws BizCheckedException;
-    String getDetailByItemId(@QueryParam("itemId") Long itemId) throws BizCheckedException;
+    String getDetailByItemId(Long itemId) throws BizCheckedException;
+    String fillTask(Long taskId,Long operator)  throws BizCheckedException;
+    String doneDetails() throws BizCheckedException;
 }

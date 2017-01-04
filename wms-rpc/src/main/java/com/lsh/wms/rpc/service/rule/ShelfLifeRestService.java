@@ -46,7 +46,7 @@ public class ShelfLifeRestService implements IShelfLifeRestService{
             shelfLifeRpcService.updateShelflifeRule(shelflifeRule);
         }catch (Exception e) {
             logger.error(e.getCause()!=null ? e.getCause().getMessage():e.getMessage());
-            return JsonUtils.EXCEPTION_ERROR("update failed");
+            return JsonUtils.TOKEN_ERROR("update failed");
         }
         return JsonUtils.SUCCESS();
     }
@@ -58,7 +58,7 @@ public class ShelfLifeRestService implements IShelfLifeRestService{
             shelfLifeRpcService.insertShelflifeRule(shelflifeRule);
         }catch (Exception e) {
             logger.error(e.getCause()!=null ? e.getCause().getMessage():e.getMessage());
-            return JsonUtils.EXCEPTION_ERROR("create failed");
+            return JsonUtils.TOKEN_ERROR("create failed");
         }
         return JsonUtils.SUCCESS();
     }
@@ -70,7 +70,7 @@ public class ShelfLifeRestService implements IShelfLifeRestService{
             shelfLifeRpcService.deleteShelflifeRule(shelflifeRule);
         }catch (Exception e) {
             logger.error(e.getCause()!=null ? e.getCause().getMessage():e.getMessage());
-            return JsonUtils.EXCEPTION_ERROR("delete failed");
+            return JsonUtils.TOKEN_ERROR("delete failed");
         }
         return JsonUtils.SUCCESS();
     }

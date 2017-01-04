@@ -236,6 +236,7 @@ public class ItemService {
         if(item.getOwnerId()==null) {
             BaseinfoItem oldItem = this.getItem(item.getItemId());
             if (oldItem.getOwnerId().compareTo(2L) == 0) {
+                
                 persistenceProxy.doOne(SysLogConstant.LOG_TYPE_BACK_COMMODITY, item.getItemId(), 0);
             }
         }else {

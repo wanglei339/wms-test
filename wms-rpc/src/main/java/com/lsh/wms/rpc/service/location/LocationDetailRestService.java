@@ -143,7 +143,7 @@ public class LocationDetailRestService implements ILocationDetailRestService {
         if (locationDetailRpcService.removeLocation(locationId)) {
             return JsonUtils.SUCCESS("删除成功");
         } else {
-            return JsonUtils.EXCEPTION_ERROR("位置不存在");  //  位置不存在
+            return JsonUtils.TOKEN_ERROR("位置不存在");  //  位置不存在
         }
     }
 

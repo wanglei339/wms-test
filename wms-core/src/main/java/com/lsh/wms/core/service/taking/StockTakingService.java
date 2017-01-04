@@ -3,6 +3,7 @@ package com.lsh.wms.core.service.taking;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.fastjson.JSON;
 import com.lsh.base.common.exception.BizCheckedException;
+import com.lsh.base.common.utils.BeanMapTransUtils;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.api.service.task.ITaskRpcService;
@@ -11,6 +12,7 @@ import com.lsh.wms.core.dao.stock.OverLossReportDao;
 import com.lsh.wms.core.dao.taking.StockTakingDetailDao;
 import com.lsh.wms.core.dao.taking.StockTakingHeadDao;
 import com.lsh.wms.core.service.container.ContainerService;
+import com.lsh.wms.core.service.csi.CsiSkuService;
 import com.lsh.wms.core.service.datareport.DifferenceZoneReportService;
 import com.lsh.wms.core.service.datareport.SkuMapService;
 import com.lsh.wms.core.service.item.ItemService;
@@ -19,12 +21,16 @@ import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.persistence.PersistenceProxy;
 import com.lsh.wms.core.service.stock.StockLotService;
 import com.lsh.wms.core.service.stock.StockMoveService;
+import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.stock.StockSummaryService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
+import com.lsh.wms.model.baseinfo.BaseinfoLocation;
+import com.lsh.wms.model.csi.CsiSku;
 import com.lsh.wms.model.datareport.DifferenceZoneReport;
 import com.lsh.wms.model.datareport.SkuMap;
 import com.lsh.wms.model.stock.*;
+import com.lsh.wms.model.taking.DetailRequest;
 import com.lsh.wms.model.taking.StockTakingDetail;
 import com.lsh.wms.model.taking.StockTakingHead;
 import com.lsh.wms.model.task.TaskEntry;
@@ -70,6 +76,10 @@ public class StockTakingService {
     private SkuMapService skuMapService;
     @Autowired
     private StockLotService lotService;
+    @Autowired
+    private StockQuantService quantService;
+    @Autowired
+    private CsiSkuService skuService;
     @Autowired
     private DifferenceZoneReportService differenceZoneReportService;
 
@@ -449,7 +459,8 @@ public class StockTakingService {
     }
 
     public List<StockTakingDetail> getDetails(Map<String, Object> queryMap) {
-        return detailDao.getStockTakingDetailList(queryMap);
+        List<StockTakingDetail> details =  detailDao.getStockTakingDetailList(queryMap);
+        return details==null ? new ArrayList<StockTakingDetail>() : details;
     }
     public Integer countDetails(Map<String, Object> queryMap) {
         return detailDao.countStockTakingDetail(queryMap);
@@ -552,6 +563,16 @@ public class StockTakingService {
         }
         return list.get(0);
     }
+    public StockTakingDetail getDetailByTaskIdAndLocationCode(Long taskId,String locationCode) {
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("taskId", taskId);
+        map.put("locationCode", locationCode);
+        List<StockTakingDetail> list = detailDao.getStockTakingDetailList(map);
+        if (list == null || list.size() == 0) {
+            return null;
+        }
+        return list.get(0);
+    }
 
     @Transactional(readOnly = false)
     public void doQcPickDifference(StockMove move) throws BizCheckedException {
@@ -636,6 +657,154 @@ public class StockTakingService {
     public void fillEmptyDetail(StockTakingDetail detail,StockLot lot) {
         lotService.insertLot(lot);
         this.updateDetail(detail);
+    }
+    @Transactional(readOnly = false)
+    public void fillDetails(List<StockTakingDetail> details) {
+        for (StockTakingDetail detail : details) {
+            List<StockQuant> quants = quantService.getQuantsByLocationId(detail.getLocationId());
+            if (quants != null && quants.size() != 0) {
+                StockQuant quant = quants.get(0);
+                BaseinfoItem item = itemService.getItem(quant.getItemId());
+                CsiSku sku = skuService.getSku(quant.getSkuId());
+                BaseinfoLocation location = locationService.getLocation(quant.getLocationId());
+                detail.setTheoreticalQty(quantService.getQuantQtyByContainerId(quant.getContainerId()));
+                detail.setSkuId(quant.getSkuId());
+                detail.setContainerId(quant.getContainerId());
+                detail.setItemId(quant.getItemId());
+                detail.setRealItemId(quant.getItemId());
+                detail.setRealSkuId(detail.getSkuId());
+                detail.setPackName(quant.getPackName());
+                detail.setPackUnit(quant.getPackUnit());
+                detail.setOwnerId(quant.getOwnerId());
+                detail.setRealSkuId(sku.getSkuId());
+                detail.setLotId(quant.getLotId());
+                detail.setSkuCode(item.getSkuCode());
+                detail.setSkuName(item.getSkuName());
+                detail.setBarcode(sku.getCode());
+                detail.setLocationCode(location.getLocationCode());
+            }
+            this.updateDetail(detail);
+        }
+    }
+    @Transactional(readOnly = false)
+    public void doneDetails(List detailRequestList) {
+        //存储任务List,避免任务重复判断
+        Map<Long,Long> taskMap = new HashMap<Long, Long>();
+        //存储错误任务信息
+        Map<Long,String> taskErrMap = new HashMap<Long, String>();
+        //存储待完成任务location
+        Map<Long,List<String>> locationCodeMap = new HashMap<Long, List<String>>();
+        StringBuilder errorStr = new StringBuilder();
+        boolean isTrue = true;
+        //详情行项目号
+        int index = 2;
+
+        for(Object detailMap :detailRequestList){
+            DetailRequest detailRequest = BeanMapTransUtils.map2Bean((Map) detailMap, DetailRequest.class);
+            Long taskId = detailRequest.getTaskId();
+            //判断任务
+            if(!taskMap.containsKey(taskId)) {
+                TaskInfo info = baseTaskService.getTaskInfoById(taskId);
+                if (info == null) {
+                    taskErrMap.put(taskId,"任务号"+taskId+"不存在");
+                }else if(info.getStatus().compareTo(TaskConstant.Assigned)!=0 && info.getStatus().compareTo(TaskConstant.Draft)!=0){
+                    taskErrMap.put(taskId,"任务号"+taskId+"已完成或已取消");
+                }
+            }
+            taskMap.put(taskId,taskId);
+
+            if(locationCodeMap.containsKey(taskId)){
+                List<String> locationCodeList = locationCodeMap.get(taskId);
+                locationCodeList.add(detailRequest.getLocationCode());
+                locationCodeMap.put(taskId,locationCodeList);
+            }else {
+                List<String> locationCodeList = new ArrayList<String>();
+                locationCodeList.add(detailRequest.getLocationCode());
+                locationCodeMap.put(taskId,locationCodeList);
+            }
+
+            //判断任务是否违法
+            if(taskErrMap.containsKey(taskId)){
+                isTrue = false;
+                errorStr.append("第"+index+"行,").append(taskErrMap.get(taskId)).append(System.getProperty("line.separator"));
+            }
+            //判断详情状态是否违法
+            StockTakingDetail detail = this.getDetailByTaskIdAndLocationCode(detailRequest.getTaskId(), detailRequest.getLocationCode());
+            if(detail==null){
+                isTrue = false;
+                errorStr.append("第"+index+"行,").append("任务详情不存在").append(System.getProperty("line.separator"));
+            }else if(detail.getStatus().compareTo(StockTakingConstant.Cancel)==0 || detail.getStatus().compareTo(StockTakingConstant.Done)==0){
+                isTrue = false;
+                errorStr.append("第"+index+"行,").append("任务详情已取消或已完成").append(System.getProperty("line.separator"));
+            }else if(detail.getTheoreticalQty().compareTo(BigDecimal.ZERO)==0 && (detailRequest.getUmoQty().compareTo(BigDecimal.ZERO)!=0 || detailRequest.getScatterQty().compareTo(BigDecimal.ZERO)!=0)){
+                //目前不支持从0盘有库存
+                isTrue = false;
+                errorStr.append("第"+index+"行,").append("系统记录库存数量为零,但是导入数量不为零").append(System.getProperty("line.separator"));
+            }
+            if(isTrue){
+                BigDecimal realQty = detail.getPackUnit().multiply(detailRequest.getUmoQty()).add(detailRequest.getScatterQty());
+                detail.setRealQty(realQty);
+                detail.setStatus(StockTakingConstant.PendingAudit);
+                if(!detail.getSkuCode().equals("")) {
+                    SkuMap skuMap = skuMapService.getSkuMapBySkuCodeAndOwner(detail.getSkuCode(),detail.getOwnerId());
+                    if (skuMap == null) {
+                        isTrue = false;
+                        errorStr.append("第"+index+"行,").append("货码"+detail.getSkuCode()+"无移动平均价").append(System.getProperty("line.separator"));
+                    }
+                    detail.setPrice(skuMap.getMovingAveragePrice());
+                    detail.setDifferencePrice(detail.getRealQty().subtract(detail.getTheoreticalQty()).multiply(detail.getPrice()));
+                }
+                this.updateDetail(detail);
+            }
+            index++;
+        }
+        if(isTrue) {
+            //判断任务是否完成
+            Map<String,Object> queryMap = new HashMap<String, Object>();
+            queryMap.put("doingTask",1);
+            for (Map.Entry<Long, List<String>> entry : locationCodeMap.entrySet()) {
+                queryMap.put("taskId", entry.getKey());
+                List<StockTakingDetail> details = this.getDetails(queryMap);
+                List<String> locationCodeList = new ArrayList<String>();
+                for(StockTakingDetail detail:details){
+                    locationCodeList.add(detail.getLocationCode());
+                }
+                locationCodeList.removeAll(locationCodeMap.get(entry.getKey()));
+
+                //任务已完成
+                if(locationCodeList.isEmpty()){
+                    TaskInfo info = baseTaskService.getTaskInfoById(entry.getKey());
+                    info.setFinishTime(DateUtils.getCurrentSeconds());
+                    info.setStatus(TaskConstant.Done);
+                    info.setTaskAmount(BigDecimal.valueOf(info.getTaskOrder()));
+                    baseTaskService.update(info);
+
+                    //判断计划下任务是否完成
+                    queryMap.put("planId",info.getPlanId());
+                    queryMap.put("valid",1);
+                    List<TaskInfo> infos = baseTaskService.getTaskInfoList(queryMap);
+
+                    boolean isTakingDone = true;
+
+                    if(infos!=null){
+                        for (TaskInfo taskInfo : infos) {
+                            if (!taskMap.containsKey(taskInfo.getTaskId())) {
+                                isTakingDone = false;
+                            }
+                        }
+                    }
+                    if(isTakingDone){
+                        //计划已完成
+                        StockTakingHead head = this.getHeadById(info.getPlanId());
+                        head.setStatus(StockTakingConstant.Done);
+                        this.updateHead(head);
+                    }
+                }
+
+            }
+        }else {
+            throw new BizCheckedException("2550097",errorStr.toString());
+        }
     }
 }
 
