@@ -1,7 +1,6 @@
 package com.lsh.wms.core.service.taking;
 
 import com.alibaba.dubbo.config.annotation.Reference;
-import com.alibaba.fastjson.JSON;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.BeanMapTransUtils;
 import com.lsh.base.common.utils.DateUtils;
@@ -16,24 +15,24 @@ import com.lsh.wms.core.service.csi.CsiSkuService;
 import com.lsh.wms.core.service.datareport.DifferenceZoneReportService;
 import com.lsh.wms.core.service.datareport.SkuMapService;
 import com.lsh.wms.core.service.item.ItemService;
-import com.lsh.wms.core.service.location.BaseinfoLocationService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.persistence.PersistenceProxy;
 import com.lsh.wms.core.service.stock.StockLotService;
 import com.lsh.wms.core.service.stock.StockMoveService;
 import com.lsh.wms.core.service.stock.StockQuantService;
-import com.lsh.wms.core.service.stock.StockSummaryService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.csi.CsiSku;
 import com.lsh.wms.model.datareport.DifferenceZoneReport;
 import com.lsh.wms.model.datareport.SkuMap;
-import com.lsh.wms.model.stock.*;
+import com.lsh.wms.model.stock.OverLossReport;
+import com.lsh.wms.model.stock.StockLot;
+import com.lsh.wms.model.stock.StockMove;
+import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.taking.DetailRequest;
 import com.lsh.wms.model.taking.StockTakingDetail;
 import com.lsh.wms.model.taking.StockTakingHead;
-import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -95,7 +94,6 @@ public class StockTakingService {
     @Transactional(readOnly = false)
     public void updateHead(StockTakingHead head) {
         head.setUpdatedAt(DateUtils.getCurrentSeconds());
-
         headDao.update(head);
     }
     @Transactional(readOnly = false)
@@ -750,9 +748,10 @@ public class StockTakingService {
                     if (skuMap == null) {
                         isTrue = false;
                         errorStr.append("第"+index+"行,").append("货码"+detail.getSkuCode()+"无移动平均价").append(System.getProperty("line.separator"));
+                    }else {
+                        detail.setPrice(skuMap.getMovingAveragePrice());
+                        detail.setDifferencePrice(detail.getRealQty().subtract(detail.getTheoreticalQty()).multiply(detail.getPrice()));
                     }
-                    detail.setPrice(skuMap.getMovingAveragePrice());
-                    detail.setDifferencePrice(detail.getRealQty().subtract(detail.getTheoreticalQty()).multiply(detail.getPrice()));
                 }
                 this.updateDetail(detail);
             }
