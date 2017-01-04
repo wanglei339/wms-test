@@ -1028,20 +1028,6 @@ public class LocationService {
     }
 
     /**
-     * 货架位置为空并且没上锁(没占用+没上锁)
-     * 一库位一托盘码
-     *
-     * @param location
-     * @return
-     */
-    public boolean shelfBinLocationIsEmptyAndUnlock(BaseinfoLocation location) {
-        if ((location.getCanUse().equals(LocationConstant.CAN_USE)) && location.getIsLocked().equals(LocationConstant.UNLOCK)) {
-            return true;
-        }
-        return false;
-    }
-
-    /**
      * 提供空的可用位置,位置上当前没托盘切没有被任务锁定
      *
      * @param location
@@ -1240,10 +1226,10 @@ public class LocationService {
     @Transactional(readOnly = false)
     public BaseinfoLocation refreshContainerVol(Long locationId, Long containerVol) {
         BaseinfoLocation location = this.getLocation(locationId);
-        locationDao.lock(location.getId());
         if (location == null) {
             throw new BizCheckedException("2180001");
         }
+        locationDao.lock(location.getId());
         location.setCurContainerVol(containerVol);    //被占用
         //设置状态
         if (this.isOnThreshold(location, containerVol)) {
