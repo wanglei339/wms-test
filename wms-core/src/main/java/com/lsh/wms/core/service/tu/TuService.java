@@ -419,7 +419,7 @@ public class TuService {
                 header.setWarehouseId(0L);
                 header.setShippingAreaCode("" + waveDetail.getRealCollectLocation());
                 header.setWaveId(waveDetail.getWaveId());
-                header.setTransPlan(tuHead.getTuId());
+                header.setTransPlan(tuHead.getTuId());  //FIXME 17/1/3 路线号会有修改
                 header.setTransTime(new Date());
                 ObdHeader obdHeader = mapObdHeader.get(waveDetail.getOrderId());
                 if(obdHeader == null) {
