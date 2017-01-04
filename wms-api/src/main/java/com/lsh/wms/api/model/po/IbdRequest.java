@@ -47,6 +47,9 @@ public class IbdRequest implements Serializable {
     @Size(max=64)
     private String orderUser = "";
 
+    /**是否自动下单 0 不是 1 是*/
+    private Integer autoDone = 1;
+
     /** 商品 */
     @Valid
     @Size(min=1)
@@ -54,7 +57,8 @@ public class IbdRequest implements Serializable {
 
     public IbdRequest() {}
 
-    public IbdRequest(List<IbdDetail> detailList, Date endDeliveryDate, String orderOtherId, String orderOtherRefId, String orderTime, Integer orderType, String orderUser, Long ownerUid, String supplierCode, String warehouseCode) {
+    public IbdRequest(Integer autoDone, List<IbdDetail> detailList, Date endDeliveryDate, String orderOtherId, String orderOtherRefId, String orderTime, Integer orderType, String orderUser, Long ownerUid, String supplierCode, String warehouseCode) {
+        this.autoDone = autoDone;
         this.detailList = detailList;
         this.endDeliveryDate = endDeliveryDate;
         this.orderOtherId = orderOtherId;
@@ -65,6 +69,14 @@ public class IbdRequest implements Serializable {
         this.ownerUid = ownerUid;
         this.supplierCode = supplierCode;
         this.warehouseCode = warehouseCode;
+    }
+
+    public Integer getAutoDone() {
+        return autoDone;
+    }
+
+    public void setAutoDone(Integer autoDone) {
+        this.autoDone = autoDone;
     }
 
     public List<IbdDetail> getDetailList() {

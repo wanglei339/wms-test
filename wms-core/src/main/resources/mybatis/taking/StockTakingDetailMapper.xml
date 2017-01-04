@@ -183,8 +183,8 @@
 			<if test="valid !=null"> and status in (1,2,3)</if>
 			<if test="doingTask !=null"> and status in (1,2)</if>
 			<if test="validItem !=null"> and item_id !=0 </if>
-			<if test="endTime != null">and updated_at&gt;=#{endTime}</if>
-			<if test="beginTime != null">and updated_at&lt;=#{beginTime}</if>
+			<if test="endTime != null">and updated_at&lt;=#{endTime}</if>
+			<if test="beginTime != null">and updated_at&gt;=#{beginTime}</if>
 			<if test="validData != null">
 				and (status=3 or (status=4 and is_final=1))
 			</if>

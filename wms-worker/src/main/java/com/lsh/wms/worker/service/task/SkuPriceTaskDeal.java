@@ -32,8 +32,11 @@ public class SkuPriceTaskDeal implements IScheduleTaskDealSingle<String> {
     public boolean execute(String s, String ownSign) throws Exception {
         try {
             logger.info("in execute:" + s);
-            List<String> skuCodes  = itemService.getSkuCodeList(CsiConstan.OWNER_WUMART);
-            skuMapRpcService.insertSkuMap(skuCodes);
+            //取erp的移动平均价
+//            List<String> skuCodes  = itemService.getSkuCodeList(CsiConstan.OWNER_WUMART);
+//            skuMapRpcService.insertSkuMap(skuCodes);
+            List<String> skuCodes  = itemService.getSkuCodeList(CsiConstan.OWNER_LSH);
+            skuMapRpcService.insertSkuMapFromErp(skuCodes);
             //iTransportService.dealOne(sysLogId);
         }catch (Exception e){
             logger.error(e.getMessage());

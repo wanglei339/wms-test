@@ -49,6 +49,8 @@ public class PoRequest implements Serializable {
     /** 库存地 */
     @Size(max=100)
     private String stockCode = "";
+    /**是否自动下单 1是 0 不是*/
+    private Integer autoDone = 1;
 
 
     /** 发货时间 */
@@ -66,7 +68,8 @@ public class PoRequest implements Serializable {
 
     }
 
-    public PoRequest(Date deliveryDate, Date endDeliveryDate, List<PoItem> items, String orderOtherId, String orderOtherRefId, Date orderTime, Integer orderType, String orderUser, Long ownerUid, String stockCode, String supplierCode, String supplierName) {
+    public PoRequest(Integer autoDone, Date deliveryDate, Date endDeliveryDate, List<PoItem> items, String orderOtherId, String orderOtherRefId, Date orderTime, Integer orderType, String orderUser, Long ownerUid, String stockCode, String supplierCode, String supplierName) {
+        this.autoDone = autoDone;
         this.deliveryDate = deliveryDate;
         this.endDeliveryDate = endDeliveryDate;
         this.items = items;
@@ -79,6 +82,14 @@ public class PoRequest implements Serializable {
         this.stockCode = stockCode;
         this.supplierCode = supplierCode;
         this.supplierName = supplierName;
+    }
+
+    public Integer getAutoDone() {
+        return autoDone;
+    }
+
+    public void setAutoDone(Integer autoDone) {
+        this.autoDone = autoDone;
     }
 
     public Date getDeliveryDate() {
