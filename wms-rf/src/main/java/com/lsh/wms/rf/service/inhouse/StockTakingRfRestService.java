@@ -532,12 +532,14 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
             result.put("taskId", taskId.toString());
         }
         BaseinfoItem item = null;
+        CsiSku sku = null;
         if(quant!=null) {
             item = itemService.getItem(quant.getItemId());
+            sku = skuService.getSku(quant.getSkuId());
         }
         result.put("locationCode",locationCode);
         result.put("itemName", item == null ? "" : item.getSkuName());
-        result.put("barcode", item == null ? "" : item.getCode());
+        result.put("barcode", sku == null ? "" : sku.getCode());
         result.put("skuCode", item == null ? "" : item.getSkuCode());
         result.put("packName",quant==null ? "" : quantList.get(0).getPackName());
         return JsonUtils.SUCCESS(result);
