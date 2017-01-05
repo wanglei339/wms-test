@@ -561,8 +561,8 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
         //get all location list;
         List<Long> binLocations = locationService.getALLBins();
         //拉取动销库位,从wavedetail里面去拿,通过picklocation
-        long begin_at = 0;
-        long end_at = 0;
+        long begin_at = DateUtils.getTodayBeginSeconds();
+        long end_at = DateUtils.getCurrentSeconds();
         List<Long> pickLocations = waveService.getPickLocationsByPickTimeRegion(begin_at, end_at);
         Set<Long> setBinDup = new HashSet<Long>();
         Map<Long, List<Long>> mapZoneBinArrs = new HashMap<Long, List<Long>>();

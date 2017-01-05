@@ -291,18 +291,40 @@ public class ReceiptRpcService implements IReceiptRpcService {
                  * itemId
                  *
                  */
+                StockLot newStockLot = new StockLot();
 
                 ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderOtherId(ibdHeader.getOrderOtherRefId());
-                //查供应商、生产日期、失效日期
-                Long lotId =
-                        soDeliveryService.getOutbDeliveryDetail(obdHeader.getOrderId(),baseinfoItem.getItemId()).getLotId();
-                StockLot stockLot = stockLotService.getStockLotByLotId(lotId);
-                logger.info("~~~~~~~~~~~11111111111 查找批号信息  stocklot : " + JSON.toJSONString(stockLot));
-                //stockLot.setIsOld(true);
-                logger.info("~~~~~~~~~~~~222222222222 stocklot : " + JSON.toJSONString(stockLot));
+                if(obdHeader != null){
+                    //查供应商、生产日期、失效日期
+                    Long lotId =
+                            soDeliveryService.getOutbDeliveryDetail(obdHeader.getOrderId(),baseinfoItem.getItemId()).getLotId();
+                    StockLot stockLot = stockLotService.getStockLotByLotId(lotId);
+                    logger.info("~~~~~~~~~~~11111111111 查找批号信息  stocklot : " + JSON.toJSONString(stockLot));
+                    //stockLot.setIsOld(true);
+                    logger.info("~~~~~~~~~~~~222222222222 stocklot : " + JSON.toJSONString(stockLot));
+                    ObjUtils.bean2bean(stockLot,newStockLot);
 
-                StockLot newStockLot = new StockLot();
-                ObjUtils.bean2bean(stockLot,newStockLot);
+                }else{
+                    //修改失效日期
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.setTime(new Date());
+                    calendar.add(calendar.DAY_OF_YEAR,baseinfoItem.getShelfLife().intValue());
+                    Long expireDate = calendar.getTime().getTime()/1000;
+
+                    //返仓单无对应入库记录
+                    newStockLot.setPackUnit(baseinfoItem.getPackUnit());
+                    newStockLot.setPackName(baseinfoItem.getPackName());
+                    newStockLot.setSkuId(inbReceiptDetail.getSkuId());
+                    newStockLot.setSerialNo(inbReceiptDetail.getLotNum());
+                    newStockLot.setItemId(inbReceiptDetail.getItemId());
+                    newStockLot.setInDate(DateUtils.getCurrentSeconds());
+                    newStockLot.setProductDate(DateUtils.getCurrentSeconds());
+                    newStockLot.setExpireDate(expireDate);
+                    newStockLot.setReceiptId(inbReceiptHeader.getReceiptOrderId());
+                    newStockLot.setPoId(inbReceiptDetail.getOrderId());
+                    newStockLot.setSupplierId(0L);//没有供商
+                    newStockLot.setCode(baseinfoItem.getCode());
+                }
                 Long newLotId = RandomUtils.genId();
                 newStockLot.setPoId(ibdHeader.getOrderId());
                 newStockLot.setLotId(newLotId);
@@ -310,7 +332,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
                 //将收货细单中的生产日期改为该lot下的生产日期。
                 SimpleDateFormat format =   new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss" );
-                String d = format.format(stockLot.getProductDate());
+                String d = format.format(newStockLot.getProductDate());
                 Date date = format.parse(d);
                 inbReceiptDetail.setProTime(date);
                 //将inbReceiptDetail填入inbReceiptDetailList中
