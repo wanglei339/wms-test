@@ -29,7 +29,7 @@ public class OutBoundTime implements Serializable {
 	}
 
 	public OutBoundTime(Long beginTime, Long endTime) {
-		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
 		this.beginTime = "'"+format.format(new Date(beginTime * 1000))+"'";
 		this.endTime = "'"+format.format(new Date(endTime * 1000))+"'";
 	}
