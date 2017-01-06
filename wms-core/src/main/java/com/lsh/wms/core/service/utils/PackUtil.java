@@ -9,7 +9,7 @@ public class PackUtil {
     public static String PackUnit2Uom(BigDecimal packUit, String eachUnitName){
         if(eachUnitName.compareTo("EA") == 0){
             if(packUit.intValue()>100){
-                return String.format("H%02d", packUit.intValue()/10);
+                return String.format("S%02d", packUit.intValue()/10);
             }
             return String.format("H%02d", packUit.intValue());
         }else if (eachUnitName.compareTo("KG") == 0){
