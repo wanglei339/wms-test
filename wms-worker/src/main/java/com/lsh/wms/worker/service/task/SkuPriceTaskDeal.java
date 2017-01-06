@@ -36,7 +36,6 @@ public class SkuPriceTaskDeal implements IScheduleTaskDealSingle<String> {
 //            List<String> skuCodes  = itemService.getSkuCodeList(CsiConstan.OWNER_WUMART);
 //            skuMapRpcService.insertSkuMap(skuCodes);
             List<String> skuCodes  = itemService.getSkuCodeList(CsiConstan.OWNER_LSH);
-            logger.info("LSH_LIST:"+skuCodes);
             skuMapRpcService.insertSkuMapFromErp(skuCodes);
             //iTransportService.dealOne(sysLogId);
         }catch (Exception e){
