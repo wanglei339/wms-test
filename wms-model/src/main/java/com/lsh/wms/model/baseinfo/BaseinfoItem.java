@@ -87,7 +87,6 @@ public class BaseinfoItem implements Serializable {
 	private Long pileY =0l;
 	/** 码盘规则 */
 	private Long pileZ =0l;
-
 	/** 码盘数量 */
 	private Long pileNumber;
 	/** 基本单位名称 */
