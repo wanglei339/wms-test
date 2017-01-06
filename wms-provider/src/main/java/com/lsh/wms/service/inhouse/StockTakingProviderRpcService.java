@@ -775,7 +775,7 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
         detail.setLocationId(locationId);
         detail.setDetailId(RandomUtils.genId());
         detail.setTakingId(head.getTakingId());
-        detail.setRefTaskType(info.getSubType());
+        detail.setRefTaskType(StockTakingConstant.TYPE_TEMPOARY);
         details.add(detail);
 
         info.setStatus(TaskConstant.Done);
