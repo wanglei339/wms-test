@@ -469,7 +469,11 @@ public class TuService {
                 //TODO 现在直接干成"EA"吧.
                 //deliveryDetail.setPackUnit(PackUtil.Uom2PackUnit(waveDetail.getAllocUnitName()));
                 //通过stock quant获取到对应的lot信息
-                List<StockQuant> stockQuants = stockQuantService.getQuantsByContainerId(waveDetail.getContainerId());
+                Map<String, Object> mapQuery = new HashMap<String, Object>();
+                mapQuery.put("containerId", waveDetail.getContainerId());
+                mapQuery.put("itemId",waveDetail.getItemId());
+                //List<StockQuant> stockQuants = stockQuantService.getQuantsByContainerId(waveDetail.getContainerId());
+                List<StockQuant> stockQuants = stockQuantService.getQuants(mapQuery);
                 StockQuant stockQuant = (null != stockQuants && stockQuants.size() > 0) ? stockQuants.get(0) : null;
                 deliveryDetail.setLotId(stockQuant == null ? 0L : stockQuant.getLotId());
                 deliveryDetail.setLotNum(stockQuant == null ? "" : stockQuant.getLotCode());
