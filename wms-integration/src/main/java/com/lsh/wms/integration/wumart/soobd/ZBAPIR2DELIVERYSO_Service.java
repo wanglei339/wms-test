@@ -17,7 +17,7 @@ import javax.xml.ws.WebServiceFeature;
  * Generated source version: 2.2
  * 
  */
-@WebServiceClient(name = "Z_BAPI_R2_DELIVERY_SO", targetNamespace = "urn:sap-com:document:sap:rfc:functions", wsdlLocation = "file:/home/work/wumart/soObd.wsdl")
+@WebServiceClient(name = "Z_BAPI_R2_DELIVERY_SO", targetNamespace = "urn:sap-com:document:sap:rfc:functions", wsdlLocation = "file:/home/wms/wumart/soObd.wsdl")
 public class ZBAPIR2DELIVERYSO_Service
     extends Service
 {
@@ -30,7 +30,7 @@ public class ZBAPIR2DELIVERYSO_Service
         URL url = null;
         WebServiceException e = null;
         try {
-            url = new URL("file:/home/work/wumart/soObd.wsdl");
+            url = new URL("file:/home/wms/wumart/soObd.wsdl");
         } catch (MalformedURLException ex) {
             e = new WebServiceException(ex);
         }
