@@ -16,15 +16,15 @@ import com.lsh.wms.integration.wumart.account.*;
 import com.lsh.wms.integration.wumart.ibd.*;
 import com.lsh.wms.integration.wumart.ibd.Bapireturn;
 import com.lsh.wms.integration.wumart.ibd.ObjectFactory;
-import com.lsh.wms.integration.wumart.ibdaccount.*;
-import com.lsh.wms.integration.wumart.ibdaccount.BAPIRET2;
-import com.lsh.wms.integration.wumart.ibdaccount.TABLEOFBAPIRET2;
-import com.lsh.wms.integration.wumart.ibdaccount.TABLEOFPROTT;
-import com.lsh.wms.integration.wumart.ibdaccount.TABLEOFVBPOK;
-import com.lsh.wms.integration.wumart.ibdaccount.TABLEOFZDELIVERYEXPORT;
-import com.lsh.wms.integration.wumart.ibdaccount.TABLEOFZDELIVERYIMPORT;
-import com.lsh.wms.integration.wumart.ibdaccount.ZDELIVERYEXPORT;
-import com.lsh.wms.integration.wumart.ibdaccount.ZDELIVERYIMPORT;
+import com.lsh.wms.integration.wumart.newibdaccount.*;
+import com.lsh.wms.integration.wumart.newibdaccount.BAPIRET2;
+import com.lsh.wms.integration.wumart.newibdaccount.TABLEOFBAPIRET2;
+import com.lsh.wms.integration.wumart.newibdaccount.TABLEOFPROTT;
+import com.lsh.wms.integration.wumart.newibdaccount.TABLEOFVBPOK;
+import com.lsh.wms.integration.wumart.newibdaccount.TABLEOFZDELIVERYEXPORT;
+import com.lsh.wms.integration.wumart.newibdaccount.TABLEOFZDELIVERYIMPORT;
+import com.lsh.wms.integration.wumart.newibdaccount.ZDELIVERYEXPORT;
+import com.lsh.wms.integration.wumart.newibdaccount.ZDELIVERYIMPORT;
 import com.lsh.wms.integration.wumart.ibdback.*;
 import com.lsh.wms.integration.wumart.obd.*;
 import com.lsh.wms.integration.wumart.obd.Bapiret2;
@@ -259,7 +259,7 @@ public class WuMartSap implements IWuMartSap{
         //date.setDay(5);
         date.setMonth(calendar.get(Calendar.MONTH)+1);
         //注册工厂
-        com.lsh.wms.integration.wumart.ibdaccount.ObjectFactory factory = new com.lsh.wms.integration.wumart.ibdaccount.ObjectFactory();
+        com.lsh.wms.integration.wumart.newibdaccount.ObjectFactory factory = new com.lsh.wms.integration.wumart.newibdaccount.ObjectFactory();
         TABLEOFZDELIVERYIMPORT pItems = factory.createTABLEOFZDELIVERYIMPORT();
         List<CreateIbdDetail> details = createIbdHeader.getItems();
         Long receiveId = 0l;
@@ -296,14 +296,14 @@ public class WuMartSap implements IWuMartSap{
         Holder<TABLEOFPROTT> prot = new Holder<TABLEOFPROTT>();
         Holder<TABLEOFZDELIVERYEXPORT> pZEXPORT = new Holder<TABLEOFZDELIVERYEXPORT>(eItems);
         Holder<TABLEOFZDELIVERYIMPORT> pZIMPORT = new Holder<TABLEOFZDELIVERYIMPORT>(pItems);
-        com.lsh.wms.integration.wumart.ibdaccount.TABLEOFBAPIRET2 _return = factory.createTABLEOFBAPIRET2();
-        Holder<com.lsh.wms.integration.wumart.ibdaccount.TABLEOFBAPIRET2> return1 = new Holder<com.lsh.wms.integration.wumart.ibdaccount.TABLEOFBAPIRET2>();
+        com.lsh.wms.integration.wumart.newibdaccount.TABLEOFBAPIRET2 _return = factory.createTABLEOFBAPIRET2();
+        Holder<com.lsh.wms.integration.wumart.newibdaccount.TABLEOFBAPIRET2> return1 = new Holder<com.lsh.wms.integration.wumart.newibdaccount.TABLEOFBAPIRET2>();
         Holder<TABLEOFVBPOK> vbpokTAB = new Holder<TABLEOFVBPOK>();
 
-        com.lsh.wms.integration.wumart.ibdaccount.ZDELIVERYINBOUNDUPDATE zbinding = new com.lsh.wms.integration.wumart.ibdaccount.Service().getBindingSOAP12();
+        com.lsh.wms.integration.wumart.newibdaccount.ZDELIVERYINBOUNDUPDATE zbinding = new com.lsh.wms.integration.wumart.newibdaccount.ZDELIVERYINBOUNDUPDATE_Service().getBindingSOAP12();
         this.auth((BindingProvider) zbinding);
         logger.info("ibd过账传入参数: pZIMPORT : " + JSON.toJSONString(pZIMPORT)+"~~~~~~~~~~~~~~");
-        com.lsh.wms.integration.wumart.ibdaccount.TABLEOFBAPIRET2 newReturn = zbinding.zDELIVERYINBOUNDUPDATE(itemCONTROL,itemDATA,prot,pZEXPORT,pZIMPORT,_return,return1,vbpokTAB);
+        com.lsh.wms.integration.wumart.newibdaccount.TABLEOFBAPIRET2 newReturn = zbinding.zDELIVERYINBOUNDUPDATE(itemCONTROL,itemDATA,prot,pZEXPORT,pZIMPORT,_return,return1,vbpokTAB);
         logger.info("参数 : pZIMPORT : " + JSON.toJSONString(pZIMPORT)
                 + " itemCONTROL : "+itemCONTROL
                 + "itemDATA : " + itemDATA

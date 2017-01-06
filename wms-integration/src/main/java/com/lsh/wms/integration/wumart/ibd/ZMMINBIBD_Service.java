@@ -17,7 +17,7 @@ import javax.xml.ws.WebServiceFeature;
  * Generated source version: 2.2
  * 
  */
-@WebServiceClient(name = "ZMM_INB_IBD", targetNamespace = "urn:sap-com:document:sap:soap:functions:mc-style", wsdlLocation = "file:/home/work/wumart/ibd.wsdl")
+@WebServiceClient(name = "ZMM_INB_IBD", targetNamespace = "urn:sap-com:document:sap:soap:functions:mc-style", wsdlLocation = "file:/home/wms/wumart/ibd.wsdl")
 public class ZMMINBIBD_Service
     extends Service
 {
@@ -30,7 +30,7 @@ public class ZMMINBIBD_Service
         URL url = null;
         WebServiceException e = null;
         try {
-            url = new URL("file:/home/work/wumart/ibd.wsdl");
+            url = new URL("file:/home/wms/wumart/ibd.wsdl");
         } catch (MalformedURLException ex) {
             e = new WebServiceException(ex);
         }
