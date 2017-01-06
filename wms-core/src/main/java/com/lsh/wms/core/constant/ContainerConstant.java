@@ -30,8 +30,8 @@ public class ContainerConstant {
                 {
                     put("typeName","笼车");
                     put("type",2L);
-                    put("model","1100*800*1700cm");
-                    put("capacity",1000L);
+                    put("model","120*120*100cm");
+                    put("capacity",1440L);
                     put("loadCapacity",500L);
                     put("description","笼车1000L容积,称重500KG");
                     put("status","1");
@@ -41,10 +41,10 @@ public class ContainerConstant {
                 {
                     put("typeName","周转箱");
                     put("type",2L);
-                    put("model","555*365*295mm");
-                    put("capacity",60L);
+                    put("model","51*32*28cm");
+                    put("capacity",45L);
                     put("loadCapacity",30L);
-                    put("description","周转箱60L容积,称重30KG");
+                    put("description","周转箱45L容积,称重30KG");
                     put("status","1");
                 }
             });
