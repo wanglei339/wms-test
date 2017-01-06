@@ -226,6 +226,9 @@ public class SoRpcService implements ISoRpcService {
             logger.warn("so get fail "+orderId);
             return;
         }
+        if ( DateUtils.getCurrentSeconds() - header.getCreatedAt() < 60 * 60 * 24 * 7) {
+            return;
+        }
         if( header.getOrderType() == SoConstant.ORDER_TYPE_DIRECT || header.getIsClosed() == 1L || header.getWaveId() <= 1 ) {
             return;
         }
@@ -297,7 +300,7 @@ public class SoRpcService implements ISoRpcService {
         List<StockMove> moveList = new ArrayList<StockMove>();
         for(SupplierBackDetail supplierBackDetail : supplierBackDetails){
             WaveDetail waveDetail = new WaveDetail();
-            ObjUtils.bean2bean(supplierBackDetail,waveDetail);
+            ObjUtils.bean2bean(supplierBackDetail, waveDetail);
             waveDetail.setQcQty(supplierBackDetail.getReqQty());
             waveDetails.add(waveDetail);
 
@@ -319,7 +322,7 @@ public class SoRpcService implements ISoRpcService {
         tuHead.setTuId("");
         tuHead.setLoadUid(uid);
 
-        soOrderService.confirmBack(waveDetails,tuDetails,tuHead,moveList,obdHeader);
+        soOrderService.confirmBack(waveDetails, tuDetails, tuHead, moveList, obdHeader);
 
 
 

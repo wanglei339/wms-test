@@ -39,6 +39,7 @@ public class SoCloseTaskDeal implements IScheduleTaskDealSingle<Long> {
         List<Long> list = new ArrayList<Long>();
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("isClosed", 0L);
+        params.put("orderStatus", 4L);
         List<ObdHeader> headerList = iSoRpcService.getOutbSoHeaderList(params);
         for (ObdHeader header : headerList) {
             Integer orderType = header.getOrderType();
