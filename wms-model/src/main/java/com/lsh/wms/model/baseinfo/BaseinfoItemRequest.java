@@ -27,30 +27,8 @@ public class BaseinfoItemRequest implements Serializable {
 	private Long thirdCat = 0L;
 	/** 保质期天数 */
 	private BigDecimal shelfLife = BigDecimal.ZERO;
-	/** 基本单位-长 */
-	private BigDecimal length = new BigDecimal(0);
-	/** 基本单位-宽 */
-	private BigDecimal width = new BigDecimal(0);
-	/** 基本单位-高 */
-	private BigDecimal height = new BigDecimal(0);
-	/** 基本单位-重量 */
-	private BigDecimal weight = new BigDecimal(0);
-	/** 2级包装－长 */
-	private BigDecimal l2Length = new BigDecimal(0);
-	/** 2级包装－宽 */
-	private BigDecimal l2Width= new BigDecimal(0);
-	/** 2级包装－高 */
-	private BigDecimal l2Height= new BigDecimal(0);
-	/** 2级包装－重量 */
-	private BigDecimal l2Weight= new BigDecimal(0);
 	/** 2级包装单位－含有基本单位个数 */
 	private BigDecimal l2Unit= new BigDecimal(0);
-	/** 外包装－长 */
-	private BigDecimal packLength= new BigDecimal(0);
-	/** 外包装－宽 */
-	private BigDecimal packWidth= new BigDecimal(0);
-	/** 外包装－高 */
-	private BigDecimal packHeight= new BigDecimal(0);
 	/** 外包装－重量 */
 	private BigDecimal packWeight= new BigDecimal(0);
 	/** 外包装单位-含有基本单位个数 */
@@ -58,7 +36,7 @@ public class BaseinfoItemRequest implements Serializable {
 	/** 售卖单位 */
 	private BigDecimal saleUnit= new BigDecimal(0);
 	/** 商品等级，对应A,B,C */
-	private Integer itemLevel =0;
+	private Integer itemLevel =3;
 	/** 产地 */
 	private String producePlace = "";
 	/** 批次号要求 */
@@ -153,70 +131,6 @@ public class BaseinfoItemRequest implements Serializable {
 		this.shelfLife = shelfLife;
 	}
 
-	public BigDecimal getLength(){
-		return this.length;
-	}
-
-	public void setLength(BigDecimal length){
-		this.length = length;
-	}
-
-	public BigDecimal getWidth(){
-		return this.width;
-	}
-
-	public void setWidth(BigDecimal width){
-		this.width = width;
-	}
-
-	public BigDecimal getHeight(){
-		return this.height;
-	}
-
-	public void setHeight(BigDecimal height){
-		this.height = height;
-	}
-
-	public BigDecimal getWeight(){
-		return this.weight;
-	}
-
-	public void setWeight(BigDecimal weight){
-		this.weight = weight;
-	}
-
-	public BigDecimal getL2Length(){
-		return this.l2Length;
-	}
-
-	public void setL2Length(BigDecimal l2Length){
-		this.l2Length = l2Length;
-	}
-
-	public BigDecimal getL2Width(){
-		return this.l2Width;
-	}
-
-	public void setL2Width(BigDecimal l2Width){
-		this.l2Width = l2Width;
-	}
-
-	public BigDecimal getL2Height(){
-		return this.l2Height;
-	}
-
-	public void setL2Height(BigDecimal l2Height){
-		this.l2Height = l2Height;
-	}
-
-	public BigDecimal getL2Weight(){
-		return this.l2Weight;
-	}
-
-	public void setL2Weight(BigDecimal l2Weight){
-		this.l2Weight = l2Weight;
-	}
-
 	public BigDecimal getL2Unit(){
 		return this.l2Unit;
 	}
@@ -225,29 +139,6 @@ public class BaseinfoItemRequest implements Serializable {
 		this.l2Unit = l2Unit;
 	}
 
-	public BigDecimal getPackLength(){
-		return this.packLength;
-	}
-
-	public void setPackLength(BigDecimal packLength){
-		this.packLength = packLength;
-	}
-
-	public BigDecimal getPackWidth(){
-		return this.packWidth;
-	}
-
-	public void setPackWidth(BigDecimal packWidth){
-		this.packWidth = packWidth;
-	}
-
-	public BigDecimal getPackHeight(){
-		return this.packHeight;
-	}
-
-	public void setPackHeight(BigDecimal packHeight){
-		this.packHeight = packHeight;
-	}
 
 	public BigDecimal getPackWeight(){
 		return this.packWeight;
