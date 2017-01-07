@@ -191,17 +191,20 @@ public class ItemRestService implements IItemRestService {
         }
         return JsonUtils.SUCCESS();
     }
- /*   @POST
-    @Path("updateItemLocation")
-    public String updateItemLocation(BaseinfoItemLocation itemLocation) {
+    @POST
+    @Path("updateItemLocationById")
+    public String updateItemLocationById(BaseinfoItemLocation itemLocation) {
         try{
             itemRpcService.updateItemLocation(itemLocation);
+        }catch (BizCheckedException e) {
+            throw e;
         }catch (Exception e){
-            logger.error(e.getCause().getMessage());
-            return JsonUtils.EXCEPTION_ERROR("failed");
+            logger.error(e.getMessage());
+            return JsonUtils.TOKEN_ERROR("failed");
         }
         return JsonUtils.SUCCESS();
-    }*/
+    }
+
     @POST
     @Path("updateItemLocation")
     public String updateItemLocation(BaseinfoItemLocation itemLocation) {
