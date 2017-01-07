@@ -45,7 +45,7 @@
 		where pick_locationid=#{pickLocationid} and item_id=#{itemId}
 	</update>
   
-	<select id="getBaseinfoItemLocationById" parameterType="int" resultMap="baseinfoItemLocationResultMap">
+	<select id="getBaseinfoItemLocationById" parameterType="long" resultMap="baseinfoItemLocationResultMap">
 		select * from baseinfo_item_location
 		where ID=#{id} 
 	</select>

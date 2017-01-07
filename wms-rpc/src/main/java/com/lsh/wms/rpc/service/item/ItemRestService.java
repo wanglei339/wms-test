@@ -193,7 +193,7 @@ public class ItemRestService implements IItemRestService {
     }
     @POST
     @Path("updateItemLocationById")
-    public String updateItemLocationById(BaseinfoItemLocation itemLocation) {
+    public String updateItemLocationById(BaseinfoItemLocation itemLocation)  throws BizCheckedException {
         try{
             itemRpcService.updateItemLocation(itemLocation);
         }catch (BizCheckedException e) {
@@ -207,7 +207,7 @@ public class ItemRestService implements IItemRestService {
 
     @POST
     @Path("updateItemLocation")
-    public String updateItemLocation(BaseinfoItemLocation itemLocation) {
+    public String updateItemLocation(BaseinfoItemLocation itemLocation)  throws BizCheckedException {
         try{
             itemRpcService.updateByItemIdAndPicId(itemLocation);
         }catch (BizCheckedException e) {
