@@ -157,11 +157,16 @@ public class QCRestService implements IRFQCRestService {
             }
             if (mapItem2PickQty.get(d.getItemId()) == null) {
                 mapItem2PickQty.put(d.getItemId(), new BigDecimal(d.getPickQty().toString()));
-                mapItem2QCQty.put(d.getItemId(), new BigDecimal(d.getQcQty().toString()));
             } else {
                 mapItem2PickQty.put(d.getItemId(), mapItem2PickQty.get(d.getItemId()).add(d.getPickQty()));
-                mapItem2QCQty.put(d.getItemId(), mapItem2PickQty.get(d.getItemId()).add(d.getQcQty()));
             }
+
+            if (mapItem2QCQty.get(d.getItemId()) == null) {
+                mapItem2QCQty.put(d.getItemId(), new BigDecimal(d.getQcQty().toString()));
+            } else {
+                mapItem2QCQty.put(d.getItemId(), mapItem2QCQty.get(d.getItemId()).add(d.getQcQty()));
+            }
+
             //如果同种商品,同种货物的出货的包装单位不同,按照EA算
             if (mapItem2WaveDetail.get(d.getItemId()) != null) {
                 if (mapItem2WaveDetail.get(d.getItemId()).getAllocUnitName().equals("EA")) {
@@ -259,10 +264,16 @@ public class QCRestService implements IRFQCRestService {
         rstMap.put("collectionRoadCode", collectLocaion.getLocationCode());
         rstMap.put("itemLineNum", mapItem2PickQty.size());
         //TODO BOX NUM
+
         rstMap.put("allBoxNum", allBoxNum);
         rstMap.put("itemBoxNum", boxNum);
         //TODO 前端显示有问题,没显示周装箱的总数量
         rstMap.put("turnoverBoxNum", hasEA ? 1 : 0);
+        if (TaskConstant.Done.equals(qcTaskInfo.getStatus())){
+            rstMap.put("allBoxNum", qcTaskInfo.getTaskPackQty());
+            rstMap.put("itemBoxNum", qcTaskInfo.getExt4());
+            rstMap.put("turnoverBoxNum", qcTaskInfo.getExt3());
+        }
         rstMap.put("qcTaskDone", qcTaskInfo.getStatus() == TaskConstant.Done);
         rstMap.put("qcTaskId", qcTaskInfo.getTaskId().toString());
         rstMap.put("containerId", qcTaskInfo.getContainerId());
