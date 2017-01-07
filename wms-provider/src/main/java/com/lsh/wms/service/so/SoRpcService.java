@@ -22,6 +22,7 @@ import com.lsh.wms.core.service.so.SupplierBackDetailService;
 import com.lsh.wms.core.service.stock.StockMoveService;
 import com.lsh.wms.core.service.stock.StockSummaryService;
 import com.lsh.wms.core.service.utils.IdGenerator;
+import com.lsh.wms.core.service.utils.PackUtil;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.csi.CsiOwner;
 import com.lsh.wms.model.so.ObdDetail;
@@ -189,16 +190,41 @@ public class SoRpcService implements ISoRpcService {
             throw new BizCheckedException("1030002", "参数类型不正确");
         }
 
-        ObdHeader obdHeader = new ObdHeader();
-        if(map.get("orderOtherId") != null && !StringUtils.isBlank(String.valueOf(map.get("orderOtherId")))) {
-            obdHeader.setOrderOtherId(String.valueOf(map.get("orderOtherId")));
+        //ObdHeader obdHeader = new ObdHeader();
+        ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderId(Long.valueOf(String.valueOf(map.get("orderId"))));
+//        if(map.get("orderOtherId") != null && !StringUtils.isBlank(String.valueOf(map.get("orderOtherId")))) {
+//            obdHeader.setOrderOtherId(String.valueOf(map.get("orderOtherId")));
+//        }
+//        if(map.get("orderId") != null && StringUtils.isInteger(String.valueOf(map.get("orderId")))) {
+//            obdHeader.setOrderId(Long.valueOf(String.valueOf(map.get("orderId"))));
+//        }
+        if(obdHeader == null){
+            throw  new BizCheckedException("2020001");
         }
-        if(map.get("orderId") != null && StringUtils.isInteger(String.valueOf(map.get("orderId")))) {
-            obdHeader.setOrderId(Long.valueOf(String.valueOf(map.get("orderId"))));
-        }
+        Integer orderStatus = obdHeader.getOrderStatus();
         obdHeader.setOrderStatus(Integer.valueOf(String.valueOf(map.get("orderStatus"))));
+        List<StockMove> stockMoves = new ArrayList<StockMove>();
+        //取消订单 将商品从占用区移除
+        if(SoConstant.ORDER_STATUS_CANCLE == Integer.valueOf(String.valueOf(map.get("orderStatus")))){
+            //如果状态为新建 允许取消
+            if(SoConstant.ORDER_STATUS_NORMAL != orderStatus){
+                throw new BizCheckedException("2028891");
+            }
+            List<ObdDetail> detailList = soOrderService.getOutbSoDetailListByOrderId(obdHeader.getOrderId());
+            for(ObdDetail obdDetail : detailList){
+                //将占用库存移出
+                StockMove move = new StockMove();
+                move.setItemId(obdDetail.getItemId());
+                move.setQty(PackUtil.UomQty2EAQty(obdDetail.getOrderQty(),obdDetail.getPackName()));
+                move.setFromLocationId(locationService.getSoAreaInbound().getLocationId());
+                move.setToLocationId(locationService.getNullArea().getLocationId());
+                move.setTaskId(obdDetail.getOrderId());
+                stockMoves.add(move);
+            }
 
-        soOrderService.updateOutbSoHeaderByOrderOtherIdOrOrderId(obdHeader);
+        }
+
+        soOrderService.updateOutbSoHeaderByOrderOtherIdOrOrderId(obdHeader,stockMoves);
 
         return true;
     }

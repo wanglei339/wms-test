@@ -105,10 +105,13 @@ public class SoOrderService {
      * @param obdHeader
      */
     @Transactional(readOnly = false)
-    public void updateOutbSoHeaderByOrderOtherIdOrOrderId(ObdHeader obdHeader) {
+    public void updateOutbSoHeaderByOrderOtherIdOrOrderId(ObdHeader obdHeader,List<StockMove> stockMoves) {
         obdHeader.setUpdatedAt(DateUtils.getCurrentSeconds());
         obdHeader.setCreatedAt(null);
         obdHeaderDao.updateByOrderOtherIdOrOrderId(obdHeader);
+        if(stockMoves != null && stockMoves.size() >0){
+            stockMoveService.move(stockMoves);
+        }
     }
 
     /**
