@@ -181,15 +181,18 @@ public class ItemRestService implements IItemRestService {
         if(locationService.getLocation(locationId) == null){
             throw new BizCheckedException("2050003");
         }
+        BaseinfoItemLocation newItem = null;
         try{
-            itemRpcService.insertItemLocation(itemLocation);
+            newItem = itemRpcService.insertItemLocation(itemLocation);
         }catch (BizCheckedException e) {
             throw e;
         }catch (Exception e){
             logger.error(e.getCause()!=null ? e.getCause().getMessage():e.getMessage());
             return JsonUtils.TOKEN_ERROR("failed");
         }
-        return JsonUtils.SUCCESS();
+        Map<String,Long> map = new HashMap<String, Long>();
+        map.put("id",newItem.getId());
+        return JsonUtils.SUCCESS(map);
     }
     @POST
     @Path("updateItemLocationById")
