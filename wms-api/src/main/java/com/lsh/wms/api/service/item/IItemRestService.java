@@ -27,6 +27,7 @@ public interface IItemRestService {
     String getItemLocationByLocationID(long iLocationId);
     String insertItemLocation(BaseinfoItemLocation itemLocation) throws BizCheckedException;
     String updateItemLocation(BaseinfoItemLocation itemLocation);
+    String updateItemLocationById(BaseinfoItemLocation itemLocation);
     String setStatus(long iItemId,long iStatus);
 
     String deleteItemLocation(BaseinfoItemLocation itemLocation);

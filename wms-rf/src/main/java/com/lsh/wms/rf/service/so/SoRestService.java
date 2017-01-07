@@ -11,7 +11,7 @@ import com.lsh.wms.api.model.base.ResUtils;
 import com.lsh.wms.api.model.base.ResponseConstant;
 import com.lsh.wms.api.model.so.SoRequest;
 import com.lsh.wms.api.service.request.RequestUtils;
-import com.lsh.wms.api.service.so.ISoRestService;
+import com.lsh.wms.api.service.so.ISoRfRestService;
 import com.lsh.wms.api.service.so.ISoRpcService;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.model.so.ObdDetail;
@@ -38,7 +38,7 @@ import java.util.Map;
 @Path("order/so")
 @Consumes({MediaType.APPLICATION_JSON, MediaType.TEXT_XML})
 @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
-public class SoRestService implements ISoRestService {
+public class SoRestService implements ISoRfRestService {
 
     private static Logger logger = LoggerFactory.getLogger(SoRestService.class);
 
