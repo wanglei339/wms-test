@@ -84,6 +84,9 @@ public class WaveRpcService implements IWaveRpcService {
             if(so == null){
                 throw new BizCheckedException("2041000", orderId,"");
             }
+            if(so.getOrderStatus().equals(SoConstant.ORDER_STATUS_CANCLE)){
+                throw new BizCheckedException("2041005",orderId,"");
+            }
             if(so.getWaveId() > 0){
                 throw new BizCheckedException("2041001", orderId,"");
             }
