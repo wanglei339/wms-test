@@ -231,7 +231,7 @@
 		(select count(*) num from task_info
 		<where>
 			status = 4
-			<if test="uid != null">operator = #{uid}</if>
+			<if test="uid != null">and operator = #{uid}</if>
 			<if test="uidList != null">
 				and operator in
 				<foreach collection="uidList"  item="item" index="index" open="(" separator=","  close=")">
@@ -241,6 +241,7 @@
 			<if test="type != null">and type = #{type}</if>
 			<if test="startDate != null">and #{startDate} &lt;= date</if>
 			<if test="endDate != null">and date &lt;= #{endDate}</if>
+
 		</where>
 		group by operator, date, type, sub_type) t
 	</select>
