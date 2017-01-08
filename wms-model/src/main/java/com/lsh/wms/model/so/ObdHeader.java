@@ -48,6 +48,9 @@ public class ObdHeader implements Serializable {
 	/**  */
 	private Long updatedAt = 0l;
 
+	/**送达方手机号 add 20170108*/
+    private String telephone;
+
 	private Object orderDetails;
 
 	public Long getId(){
@@ -224,5 +227,13 @@ public class ObdHeader implements Serializable {
 
 	public void setIsClosed(Long isClosed) {
 		this.isClosed = isClosed;
+	}
+
+	public String getTelephone() {
+		return telephone;
+	}
+
+	public void setTelephone(String telephone) {
+		this.telephone = telephone;
 	}
 }
