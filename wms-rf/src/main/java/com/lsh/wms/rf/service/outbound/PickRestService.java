@@ -547,7 +547,79 @@ public class PickRestService implements IPickRestService {
         Map<String, Object> mapQuery = RequestUtils.getRequest();
         Long taskId = Long.valueOf(mapQuery.get("taskId").toString());
         Long pickOrder = Long.valueOf(mapQuery.get("pickOrder").toString());
+        Long staffId = Long.valueOf(RequestUtils.getHeader("uid"));
+        // 判断用户是否存在
+        SysUser sysUser = iSysUserRpcService.getSysUserById(staffId);
+        if (sysUser == null) {
+            throw new BizCheckedException("2000003");
+        }
+
+        // 获取分配给操作人员的所有拣货任务
+        Map<String, Object> taskInfoParams = new HashMap<String, Object>();
+        taskInfoParams.put("operator", staffId);
+        taskInfoParams.put("type", TaskConstant.TYPE_PICK);
+        taskInfoParams.put("status", TaskConstant.Assigned);
+        List<TaskInfo> taskInfos = baseTaskService.getTaskInfoList(taskInfoParams);
+
+        if (taskInfos == null) {
+            throw new BizCheckedException("2060003");
+        }
+
+        // 取taskId
+        List<Long> taskIds = new ArrayList<Long>();
+
+        for (TaskInfo taskInfo: taskInfos) {
+            taskIds.add(taskInfo.getTaskId());
+        }
+
+        // 取排好序的拣货详情
+        if (taskIds.size() < 1) {
+            throw new BizCheckedException("2060010");
+        }
+        List<WaveDetail> pickDetails = waveService.getOrderedDetailsByPickTaskIds(taskIds);
+        // 查找最后未完成的任务
+        WaveDetail needPickDetail = new WaveDetail();
+        for (WaveDetail pickDetail : pickDetails) {
+            Long pickAt = pickDetail.getPickAt();
+            if (pickAt == null || pickAt.equals(0L)) {
+                needPickDetail = pickDetail;
+                break;
+            }
+        }
+        // 最后的order
+        Long lastPickOrder = 0L;
+        for (WaveDetail pickDetail : pickDetails) {
+            if (pickDetail.getPickOrder() > lastPickOrder) {
+                lastPickOrder = pickDetail.getPickOrder();
+            }
+        }
+        // 没有未做完的拣货操作
+        if (needPickDetail.getPickTaskId() == null || needPickDetail.getPickTaskId().equals(0L)) {
+            throw new BizCheckedException("2060022");
+        }
+        if (!taskId.equals(needPickDetail.getPickTaskId())) {
+            throw new BizCheckedException("2060022");
+        }
+        if (!pickOrder.equals(needPickDetail.getPickOrder())) {
+            throw new BizCheckedException("2060022");
+        }
+        needPickDetail.setPickOrder(lastPickOrder + 1);
+        waveService.updateDetail(needPickDetail);
+
+        // 获取下一个拣货详情
+        List<WaveDetail> nextPickDetails = waveService.getOrderedDetailsByPickTaskIds(taskIds); // 因为可能拆分,所以需要重新获取一次
+        WaveDetail nextPickDetail = new WaveDetail();
+        for (WaveDetail pickDetail: nextPickDetails) {
+            Long pickAt = pickDetail.getPickAt();
+            if (pickAt == null || pickAt.equals(0L)) {
+                nextPickDetail = pickDetail;
+                break;
+            }
+        }
         Map<String, Object> result = new HashMap<String, Object>();
+        result.put("pick_done", false);
+        result.put("done", false);
+        result.put("next_detail", pickTaskService.renderResult(BeanMapTransUtils.Bean2map(nextPickDetail), "allocPickLocation", "allocPickLocationCode"));
         return JsonUtils.SUCCESS(result);
     }
 
@@ -561,6 +633,9 @@ public class PickRestService implements IPickRestService {
     @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
     @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
     public String hold() throws BizCheckedException {
+        if (true) {
+            throw new BizCheckedException("999", "操作尚不可用,请稍后再试");
+        }
         Map<String, Object> mapQuery = RequestUtils.getRequest();
         Map<String, Object> result = new HashMap<String, Object>();
         return JsonUtils.SUCCESS(result);
