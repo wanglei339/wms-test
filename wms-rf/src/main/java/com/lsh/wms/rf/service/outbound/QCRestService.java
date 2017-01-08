@@ -206,6 +206,9 @@ public class QCRestService implements IRFQCRestService {
             BaseinfoItem item = itemRpcService.getItem(itemId);
             detail.put("skuId", item.getSkuId());
             detail.put("itemId", item.getItemId());
+            //箱子码
+            detail.put("packCode",item.getPackCode());
+
             detail.put("code", item.getCode());
             detail.put("codeType", item.getCodeType());
             //显示六位吗
@@ -334,7 +337,7 @@ public class QCRestService implements IRFQCRestService {
 
 
         String code = (String) request.get("code");
-        CsiSku skuInfo = csiRpcService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, code);
+  /*      CsiSku skuInfo = csiRpcService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, code);
 
         if (skuInfo == null) {
             throw new BizCheckedException("2120001");
@@ -343,7 +346,13 @@ public class QCRestService implements IRFQCRestService {
 
         Long ownerId = obdHeader.getOwnerUid();
 //        Long ownerId = qcTaskInfo.getOwnerId(); FIXME
-        BaseinfoItem item = itemRpcService.getItem(ownerId, skuId);
+        BaseinfoItem item = itemRpcService.getItem(ownerId, skuId);*/
+
+        Long ownerId = obdHeader.getOwnerUid();
+        BaseinfoItem item = this.getItem(ownerId, code);
+        if (null==item){
+            throw new BizCheckedException("2120001");
+        }
 
         List<WaveDetail> details = waveService.getDetailsByContainerId(qcTaskInfo.getContainerId());    //qc的数量不在是拣货的数量了,而是集货的数量和收货的数量
         // 标识是拣货生成的QC还是集货生成的QC
@@ -367,7 +376,7 @@ public class QCRestService implements IRFQCRestService {
                 throw new BizCheckedException("2120009");
             }
             WaveQcException qcException = new WaveQcException();
-            qcException.setSkuId(skuInfo.getSkuId());
+//            qcException.setSkuId(skuInfo.getSkuId());
             qcException.setExceptionQty(exceptionQty);
             qcException.setExceptionType(exceptionType);
             qcException.setQcTaskId(qcTaskId);
@@ -695,7 +704,14 @@ public class QCRestService implements IRFQCRestService {
         });
     }
 
-    private BaseinfoItem getItem(String code, Long ownerId) throws BizCheckedException{
+    /**
+     * 先国条后箱子码
+     * @param ownerId
+     * @param code
+     * @return
+     * @throws BizCheckedException
+     */
+    private BaseinfoItem getItem(Long ownerId, String code) throws BizCheckedException {
         BaseinfoItem baseinfoItem = null;
         //国条码
         CsiSku skuInfo = csiRpcService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, code);
@@ -707,11 +723,11 @@ public class QCRestService implements IRFQCRestService {
             return baseinfoItem;
         }
         //箱码
-        baseinfoItem = itemService.getItemByPackCode(code);
-        if(baseinfoItem != null){
-            return  baseinfoItem;
+        baseinfoItem = itemService.getItemByPackCode(ownerId, code);
+        if (baseinfoItem != null) {
+            return baseinfoItem;
         }
-        if(baseinfoItem==null){
+        if (baseinfoItem == null) {
             throw new BizCheckedException("2900001");
         }
         return baseinfoItem;
