@@ -21,6 +21,7 @@ import com.lsh.wms.core.constant.PickConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.constant.WaveConstant;
 import com.lsh.wms.core.service.stock.StockQuantService;
+import com.lsh.wms.core.service.system.SysUserService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.core.service.utils.PackUtil;
 import com.lsh.wms.core.service.wave.WaveService;
@@ -29,6 +30,7 @@ import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.csi.CsiSku;
 import com.lsh.wms.model.so.ObdHeader;
+import com.lsh.wms.model.system.SysUser;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.wave.WaveDetail;
@@ -76,6 +78,8 @@ public class QCRestService implements IRFQCRestService {
     private ILocationRpcService iLocationRpcService;
     @Reference
     private IQCRpcService iqcRpcService;
+    @Autowired
+    private SysUserService sysUserService;
 
     /**
      * 扫码获取qc任务详情
@@ -128,7 +132,7 @@ public class QCRestService implements IRFQCRestService {
             throw new BizCheckedException("2120006");
         }
         qcTaskInfo = tasks.get(0);
-        pickTaskId = qcTaskInfo.getTaskId();
+        pickTaskId = qcTaskInfo.getQcPreviousTaskId();
         containerId = qcTaskInfo.getContainerId();
 
         //显示qc的进行状态
@@ -157,11 +161,16 @@ public class QCRestService implements IRFQCRestService {
             }
             if (mapItem2PickQty.get(d.getItemId()) == null) {
                 mapItem2PickQty.put(d.getItemId(), new BigDecimal(d.getPickQty().toString()));
-                mapItem2QCQty.put(d.getItemId(), new BigDecimal(d.getQcQty().toString()));
             } else {
                 mapItem2PickQty.put(d.getItemId(), mapItem2PickQty.get(d.getItemId()).add(d.getPickQty()));
-                mapItem2QCQty.put(d.getItemId(), mapItem2PickQty.get(d.getItemId()).add(d.getQcQty()));
             }
+
+            if (mapItem2QCQty.get(d.getItemId()) == null) {
+                mapItem2QCQty.put(d.getItemId(), new BigDecimal(d.getQcQty().toString()));
+            } else {
+                mapItem2QCQty.put(d.getItemId(), mapItem2QCQty.get(d.getItemId()).add(d.getQcQty()));
+            }
+
             //如果同种商品,同种货物的出货的包装单位不同,按照EA算
             if (mapItem2WaveDetail.get(d.getItemId()) != null) {
                 if (mapItem2WaveDetail.get(d.getItemId()).getAllocUnitName().equals("EA")) {
@@ -259,15 +268,28 @@ public class QCRestService implements IRFQCRestService {
         rstMap.put("collectionRoadCode", collectLocaion.getLocationCode());
         rstMap.put("itemLineNum", mapItem2PickQty.size());
         //TODO BOX NUM
+
         rstMap.put("allBoxNum", allBoxNum);
         rstMap.put("itemBoxNum", boxNum);
         //TODO 前端显示有问题,没显示周装箱的总数量
         rstMap.put("turnoverBoxNum", hasEA ? 1 : 0);
+        if (TaskConstant.Done.equals(qcTaskInfo.getStatus())){
+            rstMap.put("allBoxNum", qcTaskInfo.getTaskPackQty());
+            rstMap.put("itemBoxNum", qcTaskInfo.getExt4());
+            rstMap.put("turnoverBoxNum", qcTaskInfo.getExt3());
+        }
         rstMap.put("qcTaskDone", qcTaskInfo.getStatus() == TaskConstant.Done);
         rstMap.put("qcTaskId", qcTaskInfo.getTaskId().toString());
         rstMap.put("containerId", qcTaskInfo.getContainerId());
         rstMap.put("isFristQc", isFirstQC);
         rstMap.put("step", step);
+        //捡货人员的名字
+        TaskInfo pickTask = baseTaskService.getTaskByTaskId(qcTaskInfo.getQcPreviousTaskId());
+        if (null==pickTask){
+            throw new BizCheckedException("2060003");
+        }
+        SysUser picker = sysUserService.getSysUserByUid(pickTask.getOperator().toString());
+        rstMap.put("pickerName", picker.getScreenname());
         return JsonUtils.SUCCESS(rstMap);
     }
 

@@ -74,6 +74,9 @@ public class SoRequest implements Serializable {
     /** 退货 收货供商号*/
     private String supplierNo = "";
 
+    /**送达方手机号*/
+    private String telephone = "";
+
     /** 商品 */
     @Valid
     @Size(min=1)
@@ -82,7 +85,7 @@ public class SoRequest implements Serializable {
     public SoRequest() {
     }
 
-    public SoRequest(String deliveryAddrs, String deliveryCode, String deliveryName, List<SoItem> items, String orderOtherId, String orderOtherRefId, Integer orderType, String orderUser, String orderUserCode, Long ownerUid, String supplierNo, String transPlan, Date transTime, Long waveId, Integer waveIndex, String waveOrderType) {
+    public SoRequest(String deliveryAddrs, String deliveryCode, String deliveryName, List<SoItem> items, String orderOtherId, String orderOtherRefId, Integer orderType, String orderUser, String orderUserCode, Long ownerUid, String supplierNo, String transPlan, Date transTime, Long waveId, Integer waveIndex, String waveOrderType,String telephone) {
         this.deliveryAddrs = deliveryAddrs;
         this.deliveryCode = deliveryCode;
         this.deliveryName = deliveryName;
@@ -98,6 +101,7 @@ public class SoRequest implements Serializable {
         this.transTime = transTime;
         this.waveId = waveId;
         this.waveIndex = waveIndex;
+        this.telephone = telephone;
         this.waveOrderType = waveOrderType;
     }
 
@@ -227,5 +231,13 @@ public class SoRequest implements Serializable {
 
     public void setWaveOrderType(String waveOrderType) {
         this.waveOrderType = waveOrderType;
+    }
+
+    public String getTelephone() {
+        return telephone;
+    }
+
+    public void setTelephone(String telephone) {
+        this.telephone = telephone;
     }
 }

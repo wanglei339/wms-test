@@ -935,7 +935,7 @@ public class ReceiptRestService implements IReceiptRfService {
         }
 
         //barCode值为箱码
-        baseinfoItem = itemService.getItemByPackCode(barCode);
+        baseinfoItem = itemService.getItemByPackCode(ownerId,barCode);
         if(baseinfoItem != null){
             return  baseinfoItem;
         }
