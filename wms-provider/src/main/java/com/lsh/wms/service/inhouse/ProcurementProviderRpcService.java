@@ -25,6 +25,7 @@ import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
+import com.lsh.wms.model.baseinfo.BaseinfoLocationBin;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.stock.StockQuantCondition;
 import com.lsh.wms.model.task.TaskEntry;
@@ -245,7 +246,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
 //                    }
                     //根据库存数量和过期时间排序
                     List<StockQuant> sortQuants = this.sortQuant(quantList);
-
+                    boolean canWholeConatainer = this.checkContainerAndPickLocationVol(itemLocation.getPickLocationid(),item);
                     for(StockQuant quant:sortQuants) {
 
                         //判断存货位是否有捡货任务
@@ -258,7 +259,6 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
                             continue;
                         }
 
-
                         mapQuery.put("locationId", quant.getLocationId());
                         BigDecimal qty = quantService.getQty(mapQuery);
                         //去除小数
@@ -270,7 +270,9 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
                         }
                         if (nowQuant.compareTo(maxQty) < 0) {
                             // 创建任务
+
                             nowQuant = nowQuant.add(qty);
+
                             StockTransferPlan plan = new StockTransferPlan();
                             plan.setContainerId(quant.getContainerId());
                             plan.setPackUnit(quant.getPackUnit());
@@ -284,7 +286,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
                             plan.setToLocationId(itemLocation.getPickLocationid());
                             plan.setPackName(quant.getPackName());
                             plan.setPackUnit(quant.getPackUnit());
-                            if(nowQuant.compareTo(maxQty)>0){
+                            if(nowQuant.compareTo(maxQty)>0 && !canWholeConatainer){
                                 plan.setSubType(2L);//不够一拖，按箱补
 
                                 //去除小数
@@ -754,5 +756,17 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
            }
        }
         return quantList;
+    }
+
+    /**
+     * 校验捡货位体积和托盘体积大小
+     */
+    private boolean checkContainerAndPickLocationVol(Long pickLocationId,BaseinfoItem baseinfoItem){
+        BaseinfoLocationBin bin = (BaseinfoLocationBin) locationBinService.getBaseinfoItemLocationModelById(pickLocationId);
+        //获取仓位体积
+        BigDecimal pickVolume = bin.getVolume();
+        //计算码盘规则体积
+        BigDecimal containerVol = BigDecimal.valueOf(baseinfoItem.getPileNumber()).multiply(baseinfoItem.getPackLength()).multiply(baseinfoItem.getWidth()).multiply(baseinfoItem.getPackHeight());
+        return pickVolume.compareTo(containerVol) >= 0;
     }
 }
