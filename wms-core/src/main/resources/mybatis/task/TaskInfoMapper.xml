@@ -24,6 +24,7 @@
 		<result property="dueTime" column="due_time"/>
 		<result property="finishTime" column="finish_time"/>
 		<result property="cancelTime" column="cancel_time"/>
+		<result property="holdTime" column="hold_time"/>
 		<result property="ext1" column="ext1"/>
 		<result property="ext2" column="ext2"/>
 		<result property="ext3" column="ext3"/>
@@ -65,22 +66,24 @@
 			task_id,task_name,plan_id,wave_id,order_id,location_id,
 			sku_id,container_id,merged_container_id,operator,planner,type,
 			sub_type,status,priority,draft_time,assign_time,due_time,
-			finish_time,cancel_time,ext1,ext2,ext3,ext4,
-			ext5,ext6,ext7,ext8,ext9,created_at,
-			updated_at,owner_id,item_id,from_location_id,to_location_id,qty,
-			pack_unit,pack_name,is_allocated,real_from_location_id,real_to_location_id,qty_done,
-			task_ea_qty,date,trans_plan,task_pack_qty,task_board_qty,step,
-			is_show,business_mode,task_order,qc_previous_task_id,qc_skip,task_amount
+			finish_time,cancel_time,hold_time,ext1,ext2,ext3,
+			ext4,ext5,ext6,ext7,ext8,ext9,
+			created_at,updated_at,owner_id,item_id,from_location_id,to_location_id,
+			qty,pack_unit,pack_name,is_allocated,real_from_location_id,real_to_location_id,
+			qty_done,task_ea_qty,date,trans_plan,task_pack_qty,task_board_qty,
+			step,is_show,business_mode,task_order,qc_previous_task_id,qc_skip,
+			task_amount
     	) values (
 			#{taskId},#{taskName},#{planId},#{waveId},#{orderId},#{locationId},
 			#{skuId},#{containerId},#{mergedContainerId},#{operator},#{planner},#{type},
 			#{subType},#{status},#{priority},#{draftTime},#{assignTime},#{dueTime},
-			#{finishTime},#{cancelTime},#{ext1},#{ext2},#{ext3},#{ext4},
-			#{ext5},#{ext6},#{ext7},#{ext8},#{ext9},#{createdAt},
-			#{updatedAt},#{ownerId},#{itemId},#{fromLocationId},#{toLocationId},#{qty},
-			#{packUnit},#{packName},#{isAllocated},#{realFromLocationId},#{realToLocationId},#{qtyDone},
-			#{taskEaQty},#{date},#{transPlan},#{taskPackQty},#{taskBoardQty},#{step},
-			#{isShow},#{businessMode},#{taskOrder},#{qcPreviousTaskId},#{qcSkip},#{taskAmount}
+			#{finishTime},#{cancelTime},#{holdTime},#{ext1},#{ext2},#{ext3},
+			#{ext4},#{ext5},#{ext6},#{ext7},#{ext8},#{ext9},
+			#{createdAt},#{updatedAt},#{ownerId},#{itemId},#{fromLocationId},#{toLocationId},
+			#{qty},#{packUnit},#{packName},#{isAllocated},#{realFromLocationId},#{realToLocationId},
+			#{qtyDone},#{taskEaQty},#{date},#{transPlan},#{taskPackQty},#{taskBoardQty},
+			#{step},#{isShow},#{businessMode},#{taskOrder},#{qcPreviousTaskId},#{qcSkip},
+			#{taskAmount}
     	)
 	</insert>
 
@@ -107,6 +110,7 @@
 			<if test="dueTime != null">due_time=#{dueTime},</if>
 			<if test="finishTime != null">finish_time=#{finishTime},</if>
 			<if test="cancelTime != null">cancel_time=#{cancelTime},</if>
+			<if test="holdTime != null">hold_time=#{holdTime},</if>
 			<if test="ext1 != null">ext1=#{ext1},</if>
 			<if test="ext2 != null">ext2=#{ext2},</if>
 			<if test="ext3 != null">ext3=#{ext3},</if>
@@ -316,6 +320,7 @@
 			<if test="finishTimeAfter != null">and finish_time&gt;=#{finishTimeAfter}</if>
 			<if test="finishTimeBefore != null">and finish_time&lt;=#{finishTimeBefore}</if>
 			<if test="cancelTime != null">and cancel_time=#{cancelTime}</if>
+			<if test="holdTime != null">and hold_time=#{holdTime}</if>
 			<if test="ext1 != null">and ext1=#{ext1}</if>
 			<if test="ext2 != null">and ext2=#{ext2}</if>
 			<if test="ext3 != null">and ext3=#{ext3}</if>

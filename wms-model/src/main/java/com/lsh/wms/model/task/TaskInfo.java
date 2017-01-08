@@ -124,6 +124,8 @@ public class TaskInfo implements Serializable {
      * 取消时间
      */
     private Long cancelTime = 0L;
+    /** 挂起时间 */
+    private Long holdTime;
     /**
      * 扩展字段
      */
@@ -465,6 +467,14 @@ public class TaskInfo implements Serializable {
 
     public void setCancelTime(Long cancelTime) {
         this.cancelTime = cancelTime;
+    }
+
+    public Long getHoldTime(){
+        return this.holdTime;
+    }
+
+    public void setHoldTime(Long holdTime){
+        this.holdTime = holdTime;
     }
 
     public Long getExt1() {

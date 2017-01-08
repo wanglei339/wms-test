@@ -639,6 +639,54 @@ public class PickRestService implements IPickRestService {
         Map<String, Object> mapQuery = RequestUtils.getRequest();
         Long taskId = Long.valueOf(mapQuery.get("taskId").toString());
         Long staffId = Long.valueOf(RequestUtils.getHeader("uid"));
+        // 判断用户是否存在
+        SysUser sysUser = iSysUserRpcService.getSysUserById(staffId);
+        if (sysUser == null) {
+            throw new BizCheckedException("2000003");
+        }
+
+        // 获取分配给操作人员的所有拣货任务
+        Map<String, Object> taskInfoParams = new HashMap<String, Object>();
+        taskInfoParams.put("operator", staffId);
+        taskInfoParams.put("type", TaskConstant.TYPE_PICK);
+        taskInfoParams.put("status", TaskConstant.Assigned);
+        List<TaskInfo> taskInfos = baseTaskService.getTaskInfoList(taskInfoParams);
+
+        if (taskInfos == null) {
+            throw new BizCheckedException("2060003");
+        }
+
+        // 取taskId
+        List<Long> taskIds = new ArrayList<Long>();
+
+        for (TaskInfo taskInfo: taskInfos) {
+            taskIds.add(taskInfo.getTaskId());
+        }
+
+        // 取排好序的拣货详情
+        if (taskIds.size() < 1) {
+            throw new BizCheckedException("2060010");
+        }
+        List<WaveDetail> pickDetails = waveService.getOrderedDetailsByPickTaskIds(taskIds);
+        // 查找最后未完成的任务
+        WaveDetail needPickDetail = new WaveDetail();
+        for (WaveDetail pickDetail : pickDetails) {
+            Long pickAt = pickDetail.getPickAt();
+            if (pickAt == null || pickAt.equals(0L)) {
+                needPickDetail = pickDetail;
+                break;
+            }
+        }
+        TaskInfo taskInfo = new TaskInfo();
+        // 拣货中和集货时都可挂起
+        if (needPickDetail.getPickTaskId() == null || needPickDetail.getPickTaskId().equals(0L)) {
+            taskInfo = taskInfos.get(0);
+        } else {
+            taskInfo = baseTaskService.getTaskInfoById(needPickDetail.getPickTaskId());
+        }
+        if (!taskId.equals(taskInfo.getTaskId())) {
+            throw new BizCheckedException("2060023");
+        }
         Map<String, Object> result = new HashMap<String, Object>();
         return JsonUtils.SUCCESS(result);
     }
