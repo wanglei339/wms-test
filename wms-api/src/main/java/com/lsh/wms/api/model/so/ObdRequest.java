@@ -65,6 +65,9 @@ public class ObdRequest implements Serializable {
     /** 退货 收货供商号*/
     private String supplierNo = "";
 
+    /**送达方手机号*/
+    private String telephone = "";
+
     @Valid
     @Size(min=1)
     List<ObdDetail> detailList;
@@ -72,7 +75,7 @@ public class ObdRequest implements Serializable {
     public ObdRequest() {
     }
 
-    public ObdRequest(String deliveryAddrs, String deliveryCode, String deliveryName, List<ObdDetail> detailList, String orderOtherId, String orderOtherRefId, Integer orderType, String orderUser, String orderUserCode, Long ownerUid, String supplierNo, Date transTime, String warehouseCode) {
+    public ObdRequest(String deliveryAddrs, String deliveryCode, String deliveryName, List<ObdDetail> detailList, String orderOtherId, String orderOtherRefId, Integer orderType, String orderUser, String orderUserCode, Long ownerUid, String supplierNo, Date transTime, String warehouseCode,String telephone) {
         this.deliveryAddrs = deliveryAddrs;
         this.deliveryCode = deliveryCode;
         this.deliveryName = deliveryName;
@@ -85,6 +88,7 @@ public class ObdRequest implements Serializable {
         this.ownerUid = ownerUid;
         this.supplierNo = supplierNo;
         this.transTime = transTime;
+        this.telephone = telephone;
         this.warehouseCode = warehouseCode;
     }
 
@@ -191,5 +195,13 @@ public class ObdRequest implements Serializable {
 
     public void setWarehouseCode(String warehouseCode) {
         this.warehouseCode = warehouseCode;
+    }
+
+    public String getTelephone() {
+        return telephone;
+    }
+
+    public void setTelephone(String telephone) {
+        this.telephone = telephone;
     }
 }
