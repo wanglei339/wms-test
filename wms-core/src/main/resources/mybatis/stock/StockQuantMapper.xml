@@ -86,15 +86,6 @@
 		</set>
 		where id=#{id}
 	</update>
-
-	<update id="changeQty" parameterType="StockQuant">
-		update stock_quant
-		<set>
-			qty=qty - #{delta},
-			updated_at=#{updatedAt}
-		</set>
-		where id=#{id} and qty - #{delta} > 0
-	</update>
   
 	<select id="getStockQuantById" parameterType="long" resultMap="stockQuantResultMap">
 		select * from stock_quant

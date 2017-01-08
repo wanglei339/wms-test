@@ -161,12 +161,8 @@ public class StockQuantService {
             packName = String.format("H%02d", quant.getPackUnit().toBigInteger());
         }
         quant.setPackName(packName);
-        if(quant.getCreatedAt().equals(0L)) {
-            quant.setCreatedAt(DateUtils.getCurrentSeconds());
-        }
-        if(quant.getUpdatedAt().equals(0L)) {
-            quant.setUpdatedAt(DateUtils.getCurrentSeconds());
-        }
+        quant.setCreatedAt(DateUtils.getCurrentSeconds());
+        quant.setUpdatedAt(DateUtils.getCurrentSeconds());
         stockQuantDao.insert(quant);
     }
 
@@ -174,17 +170,6 @@ public class StockQuantService {
     public void update(StockQuant quant) {
         quant.setUpdatedAt(DateUtils.getCurrentSeconds());
         stockQuantDao.update(quant);
-    }
-
-    @Transactional(readOnly = false)
-    public void changeQty(StockQuant quant, BigDecimal delta) throws BizCheckedException {
-        quant.setUpdatedAt(DateUtils.getCurrentSeconds());
-        quant.setDelta(delta);
-        int ret = stockQuantDao.changeQty(quant);
-        if (ret != 1) {
-            throw new BizCheckedException("商品数量不足");
-        }
-
     }
 
     public int getContainerQty(Long locationId) {
@@ -219,11 +204,11 @@ public class StockQuantService {
             if (quant.getReserveTaskId() != 0 && quant.getReserveTaskId().compareTo(move.getTaskId()) != 0) {
                 continue;
             }
-            quant = this.split(quant, qtyDone);
+            this.split(quant, qtyDone);
             quant.setLocationId(move.getToLocationId());
             quant.setContainerId(move.getToContainerId());
-            this.update(quant);
 
+            this.update(quant);
             // 新建 quant move历史记录
             if(move.getId() ==null){
                 // 创建move
@@ -255,30 +240,23 @@ public class StockQuantService {
     }
 
     @Transactional(readOnly = false)
-    public StockQuant split(StockQuant quant, BigDecimal requiredQty) throws BizCheckedException{
+    public void split(StockQuant quant, BigDecimal requiredQty) {
         if (quant.getQty().compareTo(requiredQty) <= 0 && quant.getQty().compareTo(BigDecimal.ZERO) > 0) {
-            return quant;
+            return;
         }
-        // 修改源库位上的库存数量，减去要分裂的值出来
-        this.changeQty(quant, requiredQty);
 
-        // 创建要移动的库存出来
         StockQuant newQuant = (StockQuant) quant.clone();
-        Long sourceQuantId = quant.getId();
-        newQuant.setQty(requiredQty);
+        newQuant.setQty(quant.getQty().subtract(requiredQty));
         newQuant.setReserveTaskId(0L);
         this.create(newQuant);
-
         Map<String, Object> queryMap = new HashMap<String, Object>();
-        queryMap.put("quantId", sourceQuantId);
+        queryMap.put("quantId", quant.getId());
         List<StockQuantMoveRel> relList = relDao.getStockQuantMoveRelList(queryMap);
         for (StockQuantMoveRel rel : relList) {
             rel.setQuantId(newQuant.getId());
             relDao.insert(rel);
         }
-
-        quant = newQuant;
-        return newQuant;
+        quant.setQty(requiredQty);
     }
 
     @Transactional(readOnly = false)
@@ -289,7 +267,7 @@ public class StockQuantService {
             if (!quant.isAvailable()) {
                 continue;
             }
-            quant = this.split(quant, requiredQty);
+            this.split(quant, requiredQty);
             quant.setReserveTaskId(taskId);
             resultList.add(quant);
             stockQuantDao.update(quant);
