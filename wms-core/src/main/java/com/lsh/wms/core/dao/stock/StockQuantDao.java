@@ -13,6 +13,8 @@ public interface StockQuantDao {
 	void insert(StockQuant stockQuant);
 	
 	void update(StockQuant stockQuant);
+
+    int changeQty(StockQuant stockQuant);
 	
 	StockQuant getStockQuantById(Long id);
 
