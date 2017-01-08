@@ -91,6 +91,7 @@ public class IdGenerator {
         return value;
     }
 
+    @Transactional(readOnly = false)
     public Long genId(String prefix, Boolean useDateFormat, Boolean addPrefixNum) {
         return this.genId(prefix, useDateFormat, addPrefixNum, 14);
     }
