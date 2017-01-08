@@ -200,6 +200,12 @@
 			<if test="isShelfLifeValid != null">and is_shelfLife_valid=#{isShelfLifeValid}</if>
 			<if test="isValid != null">and is_valid=#{isValid}</if>
 			<if test="packCode != null">and pack_code=#{packCode}</if>
+			<if test="itemIdList != null">
+				and item_id in
+				<foreach collection="itemIdList"  item="item" index="index" open="(" separator=","  close=")">
+					#{item}
+				</foreach>
+			</if>
 		</where>
 	</sql>
 
