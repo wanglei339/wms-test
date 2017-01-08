@@ -7,6 +7,7 @@ import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.dao.task.TaskInfoDao;
 import com.lsh.wms.core.service.taking.StockTakingService;
 import com.lsh.wms.model.stock.StockMove;
+import com.lsh.wms.model.system.SysLog;
 import com.lsh.wms.model.taking.StockTakingHead;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
@@ -18,6 +19,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -249,7 +252,13 @@ public class BaseTaskService {
         taskInfo.setFinishTime(DateUtils.getCurrentSeconds());
         taskInfo.setUpdatedAt(DateUtils.getCurrentSeconds());
 
-        Long date = org.apache.commons.lang.time.DateUtils.round(Calendar.getInstance(), Calendar.DATE).getTimeInMillis() / 1000L;
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        long date = cal.getTimeInMillis() /1000;
+
+        //Long date = org.apache.commons.lang.time.DateUtils.round(Calendar.getInstance(), Calendar.DATE).getTimeInMillis() / 1000L;
         //先修改为DateUtils.getCurrentSeconds()
         taskInfo.setDate(date);
         taskHandler.calcPerformance(taskInfo);
