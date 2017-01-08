@@ -533,4 +533,36 @@ public class PickRestService implements IPickRestService {
         result.put("qty", qty);
         return JsonUtils.SUCCESS(result);
     }
+
+    /**
+     * 跳过拣货行项目
+     * @return
+     * @throws BizCheckedException
+     */
+    @POST
+    @Path("skip")
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
+    @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
+    public String skip() throws BizCheckedException {
+        Map<String, Object> mapQuery = RequestUtils.getRequest();
+        Long taskId = Long.valueOf(mapQuery.get("taskId").toString());
+        Long pickOrder = Long.valueOf(mapQuery.get("pickOrder").toString());
+        Map<String, Object> result = new HashMap<String, Object>();
+        return JsonUtils.SUCCESS(result);
+    }
+
+    /**
+     * 挂起拣货任务
+     * @return
+     * @throws BizCheckedException
+     */
+    @POST
+    @Path("hold")
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
+    @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
+    public String hold() throws BizCheckedException {
+        Map<String, Object> mapQuery = RequestUtils.getRequest();
+        Map<String, Object> result = new HashMap<String, Object>();
+        return JsonUtils.SUCCESS(result);
+    }
 }

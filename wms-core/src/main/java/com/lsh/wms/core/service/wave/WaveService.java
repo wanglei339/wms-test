@@ -397,7 +397,20 @@ public class WaveService {
         BigDecimal unPickedQty = this.getUnPickedQty(mapSumQuery);
         return stockQty.subtract(unPickedQty);
     }
-
+    @Transactional(readOnly = true)
+    public BigDecimal getUnPickedQty(long itemId)
+    {
+        //获取带捡货商品
+        Map<String, Object> mapSumQuery = new HashMap<String, Object>();
+        mapSumQuery.put("itemId", itemId);
+        mapSumQuery.put("isLive", 1);
+        mapSumQuery.put("isValid", 1);
+        BigDecimal unPickedQty = detailDao.getUnPickedQty(mapSumQuery);
+        if ( unPickedQty == null ){
+            unPickedQty = new BigDecimal("0.0000");
+        }
+        return unPickedQty;
+    }
     public Map<Long, BigDecimal> getLocationUnAllocQty(BaseinfoLocation location, long itemId){
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("location", location);

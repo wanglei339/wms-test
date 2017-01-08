@@ -180,6 +180,7 @@
 			<if test="skuName !=null"> and sku_name=#{skuName}</if>
 			<if test="refTaskType !=null"> and ref_task_type=#{refTaskType}</if>
 			<if test="locationCode !=null"> and location_code=#{locationCode}</if>
+			<if test="skuCodeSearch != null">and sku_code like #{skuCodeSearch}</if>
 			<if test="valid !=null"> and status in (1,2,3)</if>
 			<if test="doingTask !=null"> and status in (1,2)</if>
 			<if test="validItem !=null"> and item_id !=0 </if>

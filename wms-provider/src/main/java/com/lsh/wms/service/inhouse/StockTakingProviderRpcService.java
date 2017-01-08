@@ -558,8 +558,7 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
     public void createPlanSales(List<Long> zoneIds, Long planer) throws BizCheckedException{
         //get zone list;
         List<WorkZone> zoneList = this.getSelectedZones(zoneIds);
-        //get all location list;
-        List<Long> binLocations = locationService.getALLBins();
+
         //拉取动销库位,从wavedetail里面去拿,通过picklocation
         long begin_at = DateUtils.getTodayBeginSeconds();
         long end_at = DateUtils.getCurrentSeconds();
@@ -620,10 +619,18 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
         WorkZone zone = workZoneService.getWorkZone(zoneId);
         TaskEntry entry = new TaskEntry();
         TaskInfo info = new TaskInfo();
+        List<BaseinfoLocation> baseinfoLocationList = new ArrayList<BaseinfoLocation>();
         for(Long locationId:locations){
+            baseinfoLocationList.add(locationService.getLocation(locationId));
+        }
+
+        //排序
+        baseinfoLocationList  = locationService.calcZwayOrder(baseinfoLocationList,true);
+
+        for(BaseinfoLocation location:baseinfoLocationList){
             StockTakingDetail detail = new StockTakingDetail();
-            detail.setLocationId(locationId);
-            detail.setLocationCode(locationService.getLocation(locationId).getLocationCode());
+            detail.setLocationId(location.getLocationId());
+            detail.setLocationCode(location.getLocationCode());
             detail.setDetailId(RandomUtils.genId());
             detail.setTakingId(head.getTakingId());
             detail.setRefTaskType(takingType);
@@ -678,13 +685,21 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
             List<Object> details = new ArrayList<Object>();
             TaskEntry taskEntry = new TaskEntry();
             TaskInfo info = new TaskInfo();
-            for (Long locationId : locations) {
+
+            List<BaseinfoLocation> baseinfoLocationList = new ArrayList<BaseinfoLocation>();
+            for(Long locationId:locations){
+                baseinfoLocationList.add(locationService.getLocation(locationId));
+            }
+            //排序
+            baseinfoLocationList  = locationService.calcZwayOrder(baseinfoLocationList,true);
+
+            for (BaseinfoLocation location : baseinfoLocationList) {
                 StockTakingDetail detail = new StockTakingDetail();
-                detail.setLocationId(locationId);
+                detail.setLocationId(location.getLocationId());
                 detail.setRefTaskType(takingType);
                 detail.setDetailId(RandomUtils.genId());
                 detail.setTakingId(head.getTakingId());
-                detail.setLocationCode(locationService.getLocation(locationId).getLocationCode());
+                detail.setLocationCode(location.getLocationCode());
                 details.add(detail);
                 detail.setZoneId(zoneId);
             }
