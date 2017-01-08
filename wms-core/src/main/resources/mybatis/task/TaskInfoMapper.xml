@@ -229,6 +229,7 @@
 		select count(t.num) from
 		(select count(*) num from task_info
 		<where>
+			status = 4
 			<if test="uid != null">operator = #{uid}</if>
 			<if test="uidList != null">
 				and operator in
