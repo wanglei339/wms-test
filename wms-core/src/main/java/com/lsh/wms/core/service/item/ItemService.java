@@ -275,6 +275,13 @@ public class ItemService {
         return items.size() == 0 ? null : items.get(0);
     }
 
+    public String getPackCodeByItemId(long itemId){
+        Map<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("itemId", itemId);
+        List<BaseinfoItem> items = itemDao.getBaseinfoItemList(mapQuery);
+        return items.size() == 0 ? null : items.get(0).getPackCode();
+    }
+
     @Transactional(readOnly = false)
     public void setStatus(long iItemId,long iStatus){
         BaseinfoItem item = new BaseinfoItem();
