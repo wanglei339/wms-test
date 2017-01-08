@@ -118,6 +118,32 @@ public class ItemLocationService {
 
     @Transactional(readOnly = false)
     public void updateItemLocation(BaseinfoItemLocation itemLocation){
+        BaseinfoItemLocation oldItemLocation = itemLocationDao.getBaseinfoItemLocationById(itemLocation.getId());
+
+        Long locationId = itemLocation.getPickLocationid();
+        long itemId = itemLocation.getItemId();
+        if(itemLocation.getPickLocationid() == null || oldItemLocation.getPickLocationid().equals(itemLocation.getPickLocationid())){
+            //不更新拣货位ID
+        }else{
+            //更新拣货位id
+            //新拣货位ID验证
+            BaseinfoLocation newLocation = locationService.getLocation(locationId);
+            if(LocationConstant.SPLIT_AREA.compareTo(newLocation.getRegionType()) != 0){
+                //非拆零区,验证拣货位是否被占用
+                List<BaseinfoItemLocation> newList = this.getItemLocationByLocationID(locationId);
+                if(newList.size()>0){
+                    throw new BizCheckedException("2990001");//该拣货位已被占用
+                }
+            }
+            List<BaseinfoItemLocation> oldList = this.getItemLocationList(itemId);
+            if(oldList.size()>0){
+                BaseinfoItemLocation oldItemList = oldList.get(0);
+                BaseinfoLocation oldLocation = locationService.getLocation(oldItemList.getPickLocationid());
+                if(!oldLocation.getRegionType().equals(newLocation.getRegionType())){
+                    throw new BizCheckedException("2990002");
+                }
+            }
+        }
         itemLocationDao.update(itemLocation);
     }
 

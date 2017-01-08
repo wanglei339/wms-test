@@ -45,14 +45,18 @@
 		where pick_locationid=#{pickLocationid} and item_id=#{itemId}
 	</update>
   
-	<select id="getBaseinfoItemLocationById" parameterType="int" resultMap="baseinfoItemLocationResultMap">
+	<select id="getBaseinfoItemLocationById" parameterType="long" resultMap="baseinfoItemLocationResultMap">
 		select * from baseinfo_item_location
 		where ID=#{id} 
 	</select>
 
 	<delete id="deleteItemLocation" parameterType="BaseinfoItemLocation">
 		delete from baseinfo_item_location
-		where item_id=#{itemId} and pick_locationid=#{pickLocationid}
+		<where>
+			<if test="id != null">id=#{id}</if>
+			<if test="pickLocationid != null">and pick_locationid=#{pickLocationid}</if>
+			<if test="itemId != null">and item_id=#{itemId}</if>
+		</where>
 	</delete>
   
 	<select id="countBaseinfoItemLocation" parameterType="map" resultType="int">

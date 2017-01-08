@@ -10,7 +10,7 @@ import com.lsh.wms.api.model.base.BaseResponse;
 import com.lsh.wms.api.model.base.ResUtils;
 import com.lsh.wms.api.model.base.ResponseConstant;
 import com.lsh.wms.api.model.po.PoRequest;
-import com.lsh.wms.api.service.po.IPoRestService;
+import com.lsh.wms.api.service.po.IPoRfRestService;
 import com.lsh.wms.api.service.po.IPoRpcService;
 import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.core.constant.PoConstant;
@@ -41,7 +41,7 @@ import java.util.Map;
 @Path("order/po")
 @Consumes({MediaType.APPLICATION_JSON, MediaType.TEXT_XML})
 @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
-public class PoRestService implements IPoRestService {
+public class PoRestService implements IPoRfRestService {
 
     private static Logger logger = LoggerFactory.getLogger(PoRestService.class);
 

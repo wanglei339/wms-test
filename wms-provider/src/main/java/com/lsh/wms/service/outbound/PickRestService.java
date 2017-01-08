@@ -10,9 +10,12 @@ import com.lsh.wms.api.service.pick.IPickRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.location.LocationService;
+import com.lsh.wms.core.service.utils.PackUtil;
+import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.core.service.zone.WorkZoneService;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.model.pick.PickTaskHead;
+import com.lsh.wms.model.so.ObdHeader;
 import com.lsh.wms.model.zone.WorkZone;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
@@ -23,6 +26,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -42,6 +46,8 @@ public class PickRestService implements IPCPickRestService {
     SoOrderService orderService;
     @Autowired
     WorkZoneService workZoneService;
+    @Autowired
+    WaveService waveService;
     @Reference
     IPCPickRpcService ipcPickRpcService;
 
@@ -74,7 +80,9 @@ public class PickRestService implements IPCPickRestService {
             List<Map<String, Object>> details = (List<Map<String, Object>>) (List<?>) entry.getTaskDetailList();
             Map<String, Object> head = (Map<String, Object>) entry.getTaskHead();
             head.put("lineCount", details.size());
-            head.put("deliveryName", orderService.getOutbSoHeaderByOrderId(Long.valueOf(details.get(0).get("orderId").toString())).getDeliveryName());
+            ObdHeader obdHeader = orderService.getOutbSoHeaderByOrderId(Long.valueOf(details.get(0).get("orderId").toString()));
+            head.put("deliveryName", obdHeader.getDeliveryName());
+            head.put("deliveryCode", obdHeader.getDeliveryCode());
             Long pickZoneId = head.get("pickZoneId") == null ? 0 : Long.valueOf(head.get("pickZoneId").toString());
             WorkZone zone = mapZone.get(pickZoneId);
             if (pickZoneId != 0 && zone == null) {
@@ -82,6 +90,12 @@ public class PickRestService implements IPCPickRestService {
                 mapZone.put(pickZoneId, zone);
             }
             head.put("pickZoneName", zone == null ? "" : zone.getZoneName());
+            BigDecimal totalUomQty = BigDecimal.ZERO;
+            List<WaveDetail> waveDetails = waveService.getDetailsByPickTaskId(taskId);
+            for (WaveDetail waveDetail: waveDetails) {
+                totalUomQty = totalUomQty.add(PackUtil.EAQty2UomQty(waveDetail.getAllocQty(), waveDetail.getAllocUnitName()));
+            }
+            head.put("totalUomQty", totalUomQty);
             taskInfoList.add(head);
         }
         return JsonUtils.SUCCESS(taskInfoList);

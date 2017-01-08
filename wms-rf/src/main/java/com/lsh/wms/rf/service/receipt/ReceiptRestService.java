@@ -446,7 +446,7 @@ public class ReceiptRestService implements IReceiptRfService {
 
         Map<String, Object> orderInfoMap = new HashMap<String, Object>();
         orderInfoMap.put("skuName", ibdDetailList.get(0).getSkuName());
-        orderInfoMap.put("skuCode",Long.parseLong(baseinfoItem.getSkuCode()));
+        orderInfoMap.put("skuCode",baseinfoItem.getSkuCode());
         orderInfoMap.put("orderId",ibdHeader.getOrderId());
         orderInfoMap.put("barcode",baseinfoItem.getCode());
         //orderInfoMap.put("packName", "H01");
@@ -877,7 +877,7 @@ public class ReceiptRestService implements IReceiptRfService {
         map2.put("location","J"+storeId);
         map2.put("orderId",ibdHeader.getOrderId());
         map2.put("barcode",baseinfoItem.getCode());
-        map2.put("skuCode",Long.parseLong(baseinfoItem.getSkuCode()));
+        map2.put("skuCode",baseinfoItem.getSkuCode());
         map2.put("skuName",baseinfoItem.getSkuName());
         map2.put("isNeedProTime",isNeedProTime);
         map2.put("pile",baseinfoItem.getPileX() + "*" + baseinfoItem.getPileZ()+"("+baseinfoItem.getPileNumber()+")");//// TODO: 17/1/3 需求变更修改
@@ -935,7 +935,7 @@ public class ReceiptRestService implements IReceiptRfService {
         }
 
         //barCode值为箱码
-        baseinfoItem = itemService.getItemByPackCode(barCode);
+        baseinfoItem = itemService.getItemByPackCode(ownerId,barCode);
         if(baseinfoItem != null){
             return  baseinfoItem;
         }

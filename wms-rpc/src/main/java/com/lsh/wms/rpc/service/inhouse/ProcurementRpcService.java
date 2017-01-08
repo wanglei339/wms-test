@@ -13,6 +13,7 @@ import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.location.BaseinfoLocationBinService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.task.BaseTaskService;
+import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.baseinfo.*;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.stock.StockQuantCondition;
@@ -37,6 +38,8 @@ public class ProcurementRpcService implements IProcurementRpcService{
     @Autowired
     private StockQuantRpcService quantService;
     @Autowired
+    private WaveService waveService;
+    @Autowired
     private BaseTaskService baseTaskService;
     @Autowired
     private StockQuantRpcService stockQuantRpcService;
@@ -60,7 +63,8 @@ public class ProcurementRpcService implements IProcurementRpcService{
     private static Logger logger = LoggerFactory.getLogger(ProcurementRpcService.class);
     //判断商品是否需要补货
     public boolean needProcurement(Long locationId, Long itemId,Boolean checkMax) throws BizCheckedException {
-       BaseinfoItemLocation baseinfoItemLocation = itemLocationService.getItemLocationByLocationID(locationId).get(0);
+
+        BaseinfoItemLocation baseinfoItemLocation = itemLocationService.getItemLocationByLocationID(locationId).get(0);
         StockQuantCondition condition = new StockQuantCondition();
         condition.setItemId(itemId);
         condition.setLocationId(locationId);
@@ -70,6 +74,13 @@ public class ProcurementRpcService implements IProcurementRpcService{
         if (qty.compareTo(BigDecimal.ZERO)==0) {
             return true;
         }
+
+        //获取待捡货数量，如果待捡货数量小于待捡货数量，则生成捡货任务
+        BigDecimal unPickedQty = waveService.getUnPickedQty(itemId);
+        if(unPickedQty.compareTo(qty)>0){
+            return true;
+        }
+
         if(checkMax){
             if (baseinfoItemLocation.getMaxQty().compareTo(qty) > 0){
                 return true;

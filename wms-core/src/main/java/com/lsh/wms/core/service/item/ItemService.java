@@ -107,9 +107,10 @@ public class ItemService {
         return items.get(0);
     }
 
-    public BaseinfoItem getItemByPackCode(String packCode){
+    public BaseinfoItem getItemByPackCode(long iOwnerId, String packCode){
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("packCode", packCode);
+        mapQuery.put("ownerId",iOwnerId);
         List<BaseinfoItem> items = itemDao.getBaseinfoItemList(mapQuery);
         if(items == null || items.size() <= 0){
             return null;
@@ -258,7 +259,13 @@ public class ItemService {
             skuName = "%"+skuName+"%";
             mapQuery.put("skuName",skuName);
         }
-
+        //增加skuCode模糊查询
+        String skuCode = (String) mapQuery.get("skuCode");
+        if(skuCode != null){
+            skuCode = "%"+skuCode+"%";
+            mapQuery.remove("skuCode");
+            mapQuery.put("skuCodeSearch",skuCode);
+        }
         return itemDao.getBaseinfoItemList(mapQuery);
     }
 

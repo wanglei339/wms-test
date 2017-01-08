@@ -23,18 +23,23 @@ public class IdGenerator {
 
     /**
      * id生成方法
-     * 格式: 992016082600000088 (99-可选自定义前缀;20160826-可选当前日期;00000088计数器)
+     * 格式: 9916082600000088 (99-可选自定义前缀;20160826-可选当前日期;00000088计数器)
      * @param prefix key前缀
      * @param useDateFormat 是否使用日期格式
      * @param addPrefixNum 是否加标识前缀
      * @return
      */
     @Transactional(readOnly = false)
-    public Long genId(String prefix, Boolean useDateFormat, Boolean addPrefixNum) {
+    public Long genId(String prefix, Boolean useDateFormat, Boolean addPrefixNum, Integer idLength) {
         Long counter = 1L; // 计数器
         Long value = 0L; // 返回值
         String idKey = prefix; // 计数器的key
         String dateValue = ""; // 日期格式
+        Integer length = idLength;
+
+        if (idLength < 2) {
+            idLength = 2;
+        }
 
         // 使用日期格式时设置key的格式: prefix+yyMMdd
         if (useDateFormat) {
@@ -42,6 +47,11 @@ public class IdGenerator {
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyMMdd");
             dateValue = dateFormat.format(date);
             idKey += dateValue;
+            length -= 6;
+            if (length < 2) {
+                length = 2;
+                idLength = 8;
+            }
         }
 
         IdCounter idCounter = idCounterDao.getIdCounterByIdKey(idKey);
@@ -66,13 +76,13 @@ public class IdGenerator {
         if (addPrefixNum) {
             Integer prefixNum = IdGeneratorContant.PREFIX_CONFIG.get(prefix);
             if (prefixNum != null) {
-                value += Long.valueOf(prefixNum.toString() + String.format("%014d", 0));
+                value += Long.valueOf(prefixNum.toString() + String.format("%0" + idLength.toString() + "d", 0));
             }
         }
 
         // 拼接返回值
         if (useDateFormat) {
-            String strValue = String.format("%08d", counter);
+            String strValue = String.format("%0" + length.toString() + "d", counter);
             value += Long.valueOf(dateValue + strValue);
         } else {
             value += counter;
@@ -81,5 +91,8 @@ public class IdGenerator {
         return value;
     }
 
-
+    @Transactional(readOnly = false)
+    public Long genId(String prefix, Boolean useDateFormat, Boolean addPrefixNum) {
+        return this.genId(prefix, useDateFormat, addPrefixNum, 14);
+    }
 }
