@@ -154,8 +154,8 @@
 			<if test="skuId != null">and sku_id=#{skuId}</if>
 			<if test="ownerId != null">and owner_id=#{ownerId}</if>
 			<if test="skuCode != null">and sku_code=#{skuCode}</if>
-			<if test="skuCodeSearch != null">and sku_code like #{skuCodeSearch}</if>
-			<if test="skuName != null">and sku_name like #{skuName}</if>
+			<if test="skuCodeSearch != null">and sku_code like CONCAT('%',#{skuCodeSearch},'%' )</if>
+			<if test="skuName != null">and sku_name like CONCAT('%',#{skuName},'%' )</if>
 			<if test="codeType != null">and code_type=#{codeType}</if>
 			<if test="code != null">and code=#{code}</if>
 			<if test="topCat != null">and top_cat=#{topCat}</if>
