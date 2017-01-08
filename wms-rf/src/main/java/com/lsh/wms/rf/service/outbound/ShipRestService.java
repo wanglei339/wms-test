@@ -340,9 +340,17 @@ public class ShipRestService implements IShipRestService {
         }
 
         //拼接线路编号
-        String transPlan = "";
+//        String transPlan = "";
+        StringBuilder transPlan = new StringBuilder();
+        int count = 0;
         for (String one : transPlanSet) {
-            transPlan = one + "," +transPlan;
+            if (count == transPlanSet.size() - 1) {
+                transPlan.append(one);
+            }else {
+                transPlan.append(one);
+                transPlan.append(",");
+            }
+            count++;
         }
 
 
@@ -357,7 +365,7 @@ public class ShipRestService implements IShipRestService {
         int customerCount = customerInfos.size();
 
         Map<String, Object> result = new HashMap<String, Object>();
-        result.put("transPlan", transPlan);
+        result.put("transPlan", transPlan.toString());
         result.put("packCount", packCount);
         result.put("turnoverBoxNum", turnoverBoxNum);
         result.put("customerCount", customerCount);
