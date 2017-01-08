@@ -20,6 +20,7 @@ import com.lsh.wms.core.constant.CsiConstan;
 import com.lsh.wms.core.constant.PickConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.constant.WaveConstant;
+import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.system.SysUserService;
 import com.lsh.wms.core.service.task.BaseTaskService;
@@ -80,6 +81,8 @@ public class QCRestService implements IRFQCRestService {
     private IQCRpcService iqcRpcService;
     @Autowired
     private SysUserService sysUserService;
+    @Autowired
+    private ItemService itemService;
 
     /**
      * 扫码获取qc任务详情
@@ -213,7 +216,7 @@ public class QCRestService implements IRFQCRestService {
             //总数量
             BigDecimal uomQty = PackUtil.EAQty2UomQty(mapItem2PickQty.get(itemId), waveDetail.getAllocUnitName());
             //qc组盘完成
-            if (TaskConstant.Done.equals(qcTaskInfo.getStatus())){
+            if (TaskConstant.Done.equals(qcTaskInfo.getStatus())) {
                 uomQty = PackUtil.EAQty2UomQty(mapItem2QCQty.get(itemId), waveDetail.getAllocUnitName());
             }
 
@@ -273,7 +276,7 @@ public class QCRestService implements IRFQCRestService {
         rstMap.put("itemBoxNum", boxNum);
         //TODO 前端显示有问题,没显示周装箱的总数量
         rstMap.put("turnoverBoxNum", hasEA ? 1 : 0);
-        if (TaskConstant.Done.equals(qcTaskInfo.getStatus())){
+        if (TaskConstant.Done.equals(qcTaskInfo.getStatus())) {
             rstMap.put("allBoxNum", qcTaskInfo.getTaskPackQty());
             rstMap.put("itemBoxNum", qcTaskInfo.getExt4());
             rstMap.put("turnoverBoxNum", qcTaskInfo.getExt3());
@@ -285,7 +288,7 @@ public class QCRestService implements IRFQCRestService {
         rstMap.put("step", step);
         //捡货人员的名字
         TaskInfo pickTask = baseTaskService.getTaskByTaskId(qcTaskInfo.getQcPreviousTaskId());
-        if (null==pickTask){
+        if (null == pickTask) {
             throw new BizCheckedException("2060003");
         }
         SysUser picker = sysUserService.getSysUserByUid(pickTask.getOperator().toString());
@@ -330,9 +333,9 @@ public class QCRestService implements IRFQCRestService {
         }
 
 
-
         String code = (String) request.get("code");
         CsiSku skuInfo = csiRpcService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, code);
+
         if (skuInfo == null) {
             throw new BizCheckedException("2120001");
         }
@@ -340,7 +343,7 @@ public class QCRestService implements IRFQCRestService {
 
         Long ownerId = obdHeader.getOwnerUid();
 //        Long ownerId = qcTaskInfo.getOwnerId(); FIXME
-        BaseinfoItem item = itemRpcService.getItem(ownerId,skuId);
+        BaseinfoItem item = itemRpcService.getItem(ownerId, skuId);
 
         List<WaveDetail> details = waveService.getDetailsByContainerId(qcTaskInfo.getContainerId());    //qc的数量不在是拣货的数量了,而是集货的数量和收货的数量
         // 标识是拣货生成的QC还是集货生成的QC
@@ -690,6 +693,28 @@ public class QCRestService implements IRFQCRestService {
                 put("response", true);
             }
         });
+    }
+
+    private BaseinfoItem getItem(String code, Long ownerId) throws BizCheckedException{
+        BaseinfoItem baseinfoItem = null;
+        //国条码
+        CsiSku skuInfo = csiRpcService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, code);
+        if (null != skuInfo && skuInfo.getSkuId() != null) {
+            baseinfoItem = itemService.getItem(ownerId, skuInfo.getSkuId());
+        }
+
+        if (baseinfoItem != null) {
+            return baseinfoItem;
+        }
+        //箱码
+        baseinfoItem = itemService.getItemByPackCode(code);
+        if(baseinfoItem != null){
+            return  baseinfoItem;
+        }
+        if(baseinfoItem==null){
+            throw new BizCheckedException("2900001");
+        }
+        return baseinfoItem;
     }
 }
 
