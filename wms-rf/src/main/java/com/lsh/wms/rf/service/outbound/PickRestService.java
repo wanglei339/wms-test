@@ -637,6 +637,8 @@ public class PickRestService implements IPickRestService {
             throw new BizCheckedException("999", "操作尚不可用,请稍后再试");
         }
         Map<String, Object> mapQuery = RequestUtils.getRequest();
+        Long taskId = Long.valueOf(mapQuery.get("taskId").toString());
+        Long staffId = Long.valueOf(RequestUtils.getHeader("uid"));
         Map<String, Object> result = new HashMap<String, Object>();
         return JsonUtils.SUCCESS(result);
     }
