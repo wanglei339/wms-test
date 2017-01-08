@@ -207,6 +207,7 @@
 		<where>
 			status = 4
 			<if test="type != null"> and type = #{type}</if>
+			<if test="subType != null"> and sub_type = #{subType}</if>
 			<if test="date != null"> and date = #{date}</if>
 			<if test="uid != null"> and operator = #{uid}</if>
 			<if test="uidList != null">
