@@ -176,6 +176,11 @@ public class QCRestService implements IRFQCRestService {
 
             //如果同种商品,同种货物的出货的包装单位不同,按照EA算
             if (mapItem2WaveDetail.get(d.getItemId()) != null) {
+                //问题是有异常的行项目需要替换的
+                if (WaveConstant.QC_EXCEPTION_STATUS_UNDO == d.getQcExceptionDone()) {
+                    mapItem2WaveDetail.put(d.getItemId(), d);
+                }
+                //同种商品有ea存在的,就退出,按照ea算
                 if (mapItem2WaveDetail.get(d.getItemId()).getAllocUnitName().equals("EA")) {
                     continue;
                 }
@@ -207,7 +212,7 @@ public class QCRestService implements IRFQCRestService {
             detail.put("skuId", item.getSkuId());
             detail.put("itemId", item.getItemId());
             //箱子码
-            detail.put("packCode",item.getPackCode());
+            detail.put("packCode", item.getPackCode());
 
             detail.put("code", item.getCode());
             detail.put("codeType", item.getCodeType());
@@ -350,7 +355,7 @@ public class QCRestService implements IRFQCRestService {
 
         Long ownerId = obdHeader.getOwnerUid();
         BaseinfoItem item = this.getItem(ownerId, code);
-        if (null==item){
+        if (null == item) {
             throw new BizCheckedException("2120001");
         }
 
@@ -706,6 +711,7 @@ public class QCRestService implements IRFQCRestService {
 
     /**
      * 先国条后箱子码
+     *
      * @param ownerId
      * @param code
      * @return
