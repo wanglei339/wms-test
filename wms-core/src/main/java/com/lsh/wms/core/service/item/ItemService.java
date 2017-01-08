@@ -107,9 +107,10 @@ public class ItemService {
         return items.get(0);
     }
 
-    public BaseinfoItem getItemByPackCode(String packCode){
+    public BaseinfoItem getItemByPackCode(long iOwnerId, String packCode){
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("packCode", packCode);
+        mapQuery.put("ownerId",iOwnerId);
         List<BaseinfoItem> items = itemDao.getBaseinfoItemList(mapQuery);
         if(items == null || items.size() <= 0){
             return null;
