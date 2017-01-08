@@ -173,7 +173,7 @@ public class ShipRestService implements IShipRestService {
                     //聚类qc
                     if (!mergedQcListMap.containsKey(qcInfo.getMergedContainerId())) {
                         qcInfoList = new ArrayList<TaskInfo>();
-                        mergedQcListMap.put(qcInfo.getMergedContainerId(),qcInfoList);
+                        mergedQcListMap.put(qcInfo.getMergedContainerId(), qcInfoList);
                     }
                     qcInfoList = mergedQcListMap.get(qcInfo.getMergedContainerId());
                     qcInfoList.add(qcInfo);
@@ -323,6 +323,7 @@ public class ShipRestService implements IShipRestService {
         //客户id
         Set<String> customerIds = new HashSet<String>();
         List<Map<String, Object>> customerInfos = new ArrayList<Map<String, Object>>();
+        Set<String> transPlanSet = new HashSet<String>();
         for (Long orderId : orderIds) {
             ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderId(orderId);
             if (null != obdHeader) {
@@ -334,8 +335,16 @@ public class ShipRestService implements IShipRestService {
                     customerInfo.put("customerAddress", obdHeader.getDeliveryAddrs());
                     customerInfos.add(customerInfo);
                 }
+                transPlanSet.add(obdHeader.getTransPlan());
             }
         }
+
+        //拼接线路编号
+        String transPlan = "";
+        for (String one : transPlanSet) {
+            transPlan = one + "," +transPlan;
+        }
+
 
         //箱数和周转箱的统计
         Long packCount = 0L;
@@ -348,6 +357,7 @@ public class ShipRestService implements IShipRestService {
         int customerCount = customerInfos.size();
 
         Map<String, Object> result = new HashMap<String, Object>();
+        result.put("transPlan", transPlan);
         result.put("packCount", packCount);
         result.put("turnoverBoxNum", turnoverBoxNum);
         result.put("customerCount", customerCount);
