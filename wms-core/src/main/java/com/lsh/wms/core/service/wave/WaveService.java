@@ -253,7 +253,7 @@ public class WaveService {
         HashMap<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("pickTaskIds", pickTaskIds);
         mapQuery.put("isValid", 1);
-        mapQuery.put("isAlive", 1);
+        // mapQuery.put("isAlive", 1); // 由于拣0个也会设为0,会影响补拣
         return detailDao.getOrderedWaveDetailList(mapQuery);
     }
 

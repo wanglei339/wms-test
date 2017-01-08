@@ -181,30 +181,36 @@ public class ItemRestService implements IItemRestService {
         if(locationService.getLocation(locationId) == null){
             throw new BizCheckedException("2050003");
         }
+        BaseinfoItemLocation newItem = null;
         try{
-            itemRpcService.insertItemLocation(itemLocation);
+            newItem = itemRpcService.insertItemLocation(itemLocation);
         }catch (BizCheckedException e) {
             throw e;
         }catch (Exception e){
             logger.error(e.getCause()!=null ? e.getCause().getMessage():e.getMessage());
             return JsonUtils.TOKEN_ERROR("failed");
         }
-        return JsonUtils.SUCCESS();
+        Map<String,Long> map = new HashMap<String, Long>();
+        map.put("id",newItem.getId());
+        return JsonUtils.SUCCESS(map);
     }
- /*   @POST
-    @Path("updateItemLocation")
-    public String updateItemLocation(BaseinfoItemLocation itemLocation) {
+    @POST
+    @Path("updateItemLocationById")
+    public String updateItemLocationById(BaseinfoItemLocation itemLocation)  throws BizCheckedException {
         try{
             itemRpcService.updateItemLocation(itemLocation);
+        }catch (BizCheckedException e) {
+            throw e;
         }catch (Exception e){
-            logger.error(e.getCause().getMessage());
-            return JsonUtils.EXCEPTION_ERROR("failed");
+            logger.error(e.getMessage());
+            return JsonUtils.TOKEN_ERROR("failed");
         }
         return JsonUtils.SUCCESS();
-    }*/
+    }
+
     @POST
     @Path("updateItemLocation")
-    public String updateItemLocation(BaseinfoItemLocation itemLocation) {
+    public String updateItemLocation(BaseinfoItemLocation itemLocation)  throws BizCheckedException {
         try{
             itemRpcService.updateByItemIdAndPicId(itemLocation);
         }catch (BizCheckedException e) {

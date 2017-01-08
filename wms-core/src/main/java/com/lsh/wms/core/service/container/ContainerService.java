@@ -95,7 +95,7 @@ public class ContainerService {
         }
 
         BaseinfoContainer container = BeanMapTransUtils.map2Bean(config, BaseinfoContainer.class);
-        container.setContainerId(idGenerator.genId("containerCode", false, true));
+        container.setContainerId(idGenerator.genId("containerCode", false, true, 9));
         container.setContainerCode(container.getContainerId().toString());
         container.setCreatedAt(DateUtils.getCurrentSeconds());
         container.setUpdatedAt(DateUtils.getCurrentSeconds());
@@ -114,7 +114,7 @@ public class ContainerService {
 
         for(int i = 0;i < batchNumber;i++) {
             BaseinfoContainer container = BeanMapTransUtils.map2Bean(config, BaseinfoContainer.class);
-            Long containerId = idGenerator.genId("containerCode", false, true);
+            Long containerId = idGenerator.genId("containerCode", false, true, 9);
             containerIdList.add(containerId.toString());
             container.setContainerId(containerId);
             container.setContainerCode(container.getContainerId().toString());
@@ -135,7 +135,7 @@ public class ContainerService {
         List<BaseinfoContainer> containerList = new ArrayList<BaseinfoContainer>();
         List<String> containerIdList = new ArrayList<String>();
 
-        Long containerIdFirst = idGenerator.genId("containerCode", false, true);
+        Long containerIdFirst = idGenerator.genId("containerCode", false, true, 9);
 
         //更新计数器
         IdCounter idCounter = idCounterDao.getIdCounterByIdKey("containerCode");

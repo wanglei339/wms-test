@@ -284,6 +284,7 @@ public class PickTaskService {
             result.put("skuName", item.getSkuName());
             result.put("skuCode", item.getSkuCode());
             result.put("barcode", item.getCode());
+            result.put("packCode", item.getPackCode()); // 箱码
         }
         result.put("containerId", taskInfo.getContainerId().toString());
         return result;

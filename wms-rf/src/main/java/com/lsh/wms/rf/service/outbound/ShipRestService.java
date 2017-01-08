@@ -321,13 +321,13 @@ public class ShipRestService implements IShipRestService {
         }
 
         //客户id
-        Set<Long> customerIds = new HashSet<Long>();
+        Set<String> customerIds = new HashSet<String>();
         List<Map<String, Object>> customerInfos = new ArrayList<Map<String, Object>>();
         for (Long orderId : orderIds) {
             ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderId(orderId);
             if (null != obdHeader) {
-                if (!customerIds.contains(obdHeader.getOwnerUid())) {
-                    customerIds.add(obdHeader.getOwnerUid());
+                if (!customerIds.contains(obdHeader.getDeliveryCode())) {
+                    customerIds.add(obdHeader.getDeliveryCode());
                     Map<String, Object> customerInfo = new HashMap<String, Object>();
                     customerInfo.put("customerName", obdHeader.getDeliveryName());
                     customerInfo.put("customerCode", obdHeader.getDeliveryCode());

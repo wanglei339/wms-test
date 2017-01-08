@@ -29,6 +29,7 @@ public class SoConstant {
     /**
      * 订单状态 1正常 5 发货完成
      */
+    public static final int ORDER_STATUS_CANCLE = 0;
     public static final int ORDER_STATUS_NORMAL = 1;
 
     public static final int ORDER_STATUS_FINISH = 5;
