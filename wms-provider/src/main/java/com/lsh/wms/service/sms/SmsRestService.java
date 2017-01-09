@@ -248,4 +248,26 @@ public class SmsRestService implements ISmsRestService {
         return JsonUtils.SUCCESS();
     }
 
+    @GET
+    @Path("mergeLocationQuant")
+    public String mergeLocationQuant(@QueryParam("locationId") String locationId) throws BizCheckedException {
+        Long lid = Long.valueOf(locationId);
+        List<StockQuant> quants = stockQuantService.getQuantsByLocationId(lid);
+        Long fromContainerId = 0L;
+        Long toContainerId = 0L;
+        if (quants.size() > 1) {
+            for (StockQuant quant: quants) {
+                if (fromContainerId.equals(0L) && toContainerId.equals(0L)) {
+                    toContainerId = quant.getContainerId();
+                    continue;
+                }
+                fromContainerId = quant.getContainerId();
+                if (!fromContainerId.equals(toContainerId)) {
+                    stockMoveService.moveWholeContainer(fromContainerId, toContainerId, 0L, 1L, lid, lid);
+                }
+            }
+        }
+        return JsonUtils.SUCCESS();
+    }
+
 }
