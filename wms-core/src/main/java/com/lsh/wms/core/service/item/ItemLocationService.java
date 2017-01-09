@@ -125,16 +125,18 @@ public class ItemLocationService {
         BaseinfoItemLocation oldItemLocation = itemLocationDao.getBaseinfoItemLocationById(itemLocation.getId());
 
         Long locationId = itemLocation.getPickLocationid();
+        Long oldLocationId = oldItemLocation.getPickLocationid();
         long itemId = itemLocation.getItemId();
         if(itemLocation.getPickLocationid() == null || oldItemLocation.getPickLocationid().equals(itemLocation.getPickLocationid())){
             //不更新拣货位ID
-            //验证该拣货位是否有库存
-            List<StockQuant> quantList = stockQuantService.getQuantsByLocationId(locationId);
+
+        }else{
+            //更新拣货位id
+            //验证原拣货位是否有库存
+            List<StockQuant> quantList = stockQuantService.getQuantsByLocationId(oldLocationId);
             if(quantList != null && quantList.size() > 0){
                 throw new BizCheckedException("2990003");//该拣货位有库存不能更新
             }
-        }else{
-            //更新拣货位id
             //新拣货位ID验证
             BaseinfoLocation newLocation = locationService.getLocation(locationId);
             if(LocationConstant.SPLIT_AREA.compareTo(newLocation.getRegionType()) != 0){
