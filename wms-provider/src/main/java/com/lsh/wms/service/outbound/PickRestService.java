@@ -55,21 +55,24 @@ public class PickRestService implements IPCPickRestService {
     @POST
     @Path("getPickTaskInfo")
     public String getPickTaskInfo(Map<String, Object> mapInput) {
-        long waveId = Long.valueOf(mapInput.get("waveId").toString());
+        List waveIds = (List) mapInput.get("waveIds");
         List pickTaskIds = (List) mapInput.get("pickTaskIds");
-        if (waveId != 0) {
-            Map<String, Object> mapQuery = new HashMap<String, Object>();
-            mapQuery.put("waveId", waveId);
-            long pickType = Long.valueOf(mapInput.get("pickType").toString());
-            long pickZoneId = Long.valueOf(mapInput.get("pickZoneId").toString());
-            if(pickZoneId != 0){
-                mapQuery.put("ext1", pickZoneId);
-            }
-            //if(pickType)
-            List<TaskEntry> taskHeadList = iTaskRpcService.getTaskHeadList(TaskConstant.TYPE_PICK, mapQuery);
-            pickTaskIds = new LinkedList();
-            for (TaskEntry entry : taskHeadList) {
-                pickTaskIds.add(entry.getTaskInfo().getTaskId());
+        if (waveIds.size() > 0) {
+            for (Object wid: waveIds) {
+                Long waveId = Long.valueOf(wid.toString());
+                Map<String, Object> mapQuery = new HashMap<String, Object>();
+                mapQuery.put("waveId", waveId);
+                long pickType = Long.valueOf(mapInput.get("pickType").toString());
+                long pickZoneId = Long.valueOf(mapInput.get("pickZoneId").toString());
+                if (pickZoneId != 0) {
+                    mapQuery.put("ext1", pickZoneId);
+                }
+                //if(pickType)
+                List<TaskEntry> taskHeadList = iTaskRpcService.getTaskHeadList(TaskConstant.TYPE_PICK, mapQuery);
+                pickTaskIds = new LinkedList();
+                for (TaskEntry entry : taskHeadList) {
+                    pickTaskIds.add(entry.getTaskInfo().getTaskId());
+                }
             }
         }
         List<Map<String, Object>> taskInfoList = new LinkedList<Map<String, Object>>();

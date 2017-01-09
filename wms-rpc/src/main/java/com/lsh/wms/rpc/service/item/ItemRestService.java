@@ -230,7 +230,7 @@ public class ItemRestService implements IItemRestService {
 
     @POST
     @Path("deleteItemLocation")
-    public String deleteItemLocation(BaseinfoItemLocation itemLocation) {
+    public String deleteItemLocation(BaseinfoItemLocation itemLocation)   throws BizCheckedException {
         try{
             itemLocationService.deleteItemLocation(itemLocation);
         }catch (BizCheckedException e) {
