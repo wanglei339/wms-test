@@ -10,6 +10,6 @@ import java.util.Map;
 public interface IPCPickRestService {
     public String getPickTaskInfo(Map<String, Object> mapInput);
 
-    public String getContainerExpensiveGoods(Long containerId)throws BizCheckedException;
+    public String getContainerExpensiveGoods(Long containerId, Long waveId) throws BizCheckedException;
 
 }
