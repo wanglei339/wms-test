@@ -133,36 +133,34 @@ public class PickTaskService {
             Long quantContainerId = quants.get(0).getContainerId();
             for (StockQuant quant: quants) {
                 quantQty = quantQty.add(quant.getQty());
-                if (!quantContainerId.equals(quant.getContainerId())) {
+                if (!quantContainerId.equals(quant.getContainerId()) && qty.compareTo(BigDecimal.ZERO) == 1) {
                     throw new BizCheckedException("2060025");
                 }
             }
-            StockQuant quant = quants.get(0);
             // 拣货数量为0不移库存
-            if (qty.compareTo(new BigDecimal(0)) == 1) {
+            if (qty.compareTo(BigDecimal.ZERO) == 1) {
                 BaseinfoLocation collectRegionLocation = locationService.getFatherRegionBySonId(pickTaskHead.getAllocCollectLocation());
                 if (collectRegionLocation == null) {
                     throw new BizCheckedException("2060019");
                 }
-                Long fromContainerId = quant.getContainerId();
                 // 移动库存
-                moveService.moveToContainer(itemId, staffId, fromContainerId, containerId, collectRegionLocation.getLocationId(), qty);
+                moveService.moveToContainer(itemId, staffId, quantContainerId, containerId, collectRegionLocation.getLocationId(), qty);
             }
             // 存在库存差异时移动差异库存至差异区
-            if (pickDetail.getAllocQty().compareTo(qty) == 1 && quant.getQty().compareTo(qty) == 1) {
+            if (pickDetail.getAllocQty().compareTo(qty) == 1 && quantQty.compareTo(qty) == 1) {
                 try {
                     StockMove move = new StockMove();
                     BaseinfoLocation toLocation = locationService.getDiffAreaLocation();
                     BaseinfoContainer toContainer = containerService.createContainerByType(ContainerConstant.PALLET);
                     BigDecimal moveQty = BigDecimal.ZERO;
-                    if (quant.getQty().compareTo(pickDetail.getAllocQty()) >= 0) {
+                    if (quantQty.compareTo(pickDetail.getAllocQty()) >= 0) {
                         moveQty = pickDetail.getAllocQty().subtract(qty);
                     } else {
-                        moveQty = quant.getQty().subtract(qty);
+                        moveQty = quantQty.subtract(qty);
                     }
                     move.setItemId(itemId);
                     move.setSkuId(pickDetail.getSkuId());
-                    move.setFromContainerId(quant.getContainerId());
+                    move.setFromContainerId(quantContainerId);
                     move.setFromLocationId(locationId);
                     move.setToContainerId(toContainer.getContainerId());
                     move.setToLocationId(toLocation.getLocationId());
