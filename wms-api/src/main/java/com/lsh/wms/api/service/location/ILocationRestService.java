@@ -92,6 +92,8 @@ public interface ILocationRestService {
 
     public String getLocationIdByCode(String locationCode) throws BizCheckedException;
 
+    String getLocationByCode(@QueryParam("locationCode") String locationCode) throws BizCheckedException;
+
     /**
      * 根据库位的左右范围获取指定库位
      * @return

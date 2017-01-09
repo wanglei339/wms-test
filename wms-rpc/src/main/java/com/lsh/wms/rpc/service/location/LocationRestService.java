@@ -382,7 +382,11 @@ public class LocationRestService implements ILocationRestService {
     public String getLocationIdByCode(@QueryParam("locationCode") String locationCode) throws BizCheckedException {
         return JsonUtils.SUCCESS(locationRpcService.getLocationIdByCode(locationCode));
     }
-
+    @GET
+    @Path("getLocationByCode")
+    public String getLocationByCode(@QueryParam("locationCode") String locationCode) throws BizCheckedException {
+        return JsonUtils.SUCCESS(locationRpcService.getLocationByCode(locationCode));
+    }
     /**
      * 根据库位的左右范围获取指定库位
      *
