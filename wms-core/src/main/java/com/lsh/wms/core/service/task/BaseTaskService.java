@@ -207,7 +207,7 @@ public class BaseTaskService {
     public void update(TaskEntry taskEntry, TaskHandler taskHandler) throws BizCheckedException {
         //TaskInfo taskInfo = taskInfoDao.getTaskInfoById(taskEntry.getTaskInfo().getTaskId());
         taskInfoDao.update(taskEntry.getTaskInfo());
-        taskHandler.updteConcrete(taskEntry);
+        taskHandler.updateConcrete(taskEntry);
     }
     @Transactional(readOnly = false)
     public void batchAssign(List<Long> taskList,  Long staffId,TaskHandler taskHandler) {
@@ -321,6 +321,28 @@ public class BaseTaskService {
             taskInfo.setUpdatedAt(DateUtils.getCurrentSeconds());
             taskInfoDao.update(taskInfo);
             taskHandler.cancelConcrete(taskId);
+        }
+    }
+
+    @Transactional(readOnly = false)
+    public void hold(Long taskId, TaskHandler taskHandler) {
+        TaskInfo taskInfo = taskInfoDao.getTaskInfoById(taskId);
+        taskInfo.setStatus(TaskConstant.Hold);
+        taskInfo.setHoldTime(DateUtils.getCurrentSeconds());
+        taskInfo.setUpdatedAt(DateUtils.getCurrentSeconds());
+        taskInfoDao.update(taskInfo);
+        taskHandler.holdConcrete(taskId);
+    }
+
+    @Transactional(readOnly = false)
+    public void batchHold(List<Long> taskList,TaskHandler taskHandler) {
+        for(Long taskId:taskList) {
+            TaskInfo taskInfo = taskInfoDao.getTaskInfoById(taskId);
+            taskInfo.setStatus(TaskConstant.Hold);
+            taskInfo.setHoldTime(DateUtils.getCurrentSeconds());
+            taskInfo.setUpdatedAt(DateUtils.getCurrentSeconds());
+            taskInfoDao.update(taskInfo);
+            taskHandler.holdConcrete(taskId);
         }
     }
 

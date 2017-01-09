@@ -220,7 +220,15 @@ public class AbsTaskHandler implements TaskHandler {
 
     public void cancelConcrete(Long taskId) {
     }
-    public void updteConcrete(Long taskId) {
+    public void hold(Long taskId) {
+        baseTaskService.hold(taskId, this);
+    }
+    public void batchhold(List<Long> taskIds) {
+        baseTaskService.batchHold(taskIds, this);
+    }
+    public void holdConcrete(Long taskId) {
+    }
+    public void updateConcrete(Long taskId) {
     }
 
     public void allocate(Long taskId) {
@@ -231,7 +239,7 @@ public class AbsTaskHandler implements TaskHandler {
     public void allocateConcrete(Long taskId) {
     }
 
-    public void updteConcrete(TaskEntry taskEntry) {
+    public void updateConcrete(TaskEntry taskEntry) {
 
     }
 

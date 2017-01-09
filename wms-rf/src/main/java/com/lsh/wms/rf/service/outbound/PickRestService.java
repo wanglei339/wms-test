@@ -687,6 +687,19 @@ public class PickRestService implements IPickRestService {
         if (!taskId.equals(taskInfo.getTaskId())) {
             throw new BizCheckedException("2060023");
         }
+        // hold任务
+        iTaskRpcService.hold(taskInfo.getTaskId());
+        // 渲染返回值
+        taskIds.remove(taskInfo.getTaskId()); // 去掉挂起的任务
+        List<WaveDetail> nextPickDetails = waveService.getOrderedDetailsByPickTaskIds(taskIds); // 因为可能拆分,所以需要重新获取一次
+        WaveDetail nextPickDetail = new WaveDetail();
+        for (WaveDetail pickDetail: nextPickDetails) {
+            Long pickAt = pickDetail.getPickAt();
+            if (pickAt == null || pickAt.equals(0L)) {
+                nextPickDetail = pickDetail;
+                break;
+            }
+        }
         Map<String, Object> result = new HashMap<String, Object>();
         return JsonUtils.SUCCESS(result);
     }

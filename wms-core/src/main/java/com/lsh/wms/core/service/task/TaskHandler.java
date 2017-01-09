@@ -46,9 +46,12 @@ public interface TaskHandler {
     void doneConcrete(Long taskId, Long locationId, Long staffId);
     void doneConcrete(Long taskId, List<StockMove> moveList);
     void cancelConcrete(Long taskId);
+    void hold(Long taskId);
+    void batchhold(List<Long> taskIds);
+    void holdConcrete(Long taskId);
     TaskEntry getOldTask(Long taskId);
     void allocateConcrete(Long taskId);
-    void updteConcrete(TaskEntry taskEntry);
+    void updateConcrete(TaskEntry taskEntry);
     void calcPerformance(TaskInfo taskInfo);
     void setPriority(Long taskId, Long newPriority);
 }
