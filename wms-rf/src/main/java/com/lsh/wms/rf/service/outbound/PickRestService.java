@@ -603,6 +603,10 @@ public class PickRestService implements IPickRestService {
         if (!pickOrder.equals(needPickDetail.getPickOrder())) {
             throw new BizCheckedException("2060022");
         }
+        // 待拣货的是最后一个,则报错
+        if (lastPickOrder.equals(needPickDetail.getPickOrder())) {
+            throw new BizCheckedException("2060024");
+        }
         needPickDetail.setPickOrder(lastPickOrder + 1);
         waveService.updateDetail(needPickDetail);
 
