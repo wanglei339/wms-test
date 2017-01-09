@@ -129,7 +129,7 @@ public class SearchRestService implements ISearchRestService{
         }
         map = new HashMap<String, Object>();
         map.put("data","未查询到有效信息");
-        return JsonUtils.SUCCESS();
+        return JsonUtils.SUCCESS(map);
     }
 
     private Map<String,Object> getDataByQuant(List<StockQuant> quants,StringBuilder quantSb){
