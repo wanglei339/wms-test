@@ -119,6 +119,7 @@ public class UserRestService implements IUserRestService {
                     put("do_mergeboard", "合板");
                     put("do_load", "装车");
                     put("do_releasecollection", "一键装车");
+                    put("do_search", "查询");
 
                 }
             };
