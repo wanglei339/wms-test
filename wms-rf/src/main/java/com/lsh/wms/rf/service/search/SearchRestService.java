@@ -33,6 +33,7 @@ import org.springframework.scheduling.annotation.Async;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -119,8 +120,8 @@ public class SearchRestService implements ISearchRestService{
                 quantSb.append("商品名称: " + item.getSkuName() + " \n ");
                 quantSb.append("拣货状态: " + (waveDetail.getPickAt().compareTo(0L) > 0 ? "拣货完成":"待拣货") + " \n ");
                 quantSb.append("箱规 : " + PackUtil.Uom2PackUnit(waveDetail.getAllocUnitName()).longValue() + " \n ");
-                quantSb.append("配货库存量 : " + waveDetail.getAllocQty() + " \n ");
-                quantSb.append("拣货数量 : " + waveDetail.getPickQty() + " \n ");
+                quantSb.append("配货库存量 : " + waveDetail.getAllocQty().setScale(2, BigDecimal.ROUND_HALF_UP) + " \n ");
+                quantSb.append("拣货数量 : " + waveDetail.getPickQty().setScale(2, BigDecimal.ROUND_HALF_UP) + " \n ");
             }
             Map<String,Object> rep = new HashMap<String, Object>();
             rep.put("data",quantSb);
@@ -139,7 +140,7 @@ public class SearchRestService implements ISearchRestService{
             quantSb.append("商品编码: " + item.getSkuCode() + " \n ");
             quantSb.append("商品名称: " + item.getSkuName() + " \n ");
             quantSb.append("箱规 : " + quant.getPackUnit().longValue() + " \n ");
-            quantSb.append("数量 : " + quant.getQty() + " \n ");
+            quantSb.append("数量 : " + quant.getQty().setScale(2, BigDecimal.ROUND_HALF_UP) + " \n ");
             //quantSb.append("货主 : " + quant.getOwnerId() + " \n ");
         }
         Map<String,Object> rep = new HashMap<String, Object>();
@@ -168,7 +169,7 @@ public class SearchRestService implements ISearchRestService{
                     quantSb.append(" \n ");
                     quantSb.append("库位 : " + locationService.getLocation(quant.getLocationId()).getLocationCode() + " \n ");
                     quantSb.append("箱规 : " + quant.getPackUnit().longValue() + " \n ");
-                    quantSb.append("数量 : " + quant.getQty() + " \n ");
+                    quantSb.append("数量 : " + quant.getQty().setScale(2, BigDecimal.ROUND_HALF_UP) + " \n ");
                     //quantSb.append("货主 : " + quant.getOwnerId() + " \n ");
                 }
             }
