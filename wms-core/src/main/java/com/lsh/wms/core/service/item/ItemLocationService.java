@@ -4,9 +4,11 @@ import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.dao.baseinfo.BaseinfoItemLocationDao;
 import com.lsh.wms.core.service.location.LocationService;
+import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
+import com.lsh.wms.model.stock.StockQuant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +36,8 @@ public class ItemLocationService {
     private BaseinfoItemLocationDao itemLocationDao;
     @Autowired
     private LocationService locationService;
+    @Autowired
+    private StockQuantService stockQuantService;
 
 //    public List<BaseinfoItemLocation> getItemLocationList(long iSkuId,long iOwnerId){
 //        Long key = (((long)iOwnerId)<<32) + (iSkuId);
@@ -124,6 +128,11 @@ public class ItemLocationService {
         long itemId = itemLocation.getItemId();
         if(itemLocation.getPickLocationid() == null || oldItemLocation.getPickLocationid().equals(itemLocation.getPickLocationid())){
             //不更新拣货位ID
+            //验证该拣货位是否有库存
+            List<StockQuant> quantList = stockQuantService.getQuantsByLocationId(locationId);
+            if(quantList != null && quantList.size() > 0){
+                throw new BizCheckedException("");//该拣货位有库存不能更新
+            }
         }else{
             //更新拣货位id
             //新拣货位ID验证
@@ -160,6 +169,18 @@ public class ItemLocationService {
 
     @Transactional(readOnly = false)
     public void deleteItemLocation(BaseinfoItemLocation itemLocation){
+        Map<String,Object> map = new HashMap<String, Object>();
+        map.put("id",itemLocation.getItemId());
+        map.put("pickLocationid",itemLocation.getPickLocationid());
+        List<BaseinfoItemLocation> baseinfoItemLocations = itemLocationDao.getBaseinfoItemLocationList(map);
+        if(baseinfoItemLocations != null && baseinfoItemLocations.size() > 0){
+            BaseinfoItemLocation baseinfoItemLocation = baseinfoItemLocations.get(0);
+            //验证该拣货位是否有库存
+            List<StockQuant> quantList = stockQuantService.getQuantsByLocationId(baseinfoItemLocation.getPickLocationid());
+            if(quantList != null && quantList.size() > 0){
+                throw new BizCheckedException("");//该拣货位有库存不能删除
+            }
+        }
         itemLocationDao.deleteItemLocation(itemLocation);
     }
 
