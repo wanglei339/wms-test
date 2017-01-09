@@ -30,7 +30,7 @@ public interface IItemRestService {
     String updateItemLocationById(BaseinfoItemLocation itemLocation)  throws BizCheckedException ;
     String setStatus(long iItemId,long iStatus);
 
-    String deleteItemLocation(BaseinfoItemLocation itemLocation);
+    String deleteItemLocation(BaseinfoItemLocation itemLocation)  throws BizCheckedException ;
 
     String updateBarcode() throws BizCheckedException;
 
