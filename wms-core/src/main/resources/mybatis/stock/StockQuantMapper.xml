@@ -224,6 +224,12 @@
 					( ${item.getLocationId()} <![CDATA[<= ]]>  location_id and location_id <![CDATA[<= ]]>  ${item.getRightRange()} )
 				</foreach>
 			</if>
+			<if test="itemIdList != null">
+				and item_id in
+				<foreach collection="itemIdList"  item="item" index="index" open="(" separator=","  close=")">
+					#{item}
+				</foreach>
+			</if>
 		</where>
 	</sql>
 

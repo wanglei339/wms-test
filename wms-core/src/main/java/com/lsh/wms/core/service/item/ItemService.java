@@ -259,13 +259,6 @@ public class ItemService {
             skuName = "%"+skuName+"%";
             mapQuery.put("skuName",skuName);
         }
-        //增加skuCode模糊查询
-        String skuCode = (String) mapQuery.get("skuCode");
-        if(skuCode != null){
-            skuCode = "%"+skuCode+"%";
-            mapQuery.remove("skuCode");
-            mapQuery.put("skuCodeSearch",skuCode);
-        }
         return itemDao.getBaseinfoItemList(mapQuery);
     }
 
