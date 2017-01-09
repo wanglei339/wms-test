@@ -127,6 +127,7 @@ public class ShipRestService implements IShipRestService {
             taskEntry.setTaskInfo(shipTaskInfo);
             taskEntry.setTaskDetailList((List<Object>) (List<?>) totalWaveDetails);
             Long taskId = iTaskRpcService.create(TaskConstant.TYPE_SHIP, taskEntry);
+            iTaskRpcService.done(taskId);
         }
         Map<String, Object> result = new HashMap<String, Object>();
         result.put("response", true);
