@@ -27,10 +27,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by zengwenjun on 16/7/15.
@@ -57,6 +54,7 @@ public class PickRestService implements IPCPickRestService {
     public String getPickTaskInfo(Map<String, Object> mapInput) {
         List waveIds = (List) mapInput.get("waveIds");
         List pickTaskIds = (List) mapInput.get("pickTaskIds");
+        List taskIds = pickTaskIds;
         if (waveIds.size() > 0) {
             for (Object wid: waveIds) {
                 Long waveId = Long.valueOf(wid.toString());
@@ -69,15 +67,14 @@ public class PickRestService implements IPCPickRestService {
                 }
                 //if(pickType)
                 List<TaskEntry> taskHeadList = iTaskRpcService.getTaskHeadList(TaskConstant.TYPE_PICK, mapQuery);
-                pickTaskIds = new LinkedList();
                 for (TaskEntry entry : taskHeadList) {
-                    pickTaskIds.add(entry.getTaskInfo().getTaskId());
+                    taskIds.add(entry.getTaskInfo().getTaskId());
                 }
             }
         }
         List<Map<String, Object>> taskInfoList = new LinkedList<Map<String, Object>>();
         Map<Long, WorkZone> mapZone = new HashMap<Long, WorkZone>();
-        for (Object id : pickTaskIds) {
+        for (Object id : taskIds) {
             Long taskId = Long.valueOf(id.toString());
             TaskEntry entry = iTaskRpcService.getOldTaskEntryById(taskId);  //FIXME 前端展示使用,不考虑生命周期
             List<Map<String, Object>> details = (List<Map<String, Object>>) (List<?>) entry.getTaskDetailList();
