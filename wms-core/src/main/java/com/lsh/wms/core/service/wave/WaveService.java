@@ -134,9 +134,10 @@ public class WaveService {
         return details.size() == 0 ? null : details;
     }
 
-    public List<WaveDetail> getAliveDetailsByContainerIdPc (Long containerId) {
+    public List<WaveDetail> getDetailsByContainerIdAndWaveIdPc (Long containerId,Long waveId) {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("containerId", containerId);
+        mapQuery.put("waveId", waveId);
         mapQuery.put("isValid", 1);
         List<WaveDetail> details = detailDao.getWaveDetailList(mapQuery);
         return details.size() == 0 ? null : details;
@@ -151,9 +152,10 @@ public class WaveService {
         return details.size() == 0 ? null : details;
     }
 
-    public List<WaveDetail> getWaveDetailsByMergedContainerIdPc (Long mergedContainerId) {
+    public List<WaveDetail> getWaveDetailsByMergedContainerIdAndWaveIdPc (Long mergedContainerId, Long waveId) {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("mergedContainerId", mergedContainerId);
+        mapQuery.put("waveId", waveId);
         mapQuery.put("isValid", 1);
         List<WaveDetail> details = detailDao.getWaveDetailList(mapQuery);
         return details.size() == 0 ? null : details;
