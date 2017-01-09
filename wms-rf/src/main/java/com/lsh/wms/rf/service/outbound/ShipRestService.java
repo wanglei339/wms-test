@@ -314,11 +314,17 @@ public class ShipRestService implements IShipRestService {
                     if (null == qcInfo || !TaskConstant.Done.equals(qcInfo.getStatus())) {
                         throw new BizCheckedException("2870034");
                     }
-                    //查看装车否
+                    //判断合盘的是否被运单运走了
                     List<TuDetail> tuDetails = tuService.getTuDeailListByMergedContainerId(qcInfo.getMergedContainerId());
-                    if (tuDetails != null && tuDetails.size() > 0) {
-                        throw new BizCheckedException("2130014");
+                    if (null != tuDetails && tuDetails.size() > 0) {
+                        for (TuDetail tuDetail : tuDetails) {
+                            TuHead tuHead = tuService.getHeadByTuId(tuDetail.getTuId());
+                            if (!TuConstant.SHIP_OVER.equals(tuHead.getStatus())){
+                                throw new BizCheckedException("2130014");
+                            }
+                        }
                     }
+
                     qcInfos.add(qcInfo);
                     qcTaskIdDup.add(detail.getQcTaskId());
                 }
