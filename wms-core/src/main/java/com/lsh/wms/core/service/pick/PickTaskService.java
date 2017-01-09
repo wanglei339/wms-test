@@ -129,6 +129,14 @@ public class PickTaskService {
         quantParams.put("itemId", itemId);
         List<StockQuant> quants = stockQuantService.getQuants(quantParams);
         if (quants.size() > 0) {
+            BigDecimal quantQty = BigDecimal.ZERO;
+            Long quantContainerId = quants.get(0).getContainerId();
+            for (StockQuant quant: quants) {
+                quantQty = quantQty.add(quant.getQty());
+                if (!quantContainerId.equals(quant.getContainerId())) {
+                    throw new BizCheckedException("2060025");
+                }
+            }
             StockQuant quant = quants.get(0);
             // 拣货数量为0不移库存
             if (qty.compareTo(new BigDecimal(0)) == 1) {
