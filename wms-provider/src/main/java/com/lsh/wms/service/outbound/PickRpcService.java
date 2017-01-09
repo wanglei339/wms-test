@@ -60,15 +60,45 @@ public class PickRpcService implements IPCPickRpcService {
      */
     public Map<String, Object> getContainerGoods(Long contaienrId) throws BizCheckedException {
         //合板或者不和板
-        List<WaveDetail> waveDetails = waveService.getAliveDetailsByContainerIdPc(contaienrId);
+        List<WaveDetail> waveDetails = waveService.getAliveDetailsByContainerId(contaienrId);
         if (null == waveDetails || waveDetails.size() < 1) {
-            waveDetails = waveService.getWaveDetailsByMergedContainerIdPc(contaienrId);
+            waveDetails = waveService.getWaveDetailsByMergedContainerId(contaienrId);
         }
         if (null == waveDetails || waveDetails.size() < 1) {
             throw new BizCheckedException("2870044");
         }
 
         //封装商品的结果集
+        return getGoodsInfoByWaveDetails(waveDetails);
+    }
+
+    /**
+     * 拣货打印
+     * @param contaienrId
+     * @param waveId
+     * @return
+     * @throws BizCheckedException
+     */
+    public Map<String, Object> getContainerGoods(Long contaienrId, Long waveId) throws BizCheckedException {
+        //合板或者不和板
+        List<WaveDetail> waveDetails = waveService.getDetailsByContainerIdAndWaveIdPc(contaienrId,waveId);
+        if (null == waveDetails || waveDetails.size() < 1) {
+            waveDetails = waveService.getWaveDetailsByMergedContainerIdAndWaveIdPc(contaienrId,waveId);
+        }
+        if (null == waveDetails || waveDetails.size() < 1) {
+            throw new BizCheckedException("2870044");
+        }
+
+        //封装商品的结果集
+        return getGoodsInfoByWaveDetails(waveDetails);
+    }
+
+    /**
+     * 通过waveDetail聚类商品的信息
+     * @param waveDetails
+     * @return
+     */
+    private Map<String, Object> getGoodsInfoByWaveDetails(List<WaveDetail> waveDetails) {
         List<Map<String, Object>> goodList = new ArrayList<Map<String, Object>>();
         for (WaveDetail detail : waveDetails) {
             BaseinfoItem item = itemService.getItem(detail.getItemId());
