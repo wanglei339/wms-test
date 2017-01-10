@@ -17,7 +17,6 @@ import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
-import com.lsh.wms.model.wave.WaveDetail;
 import com.lsh.wms.rpc.service.pick.PickRpcService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
