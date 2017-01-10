@@ -109,7 +109,6 @@ public class SearchRestService implements ISearchRestService{
             if(quants != null && quants.size() > 0){
                 quantSb.append("托盘码 : " + code + "\n");
                 //sb.append(" \n ");
-
                 return JsonUtils.SUCCESS(this.getDataByQuant(quants,quantSb));
             }
             //拣货签
