@@ -95,6 +95,7 @@ public class SearchRestService implements ISearchRestService{
                 return JsonUtils.SUCCESS(this.getDataByQuant(quants,quantSb));
             }
         }
+
         //map = new HashMap<String, Object>();
         //匹配正则
         boolean result=code.matches("[0-9]+");
