@@ -135,7 +135,9 @@ public class SoRpcService implements ISoRpcService {
             } else {
                 obdDetail.setOriOrderQty(soItem.getOrderQty());
                 Double avQty = stockSummaryService.getStockSummaryByItemId(obdDetail.getItemId()).getAvailQty().doubleValue();
-                if (avQty.compareTo(obdDetail.getOriOrderQty().doubleValue()) <= 0 ) {
+                avQty = avQty.compareTo(0.0) < 0 ? 0 : avQty;
+                //比较EA数量
+                if (avQty.compareTo(PackUtil.UomQty2EAQty(obdDetail.getOriOrderQty(),obdDetail.getPackName()).doubleValue()) <= 0 ) {
                     if (owner.getSoCheckStrategy().equals(SoConstant.STOCK_HARD_CHECK)) {
                         throw new BizCheckedException("2900009");
                     }
