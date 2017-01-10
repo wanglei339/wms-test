@@ -196,9 +196,6 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
             List<BaseinfoItemLocation> itemLocationList = itemLocationService.getItemLocationByLocationID(shelfCollectionBin.getLocationId());
 
             for (BaseinfoItemLocation itemLocation : itemLocationList) {
-                if(itemLocation.getItemId().compareTo(1388l)!=0){
-                    continue;
-                }
                 NeedAndOutQty needAndOutQty = rpcService.returnNeedAndOutQty(itemLocation.getPickLocationid(), itemLocation.getItemId(),canMax);
                 //判断商品是否需要补货
                 if (needAndOutQty.isNeedProcurement()) {
