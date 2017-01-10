@@ -42,7 +42,7 @@
 	<select id="getStockQuantMoveRelList" parameterType="map" resultMap="stockQuantMoveRelResultMap">
 		select * from stock_quant_move_rel
 		<include refid="queryCondition"/>
-		ORDER BY ID DESC
+		ORDER BY ID
 		<if test="start != null and limit != null">
 		limit #{start},#{limit}
 		</if>

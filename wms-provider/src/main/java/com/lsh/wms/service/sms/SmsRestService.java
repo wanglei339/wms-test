@@ -245,6 +245,17 @@ public class SmsRestService implements ISmsRestService {
     @GET
     @Path("diff")
     public String diff(@QueryParam("order_id") String orderId) throws BizCheckedException {
+        StockMove move = new StockMove();
+        move.setItemId(221229470452915L);
+        move.setFromLocationId(13298043160340L);
+        move.setFromContainerId(100000000000158L);
+        move.setToLocationId(101951566367641L);
+        move.setToContainerId(1234567890L);
+        move.setQty(new BigDecimal("10"));
+        stockMoveService.move(move);
+        StockQuant quant = new StockQuant();
+        quant.setId(10L);
+        stockQuantService.cleanZeroQuant(quant);
         return JsonUtils.SUCCESS();
     }
 
