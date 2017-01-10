@@ -167,7 +167,7 @@ public class SearchRestService implements ISearchRestService{
             if(quants != null && quants.size() > 0){
                 //sb.append(" \n ");
                 for(StockQuant quant : quants){
-                    quantSb.append(" \n ");
+                    quantSb.append("\n");
                     quantSb.append("库位 : " + locationService.getLocation(quant.getLocationId()).getLocationCode() + "\n");
                     quantSb.append("箱规 : " + quant.getPackUnit().longValue() + "\n");
                     quantSb.append("数量 : " + quant.getQty().setScale(2, BigDecimal.ROUND_HALF_UP) + "\n");
