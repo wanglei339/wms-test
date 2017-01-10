@@ -80,7 +80,6 @@ public class SearchRestService implements ISearchRestService{
         map = new HashMap<String, Object>();
         map.put("packCode",code);
         //barCode值为箱码
-
         List<BaseinfoItem> baseinfoItemList = itemService.searchItem(map);
         if(baseinfoItemList != null && baseinfoItemList.size() >0){
             return JsonUtils.SUCCESS(this.getDataByItems(baseinfoItemList));
