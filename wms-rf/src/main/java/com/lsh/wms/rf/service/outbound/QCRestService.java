@@ -338,7 +338,7 @@ public class QCRestService implements IRFQCRestService {
         //捡货人员的名字
         TaskInfo pickTask = baseTaskService.getTaskByTaskId(qcTaskInfo.getQcPreviousTaskId());
         if (null == pickTask) {
-            throw new BizCheckedException("2060003");
+            throw new BizCheckedException("2060003", qcTaskInfo.getQcPreviousTaskId(), "");
         }
         SysUser picker = sysUserService.getSysUserByUid(pickTask.getOperator().toString());
         rstMap.put("pickerName", picker.getScreenname());
