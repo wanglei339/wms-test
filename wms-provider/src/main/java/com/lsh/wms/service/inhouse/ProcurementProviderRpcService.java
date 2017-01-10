@@ -196,9 +196,6 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
             List<BaseinfoItemLocation> itemLocationList = itemLocationService.getItemLocationByLocationID(shelfCollectionBin.getLocationId());
 
             for (BaseinfoItemLocation itemLocation : itemLocationList) {
-                if(itemLocation.getItemId().compareTo(404l)==0){
-                    continue;
-                }
                 NeedAndOutQty needAndOutQty = rpcService.returnNeedAndOutQty(itemLocation.getPickLocationid(), itemLocation.getItemId(),canMax);
                 //判断商品是否需要补货
                 if (needAndOutQty.isNeedProcurement()) {
@@ -303,19 +300,21 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
                             plan.setPackUnit(quant.getPackUnit());
                             plan.setSubType(2L);
 
-                            if(nowQuant.compareTo(maxQty)>0){
+                            if(nowQuant.compareTo(maxQty)>0 || needContinue){
                                 BigDecimal needQty = BigDecimal.ZERO;
-                                if (needContinue && !locationCategory.equals("A")){
-                                    //已达到max值,但是 补货后数量 - 出库数量+ min
-                                    BigDecimal needMax  = needAndOutQty.getOutQty().add(itemLocation.getMinQty());
-                                    if(nowQuant.compareTo(needMax)>0) {
-                                        needQty =  needAndOutQty.getOutQty().subtract(nowQuant.subtract(qty));
-                                    }else{
+                                    if(locationCategory.equals("A")){
                                         needQty = qty;
+                                    }else if(needContinue && nowQuant.compareTo(maxQty) < 0){
+                                        //已达到max值,但是 补货后数量 - 出库数量+ min <0
+                                        BigDecimal needMax = needAndOutQty.getOutQty().add(itemLocation.getMinQty());
+                                        if (nowQuant.compareTo(needMax) > 0) {
+                                            needQty = needAndOutQty.getOutQty().subtract(nowQuant.subtract(qty));
+                                        } else {
+                                            needQty = qty;
+                                        }
+                                    }else {
+                                        needQty =  maxQty.subtract(nowQuant.subtract(qty));
                                     }
-                                }else {
-                                    needQty =  maxQty.subtract(nowQuant.subtract(qty));
-                                }
                                 //去除小数
                                 BigDecimal [] needDecimals = needQty.divideAndRemainder(item.getPackUnit());
                                 needQty = needQty.subtract(needDecimals[1]);
