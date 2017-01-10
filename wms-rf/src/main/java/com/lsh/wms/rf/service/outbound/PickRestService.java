@@ -133,23 +133,20 @@ public class PickRestService implements IPickRestService {
                 throw new BizCheckedException("2060017", containerId, "");
             }
             TaskInfo taskInfo = baseTaskService.getTaskInfoById(taskId);
-            if ( taskInfo == null){
-                return JsonUtils.TOKEN_ERROR("错误的捡货任务");
+            if (taskInfo == null || !taskInfo.getType().equals(taskType)) {
+                throw new BizCheckedException("2060003", taskId, "");
             }
             PickTaskHead taskHead = pickTaskService.getPickTaskHead(taskId);
             if (!TaskConstant.Draft.equals(taskInfo.getStatus())) {
                 throw new BizCheckedException("2060001", taskId, "");
             }
-            if (taskInfo == null || !taskInfo.getType().equals(taskType)) {
-                throw new BizCheckedException("2060003");
-            }
             // 检查是否有已分配的任务
             if (baseTaskService.checkTaskByContainerId(containerId)) {
-                throw new BizCheckedException("2030008");
+                throw new BizCheckedException("2060026", containerId, "");
             }
             // 检查container是否可用
             if (containerService.isContainerInUse(containerId)) {
-                throw new BizCheckedException("2000002");
+                throw new BizCheckedException("2060027", containerId, "");
             }
             if (taskIds.contains(taskId)) {
                 throw new BizCheckedException("2060020", taskId.toString(), "");
@@ -219,7 +216,7 @@ public class PickRestService implements IPickRestService {
         List<TaskInfo> taskInfos = baseTaskService.getTaskInfoList(taskInfoParams);
 
         if (taskInfos == null) {
-            throw new BizCheckedException("2060003");
+            throw new BizCheckedException("2060003", "", "");
         }
 
         // 取taskId
@@ -456,7 +453,7 @@ public class PickRestService implements IPickRestService {
         }
         TaskInfo oriTaskInfo = baseTaskService.getTaskInfoById(taskId);
         if (!oriTaskInfo.getType().equals(TaskConstant.TYPE_PICK)) {
-            throw new BizCheckedException("2060003");
+            throw new BizCheckedException("2060003", taskId, "");
         }
         if (!oriTaskInfo.getStatus().equals(TaskConstant.Assigned)) {
             throw new BizCheckedException("2060004", taskId, "");
@@ -569,7 +566,7 @@ public class PickRestService implements IPickRestService {
         List<TaskInfo> taskInfos = baseTaskService.getTaskInfoList(taskInfoParams);
 
         if (taskInfos == null) {
-            throw new BizCheckedException("2060003");
+            throw new BizCheckedException("2060003", taskId, "");
         }
 
         // 取taskId
