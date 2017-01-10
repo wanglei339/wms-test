@@ -59,6 +59,8 @@ public class WaveDetail implements Serializable {
 	private BaseinfoLocation pickArea;
 	/** 拣货顺序 */
 	private Long pickOrder = 0L;
+	/** 拣货任务序号 */
+	private Long pickTaskOrder;
 	/** 分配分拣位 */
     private Long allocPickLocation = 0L;
 	/** 实际分拣位 */
@@ -309,6 +311,14 @@ public class WaveDetail implements Serializable {
 
 	public void setPickOrder(Long pickOrder){
 		this.pickOrder = pickOrder;
+	}
+
+	public Long getPickTaskOrder(){
+		return this.pickTaskOrder;
+	}
+
+	public void setPickTaskOrder(Long pickTaskOrder){
+		this.pickTaskOrder = pickTaskOrder;
 	}
 
 	public Long getAllocPickLocation(){

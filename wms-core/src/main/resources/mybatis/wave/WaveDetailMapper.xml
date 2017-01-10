@@ -26,6 +26,7 @@
 		<result property="pickZoneId" column="pick_zone_id"/>
 		<result property="pickAreaLocation" column="pick_area_location"/>
 		<result property="pickOrder" column="pick_order"/>
+		<result property="pickTaskOrder" column="pick_task_order"/>
 		<result property="allocPickLocation" column="alloc_pick_location"/>
 		<result property="realPickLocation" column="real_pick_location"/>
 		<result property="allocCollectLocation" column="alloc_collect_location"/>
@@ -62,22 +63,22 @@
 			ref_detail_id,is_alive,is_valid,wave_id,order_id,item_id,
 			sku_id,owner_id,loc_id,supplier_id,status,req_qty,
 			alloc_qty,alloc_unit_name,alloc_unit_qty,pick_qty,qc_qty,delivery_qty,
-			pick_task_id,pick_zone_id,pick_area_location,pick_order,alloc_pick_location,real_pick_location,
-			alloc_collect_location,real_collect_location,container_id,merged_container_id,pick_uid,pick_at,
-			sow_task_id,sow_uid,sow_at,qc_task_id,qc_uid,qc_at,
-			merge_task_id,merge_uid,merge_at,qc_exception,qc_exception_qty,qc_exception_done,
-			ship_task_id,ship_uid,ship_at,delivery_id,created_at,updated_at,
-			qc_times,qc_fault,qc_fault_qty
+			pick_task_id,pick_zone_id,pick_area_location,pick_order,pick_task_order,alloc_pick_location,
+			real_pick_location,alloc_collect_location,real_collect_location,container_id,merged_container_id,pick_uid,
+			pick_at,sow_task_id,sow_uid,sow_at,qc_task_id,qc_uid,
+			qc_at,merge_task_id,merge_uid,merge_at,qc_exception,qc_exception_qty,
+			qc_exception_done,ship_task_id,ship_uid,ship_at,delivery_id,created_at,
+			updated_at,qc_times,qc_fault,qc_fault_qty
     	) values (
 			#{refDetailId},#{isAlive},#{isValid},#{waveId},#{orderId},#{itemId},
 			#{skuId},#{ownerId},#{locId},#{supplierId},#{status},#{reqQty},
 			#{allocQty},#{allocUnitName},#{allocUnitQty},#{pickQty},#{qcQty},#{deliveryQty},
-			#{pickTaskId},#{pickZoneId},#{pickAreaLocation},#{pickOrder},#{allocPickLocation},#{realPickLocation},
-			#{allocCollectLocation},#{realCollectLocation},#{containerId},#{mergedContainerId},#{pickUid},#{pickAt},
-			#{sowTaskId},#{sowUid},#{sowAt},#{qcTaskId},#{qcUid},#{qcAt},
-			#{mergeTaskId},#{mergeUid},#{mergeAt},#{qcException},#{qcExceptionQty},#{qcExceptionDone},
-			#{shipTaskId},#{shipUid},#{shipAt},#{deliveryId},#{createdAt},#{updatedAt},
-			#{qcTimes},#{qcFault},#{qcFaultQty}
+			#{pickTaskId},#{pickZoneId},#{pickAreaLocation},#{pickOrder},#{pickTaskOrder},#{allocPickLocation},
+			#{realPickLocation},#{allocCollectLocation},#{realCollectLocation},#{containerId},#{mergedContainerId},#{pickUid},
+			#{pickAt},#{sowTaskId},#{sowUid},#{sowAt},#{qcTaskId},#{qcUid},
+			#{qcAt},#{mergeTaskId},#{mergeUid},#{mergeAt},#{qcException},#{qcExceptionQty},
+			#{qcExceptionDone},#{shipTaskId},#{shipUid},#{shipAt},#{deliveryId},#{createdAt},
+			#{updatedAt},#{qcTimes},#{qcFault},#{qcFaultQty}
     	)
 
 	</insert>
@@ -107,6 +108,7 @@
   			<if test="pickZoneId != null">pick_zone_id=#{pickZoneId},</if>
 			<if test="pickAreaLocation != null">pick_area_location=#{pickAreaLocation},</if>
   			<if test="pickOrder != null">pick_order=#{pickOrder},</if>
+			<if test="pickTaskOrder != null">pick_task_order=#{pickTaskOrder},</if>
   			<if test="allocPickLocation != null">alloc_pick_location=#{allocPickLocation},</if>
   			<if test="realPickLocation != null">real_pick_location=#{realPickLocation},</if>
   			<if test="allocCollectLocation != null">alloc_collect_location=#{allocCollectLocation},</if>
@@ -210,6 +212,7 @@
 			<if test="pickZoneId != null">and pick_zone_id=#{pickZoneId}</if>
 			<if test="pickAreaLocation != null">and pick_area_location=#{pickAreaLocation}</if>
 			<if test="pickOrder != null">and pick_order=#{pickOrder}</if>
+			<if test="pickTaskOrder != null">and pick_task_order=#{pickTaskOrder}</if>
 			<if test="allocPickLocation != null">and alloc_pick_location=#{allocPickLocation}</if>
 			<if test="realPickLocation != null">and real_pick_location=#{realPickLocation}</if>
 			<if test="allocCollectLocation != null">and alloc_collect_location=#{allocCollectLocation}</if>
