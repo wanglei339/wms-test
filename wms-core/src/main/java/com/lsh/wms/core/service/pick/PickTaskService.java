@@ -16,6 +16,7 @@ import com.lsh.wms.core.service.container.ContainerService;
 import com.lsh.wms.core.service.datareport.DifferenceZoneReportService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.location.LocationService;
+import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.stock.StockMoveService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.task.BaseTaskService;
@@ -26,6 +27,7 @@ import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.datareport.DifferenceZoneReport;
 import com.lsh.wms.model.pick.PickTaskHead;
+import com.lsh.wms.model.so.ObdHeader;
 import com.lsh.wms.model.stock.StockMove;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.task.TaskInfo;
@@ -70,6 +72,8 @@ public class PickTaskService {
     private StockMoveService stockMoveService;
     @Autowired
     private ContainerService containerService;
+    @Autowired
+    private SoOrderService soOrderService;
     @Autowired
     private DifferenceZoneReportService differenceZoneReportService;
 
@@ -285,12 +289,20 @@ public class PickTaskService {
         }
         */
         //todo 这里的国条也可能有问题,在多国条情况下,一个仓位上的国条是跟着库存走的,不是跟着库位走的
-        if (result.get("itemId") != null) {
+        if (null != result.get("itemId")) {
             BaseinfoItem item = itemService.getItem(Long.valueOf(result.get("itemId").toString()));
             result.put("skuName", item.getSkuName());
             result.put("skuCode", item.getSkuCode());
             result.put("barcode", item.getCode());
             result.put("packCode", item.getPackCode()); // 箱码
+        }
+        if (null != result.get("orderId")) {
+            ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderId(Long.valueOf(result.get("orderId").toString()));
+            if (null != obdHeader) {
+                result.put("customerName", obdHeader.getDeliveryName());
+            } else {
+                result.put("customerName", "");
+            }
         }
         result.put("containerId", taskInfo.getContainerId().toString());
         return result;

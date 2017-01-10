@@ -113,6 +113,8 @@ public class PickRestService implements IPickRestService {
             throw new BizCheckedException("2060011");
         }
 
+        Long taskOrder = 1L; // 拣货签序号
+
         for (Map<String, Object> task: taskList) {
             Long taskId = Long.valueOf(task.get("taskId").toString());
             Long containerId = Long.valueOf(task.get("containerId").toString());
@@ -161,7 +163,12 @@ public class PickRestService implements IPickRestService {
             assignParam.put("staffId", staffId);
             assignParam.put("containerId", containerId);
             assignParams.add(assignParam);
-            pickDetails.addAll(waveService.getDetailsByPickTaskId(taskId));
+            List<WaveDetail> waveDetails = waveService.getDetailsByPickTaskId(taskId);
+            for (WaveDetail waveDetail: waveDetails) {
+                waveDetail.setPickTaskOrder(taskOrder);
+                pickDetails.add(waveDetail);
+            }
+            taskOrder++;
         }
         iTaskRpcService.assignMul(assignParams);
 
@@ -359,8 +366,8 @@ public class PickRestService implements IPickRestService {
         }
         // 正常拣货的最后一步
         if (nextPickDetail.getPickTaskId() == null || nextPickDetail.getPickTaskId().equals(0L) || nextPickDetail.getPickTaskId().equals("")) {
-            // 货架补拣,只做一次
-            if (needPickDetail.getRefDetailId().equals(0L) && taskInfo.getSubType().equals(PickConstant.SHELF_TASK_TYPE)) {
+            // 补拣,只做一次
+            if (needPickDetail.getRefDetailId().equals(0L)/* && taskInfo.getSubType().equals(PickConstant.SHELF_TASK_TYPE)*/) {
                 List<WaveDetail> splitWaveDetails = new ArrayList<WaveDetail>();
                 Long lastOrder = needPickDetail.getPickOrder();
                 for (WaveDetail pickDetail: pickDetails) {
