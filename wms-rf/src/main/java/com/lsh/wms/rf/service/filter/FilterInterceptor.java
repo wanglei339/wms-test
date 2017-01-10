@@ -5,6 +5,8 @@ import com.lsh.base.common.config.PropertyUtils;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.StrUtils;
+import com.lsh.wms.api.model.base.ResUtils;
+import com.lsh.wms.api.model.base.ResponseConstant;
 import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.core.constant.RedisKeyConstant;
 import com.lsh.wms.core.dao.redis.RedisStringDao;
@@ -21,6 +23,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.Null;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Enumeration;
@@ -75,7 +78,8 @@ public class FilterInterceptor{
 //                //取出流水号
 //                String serialNumber = request.getHeader("serialNumber");
                 if (value == null || !value.equals(utoken)) {
-                    return JsonUtils.TOKEN_ERROR("Token校验失败,请重新登录");
+                    //return ResUtils.getResponse(ResponseConstant.RES_CODE_2660003, ResponseConstant.RES_MSG_ERROR, null);
+                    return JsonUtils.PARAMETER_ERROR("2660003","Token校验失败,请重新登录");
                     //throw new BizCheckedException("2660003");
                 }else{
                     //如果验证成功，说明此用户进行了一次有效操作，延长token的过期时间
