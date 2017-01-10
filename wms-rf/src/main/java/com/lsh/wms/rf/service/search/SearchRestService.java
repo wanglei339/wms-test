@@ -80,54 +80,55 @@ public class SearchRestService implements ISearchRestService{
         map = new HashMap<String, Object>();
         map.put("packCode",code);
         //barCode值为箱码
-
         List<BaseinfoItem> baseinfoItemList = itemService.searchItem(map);
         if(baseinfoItemList != null && baseinfoItemList.size() >0){
             return JsonUtils.SUCCESS(this.getDataByItems(baseinfoItemList));
         }
-
         //查库位
         BaseinfoLocation location = locationService.getLocationByCode(code);
         if(location != null){
             map = new HashMap<String, Object>();
             map.put("locationId",location.getLocationId());
-            quantSb.append("库位 : " + location.getLocationCode() + " \n ");
+            quantSb.append("库位 : " + location.getLocationCode() + "\n");
             List<StockQuant> quants = stockQuantRpcService.getLocationStockList(map);
             if(quants != null && quants.size() > 0){
                 return JsonUtils.SUCCESS(this.getDataByQuant(quants,quantSb));
             }
-
-        }
-        //托盘码
-        map = new HashMap<String, Object>();
-        map.put("containerId",code);
-        List<StockQuant> quants = stockQuantRpcService.getLocationStockList(map);
-        if(quants != null && quants.size() > 0){
-            quantSb.append("托盘码 : " + code + " \n ");
-            //sb.append(" \n ");
-
-            return JsonUtils.SUCCESS(this.getDataByQuant(quants,quantSb));
         }
         //map = new HashMap<String, Object>();
-        TaskInfo taskInfo = baseTaskService.getTaskInfoById(Long.valueOf(code));
-        if(taskInfo != null && TaskConstant.TYPE_PICK.equals(taskInfo.getType())){
-            quantSb.append("拣货签 : " + code + " \n ");
-            List<WaveDetail> waveDetails = waveService.getDetailsByPickTaskId(Long.valueOf(code));
-            for (WaveDetail waveDetail : waveDetails) {
-                BaseinfoItem item  = itemService.getItem(waveDetail.getItemId());
-                quantSb.append(" \n ");
-                quantSb.append("商品编码: " + item.getSkuCode() + " \n ");
-                quantSb.append("商品名称: " + item.getSkuName() + " \n ");
-                quantSb.append("拣货状态: " + (waveDetail.getPickAt().compareTo(0L) > 0 ? "拣货完成":"待拣货") + " \n ");
-                quantSb.append("箱规 : " + PackUtil.Uom2PackUnit(waveDetail.getAllocUnitName()).longValue() + " \n ");
-                quantSb.append("配货库存量 : " + waveDetail.getAllocQty().setScale(2, BigDecimal.ROUND_HALF_UP) + " \n ");
-                quantSb.append("拣货数量 : " + waveDetail.getPickQty().setScale(2, BigDecimal.ROUND_HALF_UP) + " \n ");
+        //匹配正则
+        boolean result=code.matches("[0-9]+");
+        if(result){
+            //托盘码
+            map = new HashMap<String, Object>();
+            map.put("containerId",code);
+            List<StockQuant> quants = stockQuantRpcService.getLocationStockList(map);
+            if(quants != null && quants.size() > 0){
+                quantSb.append("托盘码 : " + code + "\n");
+                //sb.append(" \n ");
+                return JsonUtils.SUCCESS(this.getDataByQuant(quants,quantSb));
             }
-            Map<String,Object> rep = new HashMap<String, Object>();
-            rep.put("data",quantSb);
-            return JsonUtils.SUCCESS(rep);
-
+            //拣货签
+            TaskInfo taskInfo = baseTaskService.getTaskInfoById(Long.valueOf(code));
+            if(taskInfo != null && TaskConstant.TYPE_PICK.equals(taskInfo.getType())){
+                quantSb.append("拣货签 : " + code + "\n");
+                List<WaveDetail> waveDetails = waveService.getDetailsByPickTaskId(Long.valueOf(code));
+                for (WaveDetail waveDetail : waveDetails) {
+                    BaseinfoItem item  = itemService.getItem(waveDetail.getItemId());
+                    quantSb.append("\n");
+                    quantSb.append("商品编码: " + item.getSkuCode() + "\n");
+                    quantSb.append("商品名称: " + item.getSkuName() + "\n");
+                    quantSb.append("拣货状态: " + (waveDetail.getPickAt().compareTo(0L) > 0 ? "拣货完成":"待拣货") + "\n");
+                    quantSb.append("箱规 : " + PackUtil.Uom2PackUnit(waveDetail.getAllocUnitName()).longValue() + "\n");
+                    quantSb.append("配货库存量 : " + waveDetail.getAllocQty().setScale(2, BigDecimal.ROUND_HALF_UP) + "\n");
+                    quantSb.append("拣货数量 : " + waveDetail.getPickQty().setScale(2, BigDecimal.ROUND_HALF_UP) + "\n");
+                }
+                Map<String,Object> rep = new HashMap<String, Object>();
+                rep.put("data",quantSb);
+                return JsonUtils.SUCCESS(rep);
+            }
         }
+
         map = new HashMap<String, Object>();
         map.put("data","未查询到有效信息");
         return JsonUtils.SUCCESS(map);
@@ -136,11 +137,11 @@ public class SearchRestService implements ISearchRestService{
     private Map<String,Object> getDataByQuant(List<StockQuant> quants,StringBuilder quantSb){
         for(StockQuant quant : quants){
             BaseinfoItem item  = itemService.getItem(quant.getItemId());
-            quantSb.append(" \n ");
-            quantSb.append("商品编码: " + item.getSkuCode() + " \n ");
-            quantSb.append("商品名称: " + item.getSkuName() + " \n ");
-            quantSb.append("箱规 : " + quant.getPackUnit().longValue() + " \n ");
-            quantSb.append("数量 : " + quant.getQty().setScale(2, BigDecimal.ROUND_HALF_UP) + " \n ");
+            quantSb.append("\n");
+            quantSb.append("商品编码: " + item.getSkuCode() + "\n");
+            quantSb.append("商品名称: " + item.getSkuName() + "\n");
+            quantSb.append("箱规 : " + quant.getPackUnit().longValue() + "\n");
+            quantSb.append("数量 : " + quant.getQty().setScale(2, BigDecimal.ROUND_HALF_UP) + "\n");
             //quantSb.append("货主 : " + quant.getOwnerId() + " \n ");
         }
         Map<String,Object> rep = new HashMap<String, Object>();
@@ -154,12 +155,12 @@ public class SearchRestService implements ISearchRestService{
         StringBuilder itemSb = new StringBuilder();
         StringBuilder quantSb = new StringBuilder();
         for(BaseinfoItem item : items){
-            itemSb.append("商品名称 : " + item.getSkuName() + " \n ");
-            itemSb.append("商品编码 : "  + item.getSkuCode() + " \n ");
+            itemSb.append("商品名称 : " + item.getSkuName() + "\n");
+            itemSb.append("商品编码 : "  + item.getSkuCode() + "\n");
             //itemSb.append("货主 : " + item.getOwnerId() + " \n ");
-            itemSb.append("箱规 : "  + item.getPackUnit().longValue() + " \n ");
-            itemSb.append("国条 : "  + item.getCode() + " \n ");
-            itemSb.append("箱码 : "  + item.getPackCode() + " \n ");
+            itemSb.append("箱规 : "  + item.getPackUnit().longValue() + "\n");
+            itemSb.append("国条 : "  + item.getCode() + "\n");
+            itemSb.append("箱码 : "  + item.getPackCode() + "\n");
             Map<String,Object> map = new HashMap<String, Object>();
             map.put("itemId",item.getItemId());
             List<StockQuant> quants = stockQuantRpcService.getLocationStockList(map);
@@ -167,15 +168,15 @@ public class SearchRestService implements ISearchRestService{
                 //sb.append(" \n ");
                 for(StockQuant quant : quants){
                     quantSb.append(" \n ");
-                    quantSb.append("库位 : " + locationService.getLocation(quant.getLocationId()).getLocationCode() + " \n ");
-                    quantSb.append("箱规 : " + quant.getPackUnit().longValue() + " \n ");
-                    quantSb.append("数量 : " + quant.getQty().setScale(2, BigDecimal.ROUND_HALF_UP) + " \n ");
+                    quantSb.append("库位 : " + locationService.getLocation(quant.getLocationId()).getLocationCode() + "\n");
+                    quantSb.append("箱规 : " + quant.getPackUnit().longValue() + "\n");
+                    quantSb.append("数量 : " + quant.getQty().setScale(2, BigDecimal.ROUND_HALF_UP) + "\n");
                     //quantSb.append("货主 : " + quant.getOwnerId() + " \n ");
                 }
             }
         }
         Map<String,Object> rep = new HashMap<String, Object>();
-        rep.put("data",itemSb.append( " \n " ).append(quantSb));
+        rep.put("data",itemSb.append( "\n" ).append(quantSb));
         return rep;
     }
 
