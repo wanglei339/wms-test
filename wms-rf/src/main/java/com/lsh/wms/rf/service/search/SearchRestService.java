@@ -96,7 +96,6 @@ public class SearchRestService implements ISearchRestService{
             if(quants != null && quants.size() > 0){
                 return JsonUtils.SUCCESS(this.getDataByQuant(quants,quantSb));
             }
-
         }
         //map = new HashMap<String, Object>();
         //匹配正则
