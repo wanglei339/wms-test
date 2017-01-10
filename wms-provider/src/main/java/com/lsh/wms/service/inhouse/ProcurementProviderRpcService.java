@@ -196,6 +196,9 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
             List<BaseinfoItemLocation> itemLocationList = itemLocationService.getItemLocationByLocationID(shelfCollectionBin.getLocationId());
 
             for (BaseinfoItemLocation itemLocation : itemLocationList) {
+                if(itemLocation.getItemId().compareTo(1388l)!=0){
+                    continue;
+                }
                 NeedAndOutQty needAndOutQty = rpcService.returnNeedAndOutQty(itemLocation.getPickLocationid(), itemLocation.getItemId(),canMax);
                 //判断商品是否需要补货
                 if (needAndOutQty.isNeedProcurement()) {
@@ -304,7 +307,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
                                 BigDecimal needQty = BigDecimal.ZERO;
                                     if(locationCategory.equals("A")){
                                         needQty = qty;
-                                    }else if(needContinue && nowQuant.compareTo(maxQty) < 0){
+                                    }else if(needContinue && nowQuant.compareTo(maxQty) > 0){
                                         //已达到max值,但是 补货后数量 - 出库数量+ min <0
                                         BigDecimal needMax = needAndOutQty.getOutQty().add(itemLocation.getMinQty());
                                         if (nowQuant.compareTo(needMax) > 0) {

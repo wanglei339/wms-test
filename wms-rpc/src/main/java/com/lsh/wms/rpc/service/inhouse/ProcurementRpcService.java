@@ -132,29 +132,32 @@ public class ProcurementRpcService implements IProcurementRpcService{
         needAndOutQty.setOutQty(unPickedQty);
         //数量为0必须补货
         if (qty.compareTo(BigDecimal.ZERO)==0) {
-            needProcurement =  true;
+            needAndOutQty.setNeedProcurement(true);
+            return needAndOutQty;
         }
 
         if(unPickedQty.compareTo(qty)>0){
-            needProcurement =  true;
+            needAndOutQty.setNeedProcurement(true);
+            return needAndOutQty;
         }
 
         if(checkMax){
             if (baseinfoItemLocation.getMaxQty().compareTo(qty) > 0){
-                needProcurement =  true;
+                needAndOutQty.setNeedProcurement(true);
+                return needAndOutQty;
             }else {
-                needProcurement =  false;
+                needAndOutQty.setNeedProcurement(false);
+                return needAndOutQty;
             }
         }else {
             if (baseinfoItemLocation.getMinQty().compareTo(qty) > 0) {
-                needProcurement =  true;
+                needAndOutQty.setNeedProcurement(true);
+                return needAndOutQty;
             } else {
-                needProcurement =  false;
+                needAndOutQty.setNeedProcurement(false);
+                return needAndOutQty;
             }
         }
-        needAndOutQty.setNeedProcurement(needProcurement);
-
-        return needAndOutQty;
         //       BaseinfoItem itemInfo = itemService.getItem(itemId);
 //        if (itemInfo.getItemLevel() == 1) {
 //            return qty.compareTo(new BigDecimal(5.0)) >= 0 ? false : true;
