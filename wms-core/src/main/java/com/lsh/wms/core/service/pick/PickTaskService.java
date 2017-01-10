@@ -299,9 +299,9 @@ public class PickTaskService {
         if (null != result.get("orderId")) {
             ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderId(Long.valueOf(result.get("orderId").toString()));
             if (null != obdHeader) {
-                result.put("customerCode", obdHeader.getDeliveryName());
+                result.put("customerName", obdHeader.getDeliveryName());
             } else {
-                result.put("customerCode", "");
+                result.put("customerName", "");
             }
         }
         result.put("containerId", taskInfo.getContainerId().toString());
