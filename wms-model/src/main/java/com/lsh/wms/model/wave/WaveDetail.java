@@ -60,7 +60,7 @@ public class WaveDetail implements Serializable {
 	/** 拣货顺序 */
 	private Long pickOrder = 0L;
 	/** 拣货任务序号 */
-	private Long pickTaskOrder;
+	private Long pickTaskOrder = 1L;
 	/** 分配分拣位 */
     private Long allocPickLocation = 0L;
 	/** 实际分拣位 */
