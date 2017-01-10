@@ -144,7 +144,6 @@ public class SearchRestService implements ISearchRestService{
             quantSb.append("数量 : " + quant.getQty().setScale(2, BigDecimal.ROUND_HALF_UP) + "\n");
             //quantSb.append("货主 : " + quant.getOwnerId() + " \n ");
         }
-
         Map<String,Object> rep = new HashMap<String, Object>();
         rep.put("data",quantSb);
         return rep;
