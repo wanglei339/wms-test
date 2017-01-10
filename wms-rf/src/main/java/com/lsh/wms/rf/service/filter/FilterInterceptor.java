@@ -3,6 +3,7 @@ package com.lsh.wms.rf.service.filter;
 import com.alibaba.dubbo.rpc.RpcContext;
 import com.lsh.base.common.config.PropertyUtils;
 import com.lsh.base.common.exception.BizCheckedException;
+import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.StrUtils;
 import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.core.constant.RedisKeyConstant;
@@ -45,7 +46,7 @@ public class FilterInterceptor{
 
 
     @Around("declareJointPointExpression()")
-    public Object around(ProceedingJoinPoint pjp) throws Throwable {
+    public Object around(ProceedingJoinPoint pjp) throws Throwable{
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         logger.info("开始时间:"+sdf.format(new Date()));
         if("0".equals(PropertyUtils.getString("variable"))) {
@@ -74,7 +75,8 @@ public class FilterInterceptor{
 //                //取出流水号
 //                String serialNumber = request.getHeader("serialNumber");
                 if (value == null || !value.equals(utoken)) {
-                    throw new BizCheckedException("2660003");
+                    return JsonUtils.TOKEN_ERROR("Token校验失败,请重新登录");
+                    //throw new BizCheckedException("2660003");
                 }else{
                     //如果验证成功，说明此用户进行了一次有效操作，延长token的过期时间
                     redisStringDao.expire(key, PropertyUtils.getLong("tokenExpire"));
