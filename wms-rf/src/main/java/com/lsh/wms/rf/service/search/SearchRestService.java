@@ -86,6 +86,7 @@ public class SearchRestService implements ISearchRestService{
             return JsonUtils.SUCCESS(this.getDataByItems(baseinfoItemList));
         }
 
+
         //查库位
         BaseinfoLocation location = locationService.getLocationByCode(code);
         if(location != null){
