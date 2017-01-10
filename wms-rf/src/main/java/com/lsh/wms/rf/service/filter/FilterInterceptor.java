@@ -57,7 +57,7 @@ public class FilterInterceptor{
             }
         }else{
             logger.info("method name ~~~~~~~~~~"+pjp.getSignature().getName() +"~~~~~~~~~~~~~~~~");
-            if("userLogin".equals(pjp.getSignature().getName())){
+            if("userLogin".equals(pjp.getSignature().getName()) || "userLogout".equals(pjp.getSignature().getName())){
                 try {
                   return pjp.proceed();
                 } catch (Throwable ex) {
