@@ -311,7 +311,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
                                         //已达到max值,但是 补货后数量 - 出库数量+ min <0
                                         BigDecimal needMax = needAndOutQty.getOutQty().add(itemLocation.getMinQty());
                                         if (nowQuant.compareTo(needMax) > 0) {
-                                            needQty = needAndOutQty.getOutQty().subtract(nowQuant.subtract(qty));
+                                            needQty = needMax.subtract(nowQuant.subtract(qty));
                                         } else {
                                             needQty = qty;
                                         }
