@@ -127,10 +127,10 @@ public class PickRestService implements IPickRestService {
             Long draftTaskId = baseTaskService.getDraftTaskIdByContainerId(containerId);
             Long assignTaskId = baseTaskService.getAssignTaskIdByContainerId(containerId);
             if (quants != null && quants.size() > 0) {
-                throw new BizCheckedException("2060016", containerId.toString(), "");
+                throw new BizCheckedException("2060016", containerId, "");
             }
             if (draftTaskId != null || assignTaskId != null) {
-                throw new BizCheckedException("2060017", containerId.toString(), "");
+                throw new BizCheckedException("2060017", containerId, "");
             }
             TaskInfo taskInfo = baseTaskService.getTaskInfoById(taskId);
             if ( taskInfo == null){
@@ -138,7 +138,7 @@ public class PickRestService implements IPickRestService {
             }
             PickTaskHead taskHead = pickTaskService.getPickTaskHead(taskId);
             if (!TaskConstant.Draft.equals(taskInfo.getStatus())) {
-                throw new BizCheckedException("2060001");
+                throw new BizCheckedException("2060001", taskId, "");
             }
             if (taskInfo == null || !taskInfo.getType().equals(taskType)) {
                 throw new BizCheckedException("2060003");
@@ -152,11 +152,11 @@ public class PickRestService implements IPickRestService {
                 throw new BizCheckedException("2000002");
             }
             if (taskIds.contains(taskId)) {
-                throw new BizCheckedException("2060020", taskId.toString());
+                throw new BizCheckedException("2060020", taskId.toString(), "");
             }
             taskIds.add(taskId);
             if (containerIds.contains(containerId)) {
-                throw new BizCheckedException("2060021", containerId.toString());
+                throw new BizCheckedException("2060021", containerId.toString(), "");
             }
             containerIds.add(containerId);
             assignParam.put("taskId", taskId);
@@ -459,7 +459,7 @@ public class PickRestService implements IPickRestService {
             throw new BizCheckedException("2060003");
         }
         if (!oriTaskInfo.getStatus().equals(TaskConstant.Assigned)) {
-            throw new BizCheckedException("2060004");
+            throw new BizCheckedException("2060004", taskId, "");
         }
         if (!oriTaskInfo.getOperator().equals(staffId)) {
             throw new BizCheckedException("2060014");
