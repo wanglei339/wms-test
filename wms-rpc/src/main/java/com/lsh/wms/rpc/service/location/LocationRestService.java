@@ -315,19 +315,57 @@ public class LocationRestService implements ILocationRestService {
 //        return JsonUtils.SUCCESS(locationService.getNearestStorageByPicking(baseinfoLocation));
 //        //测试方法(PickRpcService()的方法)
         //获取list
-//        List<WaveDetail> pickDetails = new ArrayList<WaveDetail>();
-////        pickDetails.add(waveService.getWaveDetailById(23));
-////        pickDetails.add(waveService.getWaveDetailById(24));
-////        pickDetails.add(waveService.getWaveDetailById(26));
-////        pickDetails.add(waveService.getWaveDetailById(27));
-////        pickDetails.add(waveService.getWaveDetailById(28));
-//
+    /*    List<WaveDetail> pickDetails = new ArrayList<WaveDetail>();
+        WaveDetail waveDetail1 = new WaveDetail();
+        WaveDetail waveDetail2 = new WaveDetail();
+        WaveDetail waveDetail3 = new WaveDetail();
+        WaveDetail waveDetail4 = new WaveDetail();
+        WaveDetail waveDetail5 = new WaveDetail();
+        WaveDetail waveDetail6 = new WaveDetail();
+        WaveDetail waveDetail7 = new WaveDetail();
+        WaveDetail waveDetail8 = new WaveDetail();
+        waveDetail1.setAllocPickLocation(4432678912264L);   //01-04-10
+        waveDetail2.setAllocPickLocation(4432689480589L);   //01-14-10
+        waveDetail3.setAllocPickLocation(4432691610897L);   //01-16-21
+        waveDetail4.setAllocPickLocation(4467338807706L);   //02-31-21
+        waveDetail5.setAllocPickLocation(4467617811487L);   //02-40-21
+        waveDetail6.setAllocPickLocation(4502235417115L);   //03-28-22
+        waveDetail7.setAllocPickLocation(4502011351852L);   //03-71-10
+        waveDetail8.setAllocPickLocation(4432774093241L);   //01-94-50
+
+//        waveDetail1.setAllocPickLocation(8865353597451L);   //201-01-13
+//        waveDetail2.setAllocPickLocation(8865359955088L);   //201-07-24
+//        waveDetail3.setAllocPickLocation(8899988112399L);   //202-05-14
+//        waveDetail4.setAllocPickLocation(8899998680337L);   //202-15-11
+//        waveDetail5.setAllocPickLocation(8934618432785L);   //203-05-33
+//        waveDetail6.setAllocPickLocation(8934620530066L);   //203-07-24
+//        waveDetail7.setAllocPickLocation(8969252914320L);   //204-09-11
+//        waveDetail8.setAllocPickLocation(8969525593619L);   //204-12-21
+        pickDetails.add(waveDetail1);
+        pickDetails.add(waveDetail2);
+        pickDetails.add(waveDetail3);
+        pickDetails.add(waveDetail4);
+        pickDetails.add(waveDetail5);
+        pickDetails.add(waveDetail6);
+        pickDetails.add(waveDetail7);
+        pickDetails.add(waveDetail8);
+//        pickDetails.add(waveService.getWaveDetailById(23));
+//        pickDetails.add(waveService.getWaveDetailById(24));
+//        pickDetails.add(waveService.getWaveDetailById(26));
+//        pickDetails.add(waveService.getWaveDetailById(27));
+//        pickDetails.add(waveService.getWaveDetailById(28));
 //        pickDetails.add(waveService.getWaveDetailById(30));
 //        pickDetails.add(waveService.getWaveDetailById(31));
 //        pickDetails.add(waveService.getWaveDetailById(32));
 //        pickDetails.add(waveService.getWaveDetailById(151));
 //        pickDetails.add(waveService.getWaveDetailById(152));
-//        pickRpcService.calcPickOrder(pickDetails);
+       List<WaveDetail> heh =  pickRpcService.calcPickOrder(pickDetails);
+        List<String> codes = new ArrayList<String>();
+        for (WaveDetail detail:heh){
+            BaseinfoLocation location = locationService.getLocation(detail.getAllocPickLocation());
+            codes.add(location.getLocationCode());
+        }
+        return JsonUtils.SUCCESS(codes);*/
 //        BaseinfoLocation location = locationService.getLocation(4432685253259L);
 //          return JsonUtils.SUCCESS(locationService.getNearestStorageByPicking(location));
 //
