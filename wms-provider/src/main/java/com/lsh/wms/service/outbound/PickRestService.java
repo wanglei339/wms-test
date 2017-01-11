@@ -79,8 +79,6 @@ public class PickRestService implements IPCPickRestService {
             TaskEntry entry = iTaskRpcService.getOldTaskEntryById(taskId);  //FIXME 前端展示使用,不考虑生命周期
             List<Map<String, Object>> details = (List<Map<String, Object>>) (List<?>) entry.getTaskDetailList();
             Map<String, Object> head = (Map<String, Object>) entry.getTaskHead();
-            TaskInfo info = entry.getTaskInfo();
-            head.put("subType", info.getSubType());
             head.put("lineCount", details.size());
             ObdHeader obdHeader = orderService.getOutbSoHeaderByOrderId(Long.valueOf(details.get(0).get("orderId").toString()));
             head.put("deliveryName", obdHeader.getDeliveryName());
