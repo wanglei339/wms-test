@@ -115,6 +115,52 @@ public class ProcurementRpcService implements IProcurementRpcService{
 //        }
     }
     //判断商品是否需要补货
+    public boolean needProcurementForLoft(Long locationId, Long itemId,Boolean checkMax) throws BizCheckedException {
+
+        BaseinfoItemLocation baseinfoItemLocation = itemLocationService.getItemLocationByLocationID(locationId).get(0);
+        StockQuantCondition condition = new StockQuantCondition();
+        condition.setItemId(itemId);
+        condition.setLocationId(locationId);
+        //获取该拣货位上的商品总数
+        BigDecimal qty = quantService.getQty(condition);
+        //数量为0必须补货
+        if (qty.compareTo(BigDecimal.ZERO)==0) {
+            return true;
+        }
+
+        if(checkMax){
+            if (baseinfoItemLocation.getMaxQty().compareTo(qty) > 0){
+                return true;
+            }else {
+                return false;
+            }
+        }else {
+            if (baseinfoItemLocation.getMinQty().compareTo(qty) > 0) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+        //       BaseinfoItem itemInfo = itemService.getItem(itemId);
+//        if (itemInfo.getItemLevel() == 1) {
+//            return qty.compareTo(new BigDecimal(5.0)) >= 0 ? false : true;
+//        } else if (itemInfo.getItemLevel() == 2) {
+//            return qty.compareTo(new BigDecimal(3.0)) >= 0 ? false : true;
+//        } else if (itemInfo.getItemLevel() == 3) {
+//            return qty.compareTo(new BigDecimal(2.0)) >= 0 ? false : true;
+//        } else {
+//            return false;
+//        }
+        //获取该商品的存货范围
+//        BaseinfoItemQuantRange range = itemService.getItemRange(itemId);
+//        if(range==null){
+//            return qty.compareTo(this.getThreshold(locationId, itemId)) < 0;
+//        }else {
+//            BigDecimal minQty = range.getMinQty();
+//            return qty.compareTo(minQty) < 0;
+//        }
+    }
+    //判断商品是否需要补货
     public NeedAndOutQty returnNeedAndOutQty(Long locationId, Long itemId,Boolean checkMax) throws BizCheckedException {
         NeedAndOutQty needAndOutQty = new NeedAndOutQty();
         boolean needProcurement = false;
@@ -158,7 +204,56 @@ public class ProcurementRpcService implements IProcurementRpcService{
                 return needAndOutQty;
             }
         }
-        //       BaseinfoItem itemInfo = itemService.getItem(itemId);
+        //  BaseinfoItem itemInfo = itemService.getItem(itemId);
+//        if (itemInfo.getItemLevel() == 1) {
+//            return qty.compareTo(new BigDecimal(5.0)) >= 0 ? false : true;
+//        } else if (itemInfo.getItemLevel() == 2) {
+//            return qty.compareTo(new BigDecimal(3.0)) >= 0 ? false : true;
+//        } else if (itemInfo.getItemLevel() == 3) {
+//            return qty.compareTo(new BigDecimal(2.0)) >= 0 ? false : true;
+//        } else {
+//            return false;
+//        }
+        //获取该商品的存货范围
+//        BaseinfoItemQuantRange range = itemService.getItemRange(itemId);
+//        if(range==null){
+//            return qty.compareTo(this.getThreshold(locationId, itemId)) < 0;
+//        }else {
+//            BigDecimal minQty = range.getMinQty();
+//            return qty.compareTo(minQty) < 0;
+//        }
+    }
+    //判断商品是否需要补货
+    public NeedAndOutQty returnNeedAndOutQtyForShelf(Long locationId, Long itemId,Boolean checkMax) throws BizCheckedException {
+        NeedAndOutQty needAndOutQty = new NeedAndOutQty();
+        boolean needProcurement = false;
+
+        BaseinfoItemLocation baseinfoItemLocation = itemLocationService.getItemLocationByLocationID(locationId).get(0);
+        StockQuantCondition condition = new StockQuantCondition();
+        condition.setItemId(itemId);
+        condition.setLocationId(locationId);
+        //获取该拣货位上的商品总数
+        BigDecimal qty = quantService.getQty(condition);
+
+        //获取待捡货数量，如果待捡货数量小于待捡货数量，则生成捡货任务
+        BigDecimal unPickedQty = waveService.getUnPickedQty(itemId);
+
+        needAndOutQty.setOutQty(unPickedQty);
+        //数量为0必须补货
+        if (qty.compareTo(BigDecimal.ZERO)==0) {
+            needAndOutQty.setNeedProcurement(true);
+            return needAndOutQty;
+        }
+
+        if(unPickedQty.compareTo(qty)>0){
+            needAndOutQty.setNeedProcurement(true);
+            return needAndOutQty;
+        }else {
+            needAndOutQty.setNeedProcurement(false);
+            return needAndOutQty;
+        }
+
+        //  BaseinfoItem itemInfo = itemService.getItem(itemId);
 //        if (itemInfo.getItemLevel() == 1) {
 //            return qty.compareTo(new BigDecimal(5.0)) >= 0 ? false : true;
 //        } else if (itemInfo.getItemLevel() == 2) {
