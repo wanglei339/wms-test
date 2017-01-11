@@ -310,6 +310,10 @@ public class SmsRestService implements ISmsRestService {
         Long toLocationId = Long.valueOf(mapQuery.get("toLocationId").toString());
         for (Map move: moveList) {
             Long itemId = Long.valueOf(move.get("itemId").toString());
+            BaseinfoItem item = itemService.getItem(itemId);
+            if (null == item) {
+                throw new BizCheckedException("999", itemId.toString() + "商品不存在");
+            }
             BigDecimal qty = new BigDecimal(move.get("qty").toString());
             StockMove stockMove = new StockMove();
             stockMove.setItemId(itemId);
