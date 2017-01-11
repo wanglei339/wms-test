@@ -5,6 +5,8 @@ import com.google.common.eventbus.Subscribe;
 import com.lsh.wms.api.service.inhouse.IProcurementProveiderRpcService;
 import com.lsh.wms.api.service.inhouse.IStockTakingProviderRpcService;
 import com.lsh.wms.model.taking.FillTakingPlanParam;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 
@@ -18,6 +20,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class AsyncEventListener {
+    private static Logger logger = LoggerFactory.getLogger(AsyncEventListener.class);
 
     @Reference
     private IProcurementProveiderRpcService procurementProveiderRpcService;
@@ -28,11 +31,18 @@ public class AsyncEventListener {
 
     /**
      * 生成补货任务
-     * @param canMax 是否按最大值补货
+     * @param procurementType 补货类型
      */
     @Subscribe
-    public void createProcurement(final Boolean canMax) {
-        procurementProveiderRpcService.createProcurementByMax(canMax);
+    public void createProcurement(final int procurementType) {
+        if(procurementType==1) {
+            logger.info("in max procurement");
+            procurementProveiderRpcService.createProcurementByMax(true);
+        }
+        if(procurementType ==2){
+            logger.info("in wave procurement");
+            procurementProveiderRpcService.createProcurement(false);
+        }
     }
     /**
      * 填充盘点任务详情

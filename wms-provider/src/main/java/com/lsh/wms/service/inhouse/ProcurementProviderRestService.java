@@ -136,7 +136,7 @@ public class ProcurementProviderRestService implements IProcurementProviderRestS
     public String createProcurement()  throws BizCheckedException {
         try{
 //            rpcService.createProcurement(true);
-            AsyncEventService.post(true);
+            AsyncEventService.post(1);
         } catch (BizCheckedException e) {
             throw e;
         } catch (Exception e) {
@@ -149,7 +149,8 @@ public class ProcurementProviderRestService implements IProcurementProviderRestS
     @Path("autoCreateWaveTask")
     public String autoCreateWaveTask()  throws BizCheckedException {
         try{
-            rpcService.createProcurement(true);
+            //rpcService.createProcurement(2);
+            AsyncEventService.post(2);
         } catch (BizCheckedException e) {
             throw e;
         } catch (Exception e) {
