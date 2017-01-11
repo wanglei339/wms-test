@@ -8,17 +8,12 @@ import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.inhouse.IProcurementProviderRestService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
-import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.dao.utils.NsHeadClient;
-import com.lsh.wms.model.stock.StockQuant;
-import com.lsh.wms.model.task.TaskEntry;
-import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.transfer.StockTransferPlan;
 import com.lsh.wms.service.sync.AsyncEventService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -149,7 +144,8 @@ public class ProcurementProviderRestService implements IProcurementProviderRestS
     @Path("autoCreateWaveTask")
     public String autoCreateWaveTask()  throws BizCheckedException {
         try{
-            rpcService.createProcurement(true);
+            //rpcService.createProcurement(2);
+            AsyncEventService.post(false);
         } catch (BizCheckedException e) {
             throw e;
         } catch (Exception e) {

@@ -5,6 +5,8 @@ import com.google.common.eventbus.Subscribe;
 import com.lsh.wms.api.service.inhouse.IProcurementProveiderRpcService;
 import com.lsh.wms.api.service.inhouse.IStockTakingProviderRpcService;
 import com.lsh.wms.model.taking.FillTakingPlanParam;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 
@@ -18,6 +20,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class AsyncEventListener {
+    private static Logger logger = LoggerFactory.getLogger(AsyncEventListener.class);
 
     @Reference
     private IProcurementProveiderRpcService procurementProveiderRpcService;
@@ -32,7 +35,13 @@ public class AsyncEventListener {
      */
     @Subscribe
     public void createProcurement(final Boolean canMax) {
-        procurementProveiderRpcService.createProcurementByMax(canMax);
+        if(canMax) {
+            logger.info("in create max plan ");
+            procurementProveiderRpcService.createProcurementByMax(canMax);
+        }else {
+            logger.info("in create wave plan ");
+            procurementProveiderRpcService.createProcurement(canMax);
+        }
     }
     /**
      * 填充盘点任务详情
