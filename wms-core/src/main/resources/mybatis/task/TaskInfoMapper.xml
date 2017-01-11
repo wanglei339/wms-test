@@ -201,7 +201,7 @@
 	</select>
 
 	<select id="getPerformance" parameterType="map" resultType="java.util.HashMap">
-		select operator as uid, type, sub_type,count(id) as taskQty,
+		select group_concat(task_id) as taskIds,operator as uid, type, sub_type,business_mode,count(id) as taskQty,
 		count(distinct container_id) as containerQty, sum(task_ea_qty) as taskEaQty,
 		sum(task_pack_qty) as taskPackQty, sum(task_amount) taskAmount,ifnull(sum(task_board_qty),0) as taskBoardQty,date from task_info
 		<where>
@@ -219,7 +219,7 @@
 			<if test="startDate != null">and #{startDate} &lt;= date</if>
 			<if test="endDate != null">and date &lt;= #{endDate}</if>
 		</where>
-		 	group by operator, date, type, sub_type
+		 	group by operator, date, type, business_mode,sub_type
 			order by date desc
 		<if test="start != null and limit != null">
 			limit #{start},#{limit}

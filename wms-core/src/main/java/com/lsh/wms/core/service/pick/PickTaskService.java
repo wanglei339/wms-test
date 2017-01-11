@@ -151,17 +151,18 @@ public class PickTaskService {
                 moveService.moveToContainer(itemId, staffId, quantContainerId, containerId, collectRegionLocation.getLocationId(), qty);
             }
             // 存在库存差异时移动差异库存至差异区
-            if (pickDetail.getAllocQty().compareTo(qty) == 1 && quantQty.compareTo(qty) == 1) {
+            /*if (pickDetail.getAllocQty().compareTo(qty) == 1 && quantQty.compareTo(qty) == 1) {
                 try {
                     StockMove move = new StockMove();
                     BaseinfoLocation toLocation = locationService.getDiffAreaLocation();
                     BaseinfoContainer toContainer = containerService.createContainerByType(ContainerConstant.PALLET);
                     BigDecimal moveQty = BigDecimal.ZERO;
-                    if (quantQty.compareTo(pickDetail.getAllocQty()) >= 0) {
+                    *//*if (quantQty.compareTo(pickDetail.getAllocQty()) >= 0) {
                         moveQty = pickDetail.getAllocQty().subtract(qty);
                     } else {
                         moveQty = quantQty.subtract(qty);
-                    }
+                    }*//*
+                    moveQty = quantQty.subtract(qty);
                     move.setItemId(itemId);
                     move.setSkuId(pickDetail.getSkuId());
                     move.setFromContainerId(quantContainerId);
@@ -188,7 +189,7 @@ public class PickTaskService {
                     logger.error("[PICK]MOVE DIFFERENCE FAIL, taskId is " + taskId + ", waveDetail Id is: " + pickDetail.getId() + ", msg: " + e.getMessage());
                     throw new BizCheckedException("2550051");
                 }
-            }
+            }*/
         }
         // 更新wave_detail
         pickDetail.setContainerId(containerId);

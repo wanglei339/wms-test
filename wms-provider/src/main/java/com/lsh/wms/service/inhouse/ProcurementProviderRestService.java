@@ -145,4 +145,17 @@ public class ProcurementProviderRestService implements IProcurementProviderRestS
         }
         return JsonUtils.SUCCESS();
     }
+    @GET
+    @Path("autoCreateWaveTask")
+    public String autoCreateWaveTask()  throws BizCheckedException {
+        try{
+            rpcService.createProcurement(true);
+        } catch (BizCheckedException e) {
+            throw e;
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            return JsonUtils.TOKEN_ERROR(e.getMessage());
+        }
+        return JsonUtils.SUCCESS();
+    }
 }

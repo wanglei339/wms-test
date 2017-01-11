@@ -394,7 +394,7 @@ public class WaveService {
         Map<String, Object> mapSumQuery = new HashMap<String, Object>();
         mapSumQuery.put("pickLocationObj", location);
         mapSumQuery.put("itemId", itemId);
-        mapSumQuery.put("isLive", 1);
+        mapSumQuery.put("isAlive", 1);
         mapSumQuery.put("isValid", 1);
         BigDecimal unPickedQty = this.getUnPickedQty(mapSumQuery);
         return stockQty.subtract(unPickedQty);
@@ -405,7 +405,7 @@ public class WaveService {
         //获取带捡货商品
         Map<String, Object> mapSumQuery = new HashMap<String, Object>();
         mapSumQuery.put("itemId", itemId);
-        mapSumQuery.put("isLive", 1);
+        mapSumQuery.put("isAlive", 1);
         mapSumQuery.put("isValid", 1);
         BigDecimal unPickedQty = detailDao.getUnPickedQty(mapSumQuery);
         if ( unPickedQty == null ){
