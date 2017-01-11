@@ -103,6 +103,7 @@ public class DifferenceZoneReportService {
                 if(location.getIsLocked().equals(LocationConstant.UNLOCK)){
                     move.setToLocationId(location.getLocationId());
                     break;
+
                 }
             }
             if(move.getToLocationId().equals(0L)){
