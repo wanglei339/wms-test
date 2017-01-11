@@ -462,7 +462,7 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
             return;
         }
         List<Long> locationList = new ArrayList<Long>();
-        if( request.getLocationList().equals("")) {
+        if( request.getLocationList().equals("") || request.getLocationList() ==null || request.getLocationList().equals("null")) {
             locationList = this.getTakingLocation(request);
         }else {
             locationList = JSON.parseArray(request.getLocationList(), Long.class);
@@ -724,7 +724,7 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
             iTaskRpcService.batchCreate(head, taskEntries);
         }
     }
-    public void createAndDoTmpTask(Long locationId,BigDecimal qty,String barcode,Long planner) throws BizCheckedException{
+    public void createAndDoTmpTask(Long locationId,BigDecimal realEaQty,BigDecimal realUmoQty,String barcode,Long planner) throws BizCheckedException{
 
         List<Object> details = new ArrayList<Object>();
         BaseinfoLocation location = locationService.getLocation(locationId);
@@ -762,8 +762,9 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
 
         if(item!=null){
             //判断国条是不是系统的国条,如国条为空，则是该库位无商品
-            if(item.getCode().equals(barcode)){
-                detail.setRealQty(qty);
+            if(item.getCode().equals(barcode) || item.getPackCode().equals(barcode)){
+                detail.setRealQty(realEaQty);
+                detail.setUmoQty(realUmoQty);
                 SkuMap skuMap = skuMapService.getSkuMapBySkuCodeAndOwner(detail.getSkuCode(),item.getOwnerId());
                 if (skuMap == null) {
                     throw new BizCheckedException("2880022", detail.getSkuCode(), "");
@@ -776,14 +777,22 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
           //系统库位无库存
             if(barcode!=null){
                 CsiSku sku = skuService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, barcode);
-                if(sku==null){
-                    throw new BizCheckedException("2550068",barcode,"");
+                if(sku!=null){
+                    detail.setRealQty(realEaQty);
+                    detail.setUmoQty(realUmoQty);
+                    detail.setSkuId(sku.getSkuId());
+                    detail.setRealSkuId(sku.getSkuId());
+                    detail.setBarcode(barcode);
+                    detail.setSkuName(sku.getSkuName());
+                }else {
+                    List<BaseinfoItem> items = itemService.getItemByPackCode(barcode);
+                    if (items != null && items.size() != 0) {
+                        detail.setPackCode(barcode);
+                        detail.setRealQty(realEaQty);
+                        detail.setUmoQty(realUmoQty);
+                    }
                 }
-                detail.setRealQty(qty);
-                detail.setSkuId(sku.getSkuId());
-                detail.setRealSkuId(sku.getSkuId());
-                detail.setBarcode(barcode);
-                detail.setSkuName(sku.getSkuName());
+
             }
         }
         detail.setStatus(StockTakingConstant.PendingAudit);

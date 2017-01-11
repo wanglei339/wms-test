@@ -64,6 +64,10 @@ public class StockTakingDetail implements Serializable {
 	private Long zoneId = 0L;
 	/** 第一次盘点任务的任务类型*/
 	private Long refTaskType = 0L;
+	/** 箱码*/
+	private String packCode;
+	/**  实际箱数*/
+	private BigDecimal umoQty ;
 	/**  */
     private Long createdAt = DateUtils.getCurrentSeconds();
 	/**  */
@@ -318,39 +322,19 @@ public class StockTakingDetail implements Serializable {
 		this.refTaskType = refTaskType;
 	}
 
-	@Override
-	public String toString() {
-		return "StockTakingDetail{" +
-				"id=" + id +
-				", takingId=" + takingId +
-				", taskId=" + taskId +
-				", detailId=" + detailId +
-				", round=" + round +
-				", isFinal=" + isFinal +
-				", realQty=" + realQty +
-				", theoreticalQty=" + theoreticalQty +
-				", containerId=" + containerId +
-				", lotId=" + lotId +
-				", skuId=" + skuId +
-				", realSkuId=" + realSkuId +
-				", locationId=" + locationId +
-				", operator=" + operator +
-				", itemId=" + itemId +
-				", realItemId=" + realItemId +
-				", ownerId=" + ownerId +
-				", price=" + price +
-				", differencePrice=" + differencePrice +
-				", packName='" + packName + '\'' +
-				", barcode='" + barcode + '\'' +
-				", skuName='" + skuName + '\'' +
-				", skuCode='" + skuCode + '\'' +
-				", locationCode='" + locationCode + '\'' +
-				", packUnit=" + packUnit +
-				", isValid=" + isValid +
-				", status=" + status +
-				", zoneId=" + zoneId +
-				", createdAt=" + createdAt +
-				", updatedAt=" + updatedAt +
-				'}';
+	public String getPackCode() {
+		return packCode;
+	}
+
+	public void setPackCode(String packCode) {
+		this.packCode = packCode;
+	}
+
+	public BigDecimal getUmoQty() {
+		return umoQty;
+	}
+
+	public void setUmoQty(BigDecimal umoQty) {
+		this.umoQty = umoQty;
 	}
 }

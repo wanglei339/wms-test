@@ -26,7 +26,7 @@ public interface IStockTakingProviderRpcService {
     void createPlanSales(List<Long> zoneIds, Long planer) throws BizCheckedException;
     void replay(List<Long> detailList,Long planner) throws BizCheckedException;
     void calcelTask(Long taskId) throws BizCheckedException;
-    void createAndDoTmpTask(Long locationId,BigDecimal qty,String barcode,Long planner) throws BizCheckedException;
+    void createAndDoTmpTask(Long locationId,BigDecimal realEaQty,BigDecimal realUmoQty,String barcode,Long planner) throws BizCheckedException;
     List<StockTakingDetail>  fillTask(FillTakingPlanParam planParam) throws BizCheckedException;
     List<StockTakingDetail> checkFillTask(Long taskId,Long operator) throws BizCheckedException;
     void doneTaskDetail(List detailList) throws BizCheckedException;
