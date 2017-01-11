@@ -217,14 +217,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
                         continue;
                     }
 
-                    //去除小数
-                    BigDecimal maxQty = needAndOutQty.getOutQty().add(itemLocation.getMinQty());
                     BaseinfoItem item = itemService.getItem(itemLocation.getItemId());
-                    BigDecimal [] maxDecimals = maxQty.divideAndRemainder(item.getPackUnit());
-                    //向上加一箱货
-                    if(maxDecimals[1].compareTo(BigDecimal.ZERO)!=0){
-                        maxQty = maxQty.subtract(maxDecimals[1]).add(item.getPackUnit());
-                    }
 
                     mapQuery.put("locationId", itemLocation.getPickLocationid());
                     BigDecimal nowQuant = quantService.getQty(mapQuery);
@@ -347,7 +340,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
             List<BaseinfoItemLocation> itemLocationList = itemLocationService.getItemLocationByLocationID(shelfCollectionBin.getLocationId());
 
             for (BaseinfoItemLocation itemLocation : itemLocationList) {
-                NeedAndOutQty needAndOutQty = rpcService.returnNeedAndOutQty(itemLocation.getPickLocationid(), itemLocation.getItemId(),canMax);
+                NeedAndOutQty needAndOutQty = rpcService.returnNeedAndOutQty(itemLocation.getPickLocationid(), itemLocation.getItemId(), canMax);
                 //判断商品是否需要补货
                 if (needAndOutQty.isNeedProcurement()) {
                     //该位置当前是否有补货任务
@@ -501,7 +494,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
 
             for (BaseinfoItemLocation itemLocation : itemLocationList) {
                 //判断商品是否需要补货
-                if (rpcService.needProcurement(itemLocation.getPickLocationid(), itemLocation.getItemId(),canMax)) {
+                if (rpcService.needProcurement(itemLocation.getPickLocationid(), itemLocation.getItemId(), canMax)) {
                     //该位置当前是否有补货任务
                     if (baseTaskService.checkTaskByToLocation(itemLocation.getPickLocationid(), TaskConstant.TYPE_PROCUREMENT)) {
                         continue;
@@ -559,7 +552,6 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
 //                    }
                     //根据库存数量和过期时间排序
                     List<StockQuant> sortQuants = this.sortQuant(quantList);
-                    boolean canWholeConatainer = this.checkContainerAndPickLocationVol(itemLocation.getPickLocationid(), item);
                     for(StockQuant quant:sortQuants) {
 
                         //判断存货位是否有捡货任务
@@ -599,7 +591,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
                             plan.setToLocationId(itemLocation.getPickLocationid());
                             plan.setPackName(quant.getPackName());
                             plan.setPackUnit(quant.getPackUnit());
-                            if(nowQuant.compareTo(maxQty)>0 && !canWholeConatainer){
+                            if(nowQuant.compareTo(maxQty)>0){
                                 plan.setSubType(2L);//不够一拖，按箱补
 
                                 //去除小数
@@ -835,7 +827,11 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
     }
 
     public void createProcurement(boolean canMax) throws BizCheckedException {
-        this.createShelfProcurementBak(canMax);
+        this.createShelfProcurementBak2(canMax);
+        this.createLoftProcurement(canMax);
+    }
+    public void createProcurementByMax(boolean canMax) throws BizCheckedException {
+        this.createShelfProcurement(canMax);
         this.createLoftProcurement(canMax);
     }
     public void scanFromLocation(Map<String, Object> params) throws BizCheckedException {

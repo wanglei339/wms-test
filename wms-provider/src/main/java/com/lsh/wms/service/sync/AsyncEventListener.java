@@ -32,7 +32,7 @@ public class AsyncEventListener {
      */
     @Subscribe
     public void createProcurement(final Boolean canMax) {
-        procurementProveiderRpcService.createProcurement(canMax);
+        procurementProveiderRpcService.createProcurementByMax(canMax);
     }
     /**
      * 填充盘点任务详情

@@ -149,8 +149,7 @@ public class ProcurementProviderRestService implements IProcurementProviderRestS
     @Path("testAutoCreate")
     public String autoCreate()  throws BizCheckedException {
         try{
-//            rpcService.createProcurement(true);
-            AsyncEventService.post(false);
+            rpcService.createProcurement(true);
         } catch (BizCheckedException e) {
             throw e;
         } catch (Exception e) {
