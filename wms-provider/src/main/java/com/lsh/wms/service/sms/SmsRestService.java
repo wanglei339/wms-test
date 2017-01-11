@@ -305,7 +305,7 @@ public class SmsRestService implements ISmsRestService {
     @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
     public String moveByItemId() throws BizCheckedException {
         Map<String, Object> mapQuery = RequestUtils.getRequest();
-        List<Map> moveList = JSON.parseArray(mapQuery.get("taskIds").toString(), Map.class);
+        List<Map> moveList = JSON.parseArray(mapQuery.get("moveList").toString(), Map.class);
         Long fromLocationId = Long.valueOf(mapQuery.get("fromLocationId").toString());
         Long toLocationId = Long.valueOf(mapQuery.get("toLocationId").toString());
         for (Map move: moveList) {
