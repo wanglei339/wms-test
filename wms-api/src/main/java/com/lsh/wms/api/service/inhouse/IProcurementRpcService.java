@@ -11,6 +11,8 @@ import com.lsh.wms.model.transfer.StockTransferPlan;
  */
 public interface IProcurementRpcService {
     boolean needProcurement(Long locationId, Long itemId,Boolean checkMax) throws BizCheckedException;
+    boolean needProcurementForLoft(Long locationId, Long itemId,Boolean checkMax) throws BizCheckedException;
     NeedAndOutQty returnNeedAndOutQty(Long locationId, Long itemId,Boolean checkMax) throws BizCheckedException;
+    NeedAndOutQty returnNeedAndOutQtyForShelf(Long locationId, Long itemId,Boolean checkMax) throws BizCheckedException;
     TaskEntry addProcurementPlan(StockTransferPlan plan) throws BizCheckedException;
 }
