@@ -3,11 +3,13 @@ package com.lsh.wms.rpc.service.performance;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.BeanMapTransUtils;
+import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.api.service.performance.IPerformanceRpcService;
 import com.lsh.wms.core.service.performance.PerformanceService;
 import com.lsh.wms.model.task.TaskInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,7 +23,10 @@ public class PerformanceRpcService implements IPerformanceRpcService {
     private PerformanceService performanceService;
 
     public List<Map<String, Object>> getPerformance(Map<String, Object> condition) throws BizCheckedException {
-        return performanceService.getPerformance(condition);
+        System.out.print("#####firstStart #####" + DateUtils.getCurrentSeconds());
+        List<Map<String, Object>> list  = performanceService.getPerformance(condition);
+        System.out.print("#####firstEnd #####" + DateUtils.getCurrentSeconds());
+        return list;
     }
 
     public List<TaskInfo> getPerformaceDetaile(Map<String, Object> mapQuery) {
