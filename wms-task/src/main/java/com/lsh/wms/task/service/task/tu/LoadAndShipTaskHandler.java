@@ -38,7 +38,7 @@ public class LoadAndShipTaskHandler extends AbsTaskHandler {
 
     @PostConstruct
     public void postConstruct() {
-        handlerFactory.register(TaskConstant.TYPE_DIRECT_SHIP, this);
+        handlerFactory.register(TaskConstant.TYPE_TU_SHIP, this);
     }
 
 

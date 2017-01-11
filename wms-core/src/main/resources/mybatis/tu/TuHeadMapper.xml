@@ -76,6 +76,11 @@
 		where tu_id=#{tuId}
 	</select>
 
+    <select id="lockTuHeadById" parameterType="map" resultMap="tuHeadResultMap">
+		select * from tu_head
+		where id = #{id} for update
+	</select>
+
     <select id="countTuHead" parameterType="map" resultType="int">
         select count(*) from tu_head
         <include refid="queryCondition"/>
