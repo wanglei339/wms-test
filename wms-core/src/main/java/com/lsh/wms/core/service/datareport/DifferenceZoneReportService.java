@@ -102,6 +102,7 @@ public class DifferenceZoneReportService {
                 BaseinfoLocation location = locationService.getLocation(itemLocation.getPickLocationid());
                 if(location.getIsLocked().equals(LocationConstant.UNLOCK)){
                     move.setToLocationId(location.getLocationId());
+
                     break;
                 }
             }
