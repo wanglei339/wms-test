@@ -84,7 +84,7 @@
             </activation>
             <properties>
                 <profile.name>dev</profile.name>
-                <log.file>/data/logs/pub-provider/provider.log</log.file>
+                <log.file>/data/logs/pub-provider</log.file>
                 <db.url>jdbc:mysql://192.168.60.48:5201/lsh_wms?useUnicode=true&amp;autoReconnect=true&amp;characterEncoding=UTF8&amp;allowMultiQueries=true</db.url>
                 <db.username>root</db.username>
                 <db.password>root123</db.password>
@@ -108,7 +108,7 @@
             <id>test</id>
             <properties>
                 <profile.name>test</profile.name>
-                <log.file>/data/logs/pub-provider/provider.log</log.file>
+                <log.file>/data/logs/pub-provider</log.file>
                 <db.url>jdbc:mysql://10.1.1.4:3306/lsh-wms?useUnicode=true&amp;autoReconnect=true&amp;characterEncoding=UTF8&amp;allowMultiQueries=true</db.url>
                 <db.username>root</db.username>
                 <db.password>lsh2015</db.password>
@@ -133,7 +133,7 @@
             <id>pro</id>
             <properties>
                 <profile.name>pro</profile.name>
-                <log.file>/data/logs/pub-provider/provider.log</log.file>
+                <log.file>/data/logs/pub-provider</log.file>
                 <db.url>jdbc:mysql://localhost:3306/lsh-pub?useUnicode=true&amp;autoReconnect=true&amp;characterEncoding=UTF8&amp;allowMultiQueries=true</db.url>
                 <db.username>lsh</db.username>
                 <db.password></db.password>
