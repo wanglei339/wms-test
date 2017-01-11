@@ -31,17 +31,16 @@ public class AsyncEventListener {
 
     /**
      * 生成补货任务
-     * @param procurementType 补货类型
+     * @param canMax 是否按最大值补货
      */
     @Subscribe
-    public void createProcurement(final int procurementType) {
-        if(procurementType==1) {
-            logger.info("in max procurement");
-            procurementProveiderRpcService.createProcurementByMax(true);
-        }
-        if(procurementType ==2){
-            logger.info("in wave procurement");
-            procurementProveiderRpcService.createProcurement(false);
+    public void createProcurement(final Boolean canMax) {
+        if(canMax) {
+            logger.info("in create max plan ");
+            procurementProveiderRpcService.createProcurementByMax(canMax);
+        }else {
+            logger.info("in create wave plan ");
+            procurementProveiderRpcService.createProcurement(canMax);
         }
     }
     /**
