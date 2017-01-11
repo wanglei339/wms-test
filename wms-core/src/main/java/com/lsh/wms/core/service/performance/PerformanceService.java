@@ -97,13 +97,18 @@ public class PerformanceService {
             map.put("skuCount",1);
             newTaskInfoList.add(map);
         }
-
-        Map<String,Object> waveMap = new HashMap<String, Object>();
-        waveMap.put("pickTaskIds",pickTaskIdList);
-        List<WaveDetail> pickWaveDetailList = waveService.getWaveDetails(waveMap);
-        waveMap = new HashMap<String, Object>();
-        waveMap.put("qcTaskIds",qcTaskIdList);
-        List<WaveDetail> qcWaveDetailList = waveService.getWaveDetails(waveMap);
+        List<WaveDetail> pickWaveDetailList = new ArrayList<WaveDetail>();
+        if(pickTaskIdList!= null && pickTaskIdList.size()!=0) {
+            Map<String,Object> waveMap = new HashMap<String, Object>();
+            waveMap.put("pickTaskIds", pickTaskIdList);
+            pickWaveDetailList = waveService.getWaveDetails(waveMap);
+        }
+        List<WaveDetail> qcWaveDetailList = new ArrayList<WaveDetail>();
+        if(qcTaskIdList!= null && qcTaskIdList.size()!=0) {
+            Map<String,Object> waveMap = new HashMap<String, Object>();
+            waveMap.put("qcTaskIds", qcTaskIdList);
+            qcWaveDetailList = waveService.getWaveDetails(waveMap);
+        }
         Map<Long,Set<Long>> itemSetByTaskId = new HashMap<Long, Set<Long>>();
         //统计每个拣货任务中的商品数
         for (WaveDetail waveDetail : pickWaveDetailList) {

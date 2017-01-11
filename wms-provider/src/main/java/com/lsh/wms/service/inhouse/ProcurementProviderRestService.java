@@ -146,11 +146,10 @@ public class ProcurementProviderRestService implements IProcurementProviderRestS
         return JsonUtils.SUCCESS();
     }
     @GET
-    @Path("testAutoCreate")
-    public String autoCreate()  throws BizCheckedException {
+    @Path("autoCreateWaveTask")
+    public String autoCreateWaveTask()  throws BizCheckedException {
         try{
-//            rpcService.createProcurement(true);
-            AsyncEventService.post(false);
+            rpcService.createProcurement(true);
         } catch (BizCheckedException e) {
             throw e;
         } catch (Exception e) {

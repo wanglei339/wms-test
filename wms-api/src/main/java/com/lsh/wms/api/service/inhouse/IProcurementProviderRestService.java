@@ -15,5 +15,5 @@ public interface IProcurementProviderRestService {
     String createProcurement() throws BizCheckedException;
     String getOutBoundLocation(long itemId,long locationId)  throws BizCheckedException;
     String fetchTask(long uid, long zoneId) throws BizCheckedException;
-    String autoCreate()  throws BizCheckedException;
+    String autoCreateWaveTask()  throws BizCheckedException;
 }
