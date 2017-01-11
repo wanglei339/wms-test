@@ -81,6 +81,11 @@ public class TuService {
     }
 
     @Transactional(readOnly = false)
+    public List<TuHead> lockTuHeadById(Long id) {
+        return tuHeadDao.lockTuHeadById(id);
+    }
+
+    @Transactional(readOnly = false)
     public void createBatchhead(List<TuHead> heads) {
         for (TuHead head : heads) {
             head.setUpdatedAt(DateUtils.getCurrentSeconds());
@@ -388,7 +393,7 @@ public class TuService {
 
     @Transactional(readOnly = false)
     public List<WaveDetail> createObdAndMoveStockQuant(TuHead tuHead,
-                                                 List<TuDetail> tuDetails) {
+                                                       List<TuDetail> tuDetails) {
         Set<Long> totalContainers = new HashSet<Long>();
         //获取全量的wave_detail
         List<WaveDetail> totalWaveDetails = new ArrayList<WaveDetail>();
@@ -422,7 +427,7 @@ public class TuService {
                 header.setTransPlan(tuHead.getTuId());  //FIXME 17/1/3 路线号会有修改
                 header.setTransTime(new Date());
                 ObdHeader obdHeader = mapObdHeader.get(waveDetail.getOrderId());
-                if(obdHeader == null) {
+                if (obdHeader == null) {
                     obdHeader = soOrderService.getOutbSoHeaderByOrderId(waveDetail.getOrderId());
                     if (null == obdHeader) {
                         throw new BizCheckedException("2900007");
@@ -471,7 +476,7 @@ public class TuService {
                 //通过stock quant获取到对应的lot信息
                 Map<String, Object> mapQuery = new HashMap<String, Object>();
                 mapQuery.put("containerId", waveDetail.getContainerId());
-                mapQuery.put("itemId",waveDetail.getItemId());
+                mapQuery.put("itemId", waveDetail.getItemId());
                 //List<StockQuant> stockQuants = stockQuantService.getQuantsByContainerId(waveDetail.getContainerId());
                 List<StockQuant> stockQuants = stockQuantService.getQuants(mapQuery);
                 StockQuant stockQuant = (null != stockQuants && stockQuants.size() > 0) ? stockQuants.get(0) : null;
@@ -571,7 +576,7 @@ public class TuService {
             /*
             这里做obd占用数量扣减
              */
-            for(OutbDeliveryDetail deliveryDetail : realDetails){
+            for (OutbDeliveryDetail deliveryDetail : realDetails) {
                 ObdHeader obdHeader = mapObdHeader.get(deliveryDetail.getOrderId());
                 StockMove move = new StockMove();
                 move.setToLocationId(locationService.getNullArea().getLocationId());
