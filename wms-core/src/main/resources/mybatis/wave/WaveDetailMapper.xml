@@ -248,6 +248,12 @@
 					#{pickTaskId}
 				</foreach>
 			</if>
+			<if test="qcTaskIds != null">
+				and qc_task_id in
+				<foreach collection="qcTaskIds" item="qcTaskId" index="index" open="(" separator=","  close=")">
+					#{qcTaskId}
+				</foreach>
+			</if>
 			<if test="pickLocationObj != null">
 				and ( ${pickLocationObj.getLocationId()} &lt;= alloc_pick_location and alloc_pick_location &lt;= ${pickLocationObj.getRightRange()})
 			</if>
