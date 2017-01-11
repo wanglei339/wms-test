@@ -152,19 +152,19 @@ public class TuRestService implements ITuRestService {
             if (detail.getIsExpensive().equals(TuConstant.IS_EXPENSIVE)) {
                 continue;   //贵品不记录绩效
             }
-            String idKey = "task_" + TaskConstant.TYPE_DIRECT_SHIP.toString();
+            String idKey = "task_" + TaskConstant.TYPE_TU_SHIP.toString();
             Long shipTaskId = idGenerator.genId(idKey, true, true);
             TaskEntry taskEntry = new TaskEntry();
             TaskInfo shipTaskInfo = new TaskInfo();
             shipTaskInfo.setTaskId(shipTaskId);
-            shipTaskInfo.setType(TaskConstant.TYPE_DIRECT_SHIP);
+            shipTaskInfo.setType(TaskConstant.TYPE_TU_SHIP);
             shipTaskInfo.setTaskName("门店发货任务[" + detail.getMergedContainerId() + "]");
             shipTaskInfo.setContainerId(detail.getMergedContainerId()); //小店没和板子,就是原来了物理托盘码
             shipTaskInfo.setOperator(tuHead.getLoadUid()); //一个人装车
             shipTaskInfo.setBusinessMode(TaskConstant.MODE_DIRECT);
             shipTaskInfo.setSubType(TuConstant.SCALE_STORE.equals(tuHead.getScale()) ? TaskConstant.TASK_DIRECT_SMALL_SHIP : TaskConstant.TASK_DIRECT_LARGE_SHIP);
             taskEntry.setTaskInfo(shipTaskInfo);
-            iTaskRpcService.create(TaskConstant.TYPE_DIRECT_SHIP, taskEntry);
+            iTaskRpcService.create(TaskConstant.TYPE_TU_SHIP, taskEntry);
             // 直接完成
             iTaskRpcService.done(shipTaskId);
 
