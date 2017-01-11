@@ -141,7 +141,6 @@ public class SoRpcService implements ISoRpcService {
                     if (owner.getSoCheckStrategy().equals(SoConstant.STOCK_HARD_CHECK)) {
                         throw new BizCheckedException("2900009");
                     }
-
                     if (owner.getSoCheckStrategy().equals(SoConstant.STOCK_SOFT_CHECK)) {
                         //obdDetail.setOrderQty(new BigDecimal(avQty));
                         obdDetail.setOrderQty(PackUtil.EAQty2UomQty(new BigDecimal(avQty),obdDetail.getPackName()));
