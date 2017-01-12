@@ -641,9 +641,6 @@ public class PickRestService implements IPickRestService {
     @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
     @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
     public String hold() throws BizCheckedException {
-        if (true) {
-            throw new BizCheckedException("999", "操作尚不可用,请稍后再试");
-        }
         Map<String, Object> mapQuery = RequestUtils.getRequest();
         Long taskId = Long.valueOf(mapQuery.get("taskId").toString());
         Long staffId = Long.valueOf(RequestUtils.getHeader("uid"));
