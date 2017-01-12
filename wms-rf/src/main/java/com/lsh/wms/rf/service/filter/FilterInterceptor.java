@@ -103,7 +103,6 @@ public class FilterInterceptor{
 //                            logger.info("结束时间:"+sdf.format(new Date()));
 //                            return redisStringDao.get(serialNumber);
 //                        }
-
                         return pjp.proceed();
                     } catch (Throwable ex) {
                         throw ex;
