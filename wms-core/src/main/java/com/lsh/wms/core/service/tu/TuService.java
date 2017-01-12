@@ -738,9 +738,6 @@ public class TuService {
             shipTaskInfo.setAssignTime(DateUtils.getCurrentSeconds());
             shipTaskInfo.setFinishTime(DateUtils.getCurrentSeconds());
             shipTaskInfo.setUpdatedAt(DateUtils.getCurrentSeconds());
-            if (true){
-                throw new BizCheckedException("2990048");
-            }
             //设置done状态
 //            taskEntry.setTaskInfo(shipTaskInfo);
 //            taskEntry.setTaskDetailList((List<Object>) (List<?>) totalWaveDetails);
