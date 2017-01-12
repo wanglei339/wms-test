@@ -88,7 +88,8 @@ public class SplitModelContainer extends SplitModel{
                         newNode.iPickType = node.iPickType;
                         stopNodes.add(newNode);
                         newDetails = new LinkedList<WaveDetail>();
-                        sumQty = new BigDecimal("0");
+                        sumQty = BigDecimal.ZERO;
+                        sumCapacity = BigDecimal.ZERO;
                     }
                 }
                 newDetails.add(detail);

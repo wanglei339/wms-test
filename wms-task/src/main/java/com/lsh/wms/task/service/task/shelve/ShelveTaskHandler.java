@@ -210,7 +210,7 @@ public class ShelveTaskHandler extends AbsTaskHandler {
         }
         // move到目标location_id
         // 拣货位需要合盘
-        if (realLocation.getType().equals(LocationConstant.BIN) && realLocation.getBinUsage().equals(BinUsageConstant.BIN_PICK_STORE)) {
+        if (realLocation.getType().equals(LocationConstant.BIN) && realLocation.getBinUsage().equals(BinUsageConstant.BIN_UASGE_PICK)) {
             List<StockQuant> quants = stockQuantService.getQuantsByLocationId(locationId);
             if (quants.isEmpty()) {
                 stockMoveService.moveWholeContainer(taskHead.getContainerId(), taskId, taskHead.getOperator(), taskInfo.getFromLocationId(), locationId);

@@ -119,6 +119,7 @@ public class UserRestService implements IUserRestService {
                     put("do_mergeboard", "合板");
                     put("do_load", "装车");
                     put("do_releasecollection", "一键装车");
+                    put("do_search", "查询");
 
                 }
             };
@@ -132,6 +133,10 @@ public class UserRestService implements IUserRestService {
                 return JsonUtils.TOKEN_ERROR("该账号没有分配角色,请联系管理员分配");
             }
             List<String> permissionList = JSON.parseArray(role.getPermission(), String.class);
+
+            if(permissionList==null){
+                return JsonUtils.TOKEN_ERROR("该账号角色权限为空，请联系管理员");
+            }
             for(Map one:menuTmpList) {
                 for (String key : permissionMap.keySet()) {
                     if (permissionMap.get(key).equals(one.get("name"))) {

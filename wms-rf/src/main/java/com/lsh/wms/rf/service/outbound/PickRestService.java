@@ -113,6 +113,8 @@ public class PickRestService implements IPickRestService {
             throw new BizCheckedException("2060011");
         }
 
+        Long taskOrder = 1L; // 拣货签序号
+
         for (Map<String, Object> task: taskList) {
             Long taskId = Long.valueOf(task.get("taskId").toString());
             Long containerId = Long.valueOf(task.get("containerId").toString());
@@ -125,43 +127,45 @@ public class PickRestService implements IPickRestService {
             Long draftTaskId = baseTaskService.getDraftTaskIdByContainerId(containerId);
             Long assignTaskId = baseTaskService.getAssignTaskIdByContainerId(containerId);
             if (quants != null && quants.size() > 0) {
-                throw new BizCheckedException("2060016");
+                throw new BizCheckedException("2060016", containerId, "");
             }
             if (draftTaskId != null || assignTaskId != null) {
-                throw new BizCheckedException("2060017");
+                throw new BizCheckedException("2060017", containerId, "");
             }
             TaskInfo taskInfo = baseTaskService.getTaskInfoById(taskId);
-            if ( taskInfo == null){
-                return JsonUtils.TOKEN_ERROR("错误的捡货任务");
+            if (taskInfo == null || !taskInfo.getType().equals(taskType)) {
+                throw new BizCheckedException("2060003", taskId, "");
             }
             PickTaskHead taskHead = pickTaskService.getPickTaskHead(taskId);
             if (!TaskConstant.Draft.equals(taskInfo.getStatus())) {
-                throw new BizCheckedException("2060001");
-            }
-            if (taskInfo == null || !taskInfo.getType().equals(taskType)) {
-                throw new BizCheckedException("2060003");
+                throw new BizCheckedException("2060001", taskId, "");
             }
             // 检查是否有已分配的任务
             if (baseTaskService.checkTaskByContainerId(containerId)) {
-                throw new BizCheckedException("2030008");
+                throw new BizCheckedException("2060026", containerId, "");
             }
             // 检查container是否可用
             if (containerService.isContainerInUse(containerId)) {
-                throw new BizCheckedException("2000002");
+                throw new BizCheckedException("2060027", containerId, "");
             }
             if (taskIds.contains(taskId)) {
-                throw new BizCheckedException("2060020", taskId.toString());
+                throw new BizCheckedException("2060020", taskId.toString(), "");
             }
             taskIds.add(taskId);
             if (containerIds.contains(containerId)) {
-                throw new BizCheckedException("2060021", containerId.toString());
+                throw new BizCheckedException("2060021", containerId.toString(), "");
             }
             containerIds.add(containerId);
             assignParam.put("taskId", taskId);
             assignParam.put("staffId", staffId);
             assignParam.put("containerId", containerId);
             assignParams.add(assignParam);
-            pickDetails.addAll(waveService.getDetailsByPickTaskId(taskId));
+            List<WaveDetail> waveDetails = waveService.getDetailsByPickTaskId(taskId);
+            for (WaveDetail waveDetail: waveDetails) {
+                waveDetail.setPickTaskOrder(taskOrder);
+                pickDetails.add(waveDetail);
+            }
+            taskOrder++;
         }
         iTaskRpcService.assignMul(assignParams);
 
@@ -212,7 +216,7 @@ public class PickRestService implements IPickRestService {
         List<TaskInfo> taskInfos = baseTaskService.getTaskInfoList(taskInfoParams);
 
         if (taskInfos == null) {
-            throw new BizCheckedException("2060003");
+            throw new BizCheckedException("2060003", "", "");
         }
 
         // 取taskId
@@ -359,8 +363,8 @@ public class PickRestService implements IPickRestService {
         }
         // 正常拣货的最后一步
         if (nextPickDetail.getPickTaskId() == null || nextPickDetail.getPickTaskId().equals(0L) || nextPickDetail.getPickTaskId().equals("")) {
-            // 货架补拣,只做一次
-            if (needPickDetail.getRefDetailId().equals(0L) && taskInfo.getSubType().equals(PickConstant.SHELF_TASK_TYPE)) {
+            // 补拣,只做一次
+            if (needPickDetail.getRefDetailId().equals(0L)/* && taskInfo.getSubType().equals(PickConstant.SHELF_TASK_TYPE)*/) {
                 List<WaveDetail> splitWaveDetails = new ArrayList<WaveDetail>();
                 Long lastOrder = needPickDetail.getPickOrder();
                 for (WaveDetail pickDetail: pickDetails) {
@@ -449,10 +453,10 @@ public class PickRestService implements IPickRestService {
         }
         TaskInfo oriTaskInfo = baseTaskService.getTaskInfoById(taskId);
         if (!oriTaskInfo.getType().equals(TaskConstant.TYPE_PICK)) {
-            throw new BizCheckedException("2060003");
+            throw new BizCheckedException("2060003", taskId, "");
         }
         if (!oriTaskInfo.getStatus().equals(TaskConstant.Assigned)) {
-            throw new BizCheckedException("2060004");
+            throw new BizCheckedException("2060004", taskId, "");
         }
         if (!oriTaskInfo.getOperator().equals(staffId)) {
             throw new BizCheckedException("2060014");
@@ -562,7 +566,7 @@ public class PickRestService implements IPickRestService {
         List<TaskInfo> taskInfos = baseTaskService.getTaskInfoList(taskInfoParams);
 
         if (taskInfos == null) {
-            throw new BizCheckedException("2060003");
+            throw new BizCheckedException("2060003", taskId, "");
         }
 
         // 取taskId
@@ -602,6 +606,10 @@ public class PickRestService implements IPickRestService {
         }
         if (!pickOrder.equals(needPickDetail.getPickOrder())) {
             throw new BizCheckedException("2060022");
+        }
+        // 待拣货的是最后一个,则报错
+        if (lastPickOrder.equals(needPickDetail.getPickOrder())) {
+            throw new BizCheckedException("2060024");
         }
         needPickDetail.setPickOrder(lastPickOrder + 1);
         waveService.updateDetail(needPickDetail);

@@ -134,9 +134,10 @@ public class WaveService {
         return details.size() == 0 ? null : details;
     }
 
-    public List<WaveDetail> getAliveDetailsByContainerIdPc (Long containerId) {
+    public List<WaveDetail> getDetailsByContainerIdAndWaveIdPc (Long containerId,Long waveId) {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("containerId", containerId);
+        mapQuery.put("waveId", waveId);
         mapQuery.put("isValid", 1);
         List<WaveDetail> details = detailDao.getWaveDetailList(mapQuery);
         return details.size() == 0 ? null : details;
@@ -151,9 +152,10 @@ public class WaveService {
         return details.size() == 0 ? null : details;
     }
 
-    public List<WaveDetail> getWaveDetailsByMergedContainerIdPc (Long mergedContainerId) {
+    public List<WaveDetail> getWaveDetailsByMergedContainerIdAndWaveIdPc (Long mergedContainerId, Long waveId) {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("mergedContainerId", mergedContainerId);
+        mapQuery.put("waveId", waveId);
         mapQuery.put("isValid", 1);
         List<WaveDetail> details = detailDao.getWaveDetailList(mapQuery);
         return details.size() == 0 ? null : details;
@@ -392,7 +394,7 @@ public class WaveService {
         Map<String, Object> mapSumQuery = new HashMap<String, Object>();
         mapSumQuery.put("pickLocationObj", location);
         mapSumQuery.put("itemId", itemId);
-        mapSumQuery.put("isLive", 1);
+        mapSumQuery.put("isAlive", 1);
         mapSumQuery.put("isValid", 1);
         BigDecimal unPickedQty = this.getUnPickedQty(mapSumQuery);
         return stockQty.subtract(unPickedQty);
@@ -403,7 +405,7 @@ public class WaveService {
         //获取带捡货商品
         Map<String, Object> mapSumQuery = new HashMap<String, Object>();
         mapSumQuery.put("itemId", itemId);
-        mapSumQuery.put("isLive", 1);
+        mapSumQuery.put("isAlive", 1);
         mapSumQuery.put("isValid", 1);
         BigDecimal unPickedQty = detailDao.getUnPickedQty(mapSumQuery);
         if ( unPickedQty == null ){

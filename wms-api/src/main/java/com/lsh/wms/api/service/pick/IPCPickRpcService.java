@@ -10,4 +10,5 @@ import java.util.Map;
  */
 public interface IPCPickRpcService {
     public Map<String,Object> getContainerGoods(Long contaienrId) throws BizCheckedException;
+    public Map<String,Object> getContainerGoods(Long contaienrId, Long waveId) throws BizCheckedException;
 }

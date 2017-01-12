@@ -368,7 +368,7 @@ public class BaseTaskService {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("toLocationId", toLocationId);
         params.put("businessId", toLocationId);
-        params.put("taskType", taskType);
+        params.put("type", taskType);
         List<TaskInfo> taskInfos = this.getTaskInfoList(params);
         for (TaskInfo taskInfo : taskInfos) {
             if (!taskInfo.getStatus().equals(TaskConstant.Done) && !taskInfo.getStatus().equals(TaskConstant.Cancel)) {

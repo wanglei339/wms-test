@@ -27,10 +27,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by zengwenjun on 16/7/15.
@@ -55,30 +52,35 @@ public class PickRestService implements IPCPickRestService {
     @POST
     @Path("getPickTaskInfo")
     public String getPickTaskInfo(Map<String, Object> mapInput) {
-        long waveId = Long.valueOf(mapInput.get("waveId").toString());
+        List waveIds = (List) mapInput.get("waveIds");
         List pickTaskIds = (List) mapInput.get("pickTaskIds");
-        if (waveId != 0) {
-            Map<String, Object> mapQuery = new HashMap<String, Object>();
-            mapQuery.put("waveId", waveId);
-            long pickType = Long.valueOf(mapInput.get("pickType").toString());
-            long pickZoneId = Long.valueOf(mapInput.get("pickZoneId").toString());
-            if(pickZoneId != 0){
-                mapQuery.put("ext1", pickZoneId);
-            }
-            //if(pickType)
-            List<TaskEntry> taskHeadList = iTaskRpcService.getTaskHeadList(TaskConstant.TYPE_PICK, mapQuery);
-            pickTaskIds = new LinkedList();
-            for (TaskEntry entry : taskHeadList) {
-                pickTaskIds.add(entry.getTaskInfo().getTaskId());
+        List taskIds = pickTaskIds;
+        if (waveIds.size() > 0) {
+            for (Object wid : waveIds) {
+                Long waveId = Long.valueOf(wid.toString());
+                Map<String, Object> mapQuery = new HashMap<String, Object>();
+                mapQuery.put("waveId", waveId);
+                long pickType = Long.valueOf(mapInput.get("pickType").toString());
+                long pickZoneId = Long.valueOf(mapInput.get("pickZoneId").toString());
+                if (pickZoneId != 0) {
+                    mapQuery.put("ext1", pickZoneId);
+                }
+                //if(pickType)
+                List<TaskEntry> taskHeadList = iTaskRpcService.getTaskHeadList(TaskConstant.TYPE_PICK, mapQuery);
+                for (TaskEntry entry : taskHeadList) {
+                    taskIds.add(entry.getTaskInfo().getTaskId());
+                }
             }
         }
         List<Map<String, Object>> taskInfoList = new LinkedList<Map<String, Object>>();
         Map<Long, WorkZone> mapZone = new HashMap<Long, WorkZone>();
-        for (Object id : pickTaskIds) {
+        for (Object id : taskIds) {
             Long taskId = Long.valueOf(id.toString());
             TaskEntry entry = iTaskRpcService.getOldTaskEntryById(taskId);  //FIXME 前端展示使用,不考虑生命周期
             List<Map<String, Object>> details = (List<Map<String, Object>>) (List<?>) entry.getTaskDetailList();
             Map<String, Object> head = (Map<String, Object>) entry.getTaskHead();
+            TaskInfo info = entry.getTaskInfo();
+            head.put("subType", info.getSubType());
             head.put("lineCount", details.size());
             ObdHeader obdHeader = orderService.getOutbSoHeaderByOrderId(Long.valueOf(details.get(0).get("orderId").toString()));
             head.put("deliveryName", obdHeader.getDeliveryName());
@@ -92,7 +94,7 @@ public class PickRestService implements IPCPickRestService {
             head.put("pickZoneName", zone == null ? "" : zone.getZoneName());
             BigDecimal totalUomQty = BigDecimal.ZERO;
             List<WaveDetail> waveDetails = waveService.getDetailsByPickTaskId(taskId);
-            for (WaveDetail waveDetail: waveDetails) {
+            for (WaveDetail waveDetail : waveDetails) {
                 totalUomQty = totalUomQty.add(PackUtil.EAQty2UomQty(waveDetail.getAllocQty(), waveDetail.getAllocUnitName()));
             }
             head.put("totalUomQty", totalUomQty);
@@ -103,8 +105,12 @@ public class PickRestService implements IPCPickRestService {
 
     @GET
     @Path("expensiveGoodsList")
-    public String getContainerExpensiveGoods(@QueryParam("containerId") Long containerId) throws BizCheckedException {
-        return JsonUtils.SUCCESS(ipcPickRpcService.getContainerGoods(containerId));
+    public String getContainerExpensiveGoods(@QueryParam("containerId") Long containerId, @QueryParam("waveId") Long waveId) throws BizCheckedException {
+        if (null == waveId) {
+            return JsonUtils.SUCCESS(ipcPickRpcService.getContainerGoods(containerId));
+        } else {
+            return JsonUtils.SUCCESS(ipcPickRpcService.getContainerGoods(containerId, waveId));
+        }
     }
 
 }

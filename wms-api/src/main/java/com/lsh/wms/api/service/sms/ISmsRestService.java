@@ -20,4 +20,10 @@ public interface ISmsRestService {
     String diff(String orderId) throws BizCheckedException;
 
     String correctAvailQty() throws BizCheckedException;
+
+    String mergeLocationQuant(String locationId) throws BizCheckedException;
+
+    String taskDone() throws BizCheckedException;
+
+    String moveByItemId() throws BizCheckedException;
 }

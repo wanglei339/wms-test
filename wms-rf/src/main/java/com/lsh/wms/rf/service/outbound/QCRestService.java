@@ -105,12 +105,28 @@ public class QCRestService implements IRFQCRestService {
         String code = (String) mapRequest.get("code");
 
 
-        //获取QC任务
+/*        //获取QC任务
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("containerId", Long.valueOf(code));
+
+        //未完成qc查询
+        List<Long> statusList = new ArrayList<Long>();
+        statusList.add(TaskConstant.Draft);
+        statusList.add(TaskConstant.Assigned);
+        statusList.add(TaskConstant.Allocated);
+        mapQuery.put("statusList", statusList);
         mapQuery.put("type", TaskConstant.TYPE_QC);
 //        List<TaskEntry> tasks = iTaskRpcService.getTaskHeadList(TaskConstant.TYPE_QC, mapQuery);
-        List<TaskInfo> tasks = baseTaskService.getTaskInfoList(mapQuery);
+        List<TaskInfo> tasks = baseTaskService.getUnDoneTask(mapQuery);
+
+        //查已完成,先去wave_detail中必须task和wave_detail能对应的上
+        if (null == tasks || tasks.size() < 1){
+            Map<String, Object> doneQuery = new HashMap<String, Object>();
+            doneQuery.put("type",TaskConstant.TYPE_QC);
+            doneQuery.put("containerId",TaskConstant.Done);
+        }
+
+        //都完成回溯的话,要保证,当下的wave_detail中只有一个托盘生命周期是活着的
         if (null == tasks || tasks.size() < 1) {
             pickTaskId = Long.valueOf(code);
             pickTaskInfo = baseTaskService.getTaskInfoById(pickTaskId);
@@ -120,21 +136,47 @@ public class QCRestService implements IRFQCRestService {
 
             Map<String, Object> params = new HashMap<String, Object>();
             params.put("containerId", pickTaskInfo.getContainerId());
+            params.put("statusList", statusList);
             params.put("type", TaskConstant.TYPE_QC);
             tasks = baseTaskService.getTaskInfoList(params);
-
         }
-        //商品集合中需要记住有异常的wave_detail的id
-        //扫托盘肯定不是拣货了,也有可能
-        //根据container和QC的type 找出QC任务,并根据QC任务记录的前一个任务的taskid,找到具体的需要找到数
-
+        //检验
         if (null == tasks || tasks.size() == 0) {
             throw new BizCheckedException("2120007");
         }
         if (tasks != null && tasks.size() > 1) {
             throw new BizCheckedException("2120006");
+        }*/
+
+        List<WaveDetail> details = waveService.getDetailsByContainerId(Long.valueOf(code));    //一个托盘上是一个货主的货,需要taskId和container两个去确认了,因为肯定有任务不唯一,加生命周期
+        if (null == details || details.isEmpty()) {
+            details = waveService.getDetailsByPickTaskId(Long.valueOf(code));
         }
-        qcTaskInfo = tasks.get(0);
+
+        if (null == details || details.isEmpty()) {
+            throw new BizCheckedException("2120029");
+        }
+        Set<Long> qcTaskIds = new HashSet<Long>();
+        Set<Long> pickTaskIds = new HashSet<Long>();
+        for (WaveDetail detail : details) {
+            qcTaskIds.add(detail.getQcTaskId());
+            pickTaskIds.add(detail.getPickTaskId());
+        }
+
+        if (pickTaskIds.size() > 1) {
+            throw new BizCheckedException("2120026");
+        }
+
+        if (qcTaskIds.size() > 1) {
+            throw new BizCheckedException("2120027");
+        }
+
+        //一个也没有就是没生成QC
+        if (!qcTaskIds.iterator().hasNext()) {
+            throw new BizCheckedException("2120029");
+        }
+
+        qcTaskInfo = baseTaskService.getTaskInfoById(qcTaskIds.iterator().next());
         pickTaskId = qcTaskInfo.getQcPreviousTaskId();
         containerId = qcTaskInfo.getContainerId();
 
@@ -144,7 +186,6 @@ public class QCRestService implements IRFQCRestService {
         if (qcTaskInfo.getStatus() == TaskConstant.Draft) {
             iTaskRpcService.assign(qcTaskInfo.getTaskId(), Long.valueOf(RequestUtils.getHeader("uid")));
         }                                                                               // todo 可以解决 加入任务流状态的标示,根据任务流状态和container取 detail中去取
-        List<WaveDetail> details = waveService.getDetailsByContainerId(containerId);    //一个托盘上是一个货主的货,需要taskId和container两个去确认了,因为肯定有任务不唯一,加生命周期
         if (details.size() == 0) {
             //空托盘
             throw new BizCheckedException("2120005");
@@ -297,7 +338,7 @@ public class QCRestService implements IRFQCRestService {
         //捡货人员的名字
         TaskInfo pickTask = baseTaskService.getTaskByTaskId(qcTaskInfo.getQcPreviousTaskId());
         if (null == pickTask) {
-            throw new BizCheckedException("2060003");
+            throw new BizCheckedException("2060003", qcTaskInfo.getQcPreviousTaskId(), "");
         }
         SysUser picker = sysUserService.getSysUserByUid(pickTask.getOperator().toString());
         rstMap.put("pickerName", picker.getScreenname());
