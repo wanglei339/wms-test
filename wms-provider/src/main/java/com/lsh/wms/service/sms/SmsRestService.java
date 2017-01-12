@@ -4,6 +4,7 @@ import com.alibaba.dubbo.common.utils.CollectionUtils;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
+import com.alibaba.fastjson.JSON;
 import com.baidubce.util.DateUtils;
 import com.fasterxml.jackson.databind.deser.Deserializers;
 import com.lsh.base.common.exception.BizCheckedException;
@@ -13,8 +14,10 @@ import com.lsh.wms.api.model.so.ObdDetail;
 import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.sms.ISmsRestService;
 import com.lsh.wms.api.service.stock.IStockQuantRpcService;
+import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.ContainerConstant;
 import com.lsh.wms.core.constant.StockConstant;
+import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.dao.redis.RedisSortedSetDao;
 import com.lsh.wms.core.dao.stock.StockSummaryDao;
 import com.lsh.wms.core.dao.task.TaskInfoDao;
@@ -88,6 +91,12 @@ public class SmsRestService implements ISmsRestService {
 
     @Autowired
     private StockMoveService stockMoveService;
+
+    @Autowired
+    private BaseTaskService baseTaskService;
+
+    @Reference
+    private ITaskRpcService iTaskRpcService;
 
     public void setSmsService(SmsService smsService) {
         this.smsService = smsService;
@@ -270,4 +279,53 @@ public class SmsRestService implements ISmsRestService {
         return JsonUtils.SUCCESS();
     }
 
+    @POST
+    @Path("taskDone")
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
+    @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
+    public String taskDone() throws BizCheckedException {
+        Map<String, Object> mapQuery = RequestUtils.getRequest();
+        List<Long> taskIds = JSON.parseArray(mapQuery.get("taskIds").toString(), Long.class);
+        for (Long taskId: taskIds) {
+            TaskInfo taskInfo = baseTaskService.getTaskInfoById(taskId);
+            if (null == taskInfo) {
+                throw new BizCheckedException("999", taskId.toString() + "不存在");
+            }
+            if (taskInfo.getStatus().equals(TaskConstant.Done)) {
+                throw new BizCheckedException("999", taskId.toString() + "已完成");
+            }
+            iTaskRpcService.done(taskId);
+        }
+        return JsonUtils.SUCCESS();
+    }
+
+    @POST
+    @Path("moveByItemId")
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
+    @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
+    public String moveByItemId() throws BizCheckedException {
+        Map<String, Object> mapQuery = RequestUtils.getRequest();
+        List<Map> moveList = JSON.parseArray(mapQuery.get("moveList").toString(), Map.class);
+        Long fromLocationId = Long.valueOf(mapQuery.get("fromLocationId").toString());
+        Long toLocationId = Long.valueOf(mapQuery.get("toLocationId").toString());
+        Long fromContainerId = Long.valueOf(mapQuery.get("fromContainerId").toString());
+        Long toContainerId = Long.valueOf(mapQuery.get("toContainerId").toString());
+        for (Map move: moveList) {
+            Long itemId = Long.valueOf(move.get("itemId").toString());
+            BaseinfoItem item = itemService.getItem(itemId);
+            if (null == item) {
+                throw new BizCheckedException("999", itemId.toString() + "商品不存在");
+            }
+            BigDecimal qty = new BigDecimal(move.get("qty").toString());
+            StockMove stockMove = new StockMove();
+            stockMove.setItemId(itemId);
+            stockMove.setFromLocationId(fromLocationId);
+            stockMove.setToLocationId(toLocationId);
+            stockMove.setFromContainerId(fromContainerId);
+            stockMove.setToContainerId(toContainerId);
+            stockMove.setQty(qty);
+            stockMoveService.move(stockMove);
+        }
+        return JsonUtils.SUCCESS();
+    }
 }
