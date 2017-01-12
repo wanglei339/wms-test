@@ -18,14 +18,17 @@ import com.lsh.wms.api.service.tu.ITuRpcService;
 import com.lsh.wms.api.service.wave.IShipRestService;
 import com.lsh.wms.api.service.wumart.IWuMart;
 import com.lsh.wms.core.constant.IntegrationConstan;
+import com.lsh.wms.core.constant.KeyLockConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.constant.TuConstant;
+import com.lsh.wms.core.service.key.KeyLockService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.so.SoDeliveryService;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.tu.TuService;
 import com.lsh.wms.core.service.utils.IdGenerator;
 import com.lsh.wms.core.service.wave.WaveService;
+import com.lsh.wms.model.key.KeyLock;
 import com.lsh.wms.model.so.ObdDetail;
 import com.lsh.wms.model.so.ObdHeader;
 import com.lsh.wms.model.so.OutbDeliveryDetail;
@@ -73,6 +76,8 @@ public class ShipRestService implements IShipRestService {
 
     @Autowired
     private SoOrderService soOrderService;
+    @Autowired
+    private KeyLockService keyLockService;
 
     @Reference
     private IDataBackService dataBackService;
@@ -110,9 +115,6 @@ public class ShipRestService implements IShipRestService {
             throw new BizCheckedException("2990046");
         }
 
-        //锁tuhead   防止继续请求
-        tuService.lockTuHeadById(tuHead.getId());
-        
 
         //拿托盘
         List<TuDetail> details = iTuRpcService.getTuDeailListByTuId(tuId);
@@ -120,24 +122,36 @@ public class ShipRestService implements IShipRestService {
         if (null == details || details.size() < 1) {
             throw new BizCheckedException("2990041");
         }
-        //销库存 写在同个事务中,生成发货单 osd的托盘生命结束,因此只能运行一次
-        List<WaveDetail> totalWaveDetails = tuService.createObdAndMoveStockQuantV2(tuHead, details);
-
-        //创建发货任务
-        {
-            TaskEntry taskEntry = new TaskEntry();
-            TaskInfo shipTaskInfo = new TaskInfo();
-            shipTaskInfo.setType(TaskConstant.TYPE_TU_SHIP);
-            shipTaskInfo.setTaskName("优供的发货任务[" + totalWaveDetails.get(0).getContainerId() + "]");
-            shipTaskInfo.setContainerId(totalWaveDetails.get(0).getContainerId());
-            shipTaskInfo.setOperator(tuHead.getLoadUid()); //一个人装车
-            shipTaskInfo.setBusinessMode(TaskConstant.MODE_INBOUND);
-            shipTaskInfo.setLocationId(totalWaveDetails.get(0).getRealCollectLocation());
-            taskEntry.setTaskInfo(shipTaskInfo);
-            taskEntry.setTaskDetailList((List<Object>) (List<?>) totalWaveDetails);
-            Long taskId = iTaskRpcService.create(TaskConstant.TYPE_SHIP, taskEntry);
-            iTaskRpcService.done(taskId);
+        //生成任务id 传入底层
+        String idKey = "task_" + TaskConstant.TYPE_TU_SHIP.toString();
+        Long shipTaskId = idGenerator.genId(idKey, true, true);
+        //通过KeyLock辅助表作为请求的限制
+        KeyLock keyLock = new KeyLock();
+        try {
+            keyLock.setKeyId(tuHead.getTuId());
+            keyLock.setType(KeyLockConstant.TYPE_TU);
+            keyLockService.lockIdByInsert(keyLock);
+        } catch (Exception e) {
+            logger.info("ship tu " + tuHead.getTuId() + " more");
+            throw new BizCheckedException("2990047");
         }
+
+        //发货成成obd,移库存,创建任务
+
+        try {
+            tuService.createTaskAndObdMove(tuHead,details,shipTaskId);
+        }catch (BizCheckedException bz){
+            logger.info(bz.getMessage());
+            //先查找在删除表
+            keyLockService.deleteKeyLock(keyLock);
+            logger.info("delete keyLock key_id id "+ keyLock.getKeyId()+" the type is "+keyLock.getType());
+            throw bz;
+        }catch (Exception e){
+            logger.info(e.getMessage());
+            keyLockService.deleteKeyLock(keyLock);
+            throw new  BizCheckedException("2990048");
+        }
+
         logger.info("success ship YG Tu[ " + tuId + " ] at" + DateUtils.getCurrentSeconds());
         Map<String, Object> result = new HashMap<String, Object>();
         result.put("response", true);

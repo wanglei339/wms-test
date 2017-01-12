@@ -6,15 +6,18 @@ import com.lsh.wms.core.constant.StockTakingConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.dao.task.TaskInfoDao;
 import com.lsh.wms.core.service.taking.StockTakingService;
+import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.stock.StockMove;
 import com.lsh.wms.model.system.SysLog;
 import com.lsh.wms.model.taking.StockTakingHead;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.task.TaskMsg;
+import com.lsh.wms.model.wave.WaveDetail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.PreferencesPlaceholderConfigurer;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,6 +40,8 @@ public class BaseTaskService {
     private StockTakingService stockTakingService;
     @Autowired
     private MessageService messageService;
+    @Autowired
+    private WaveService waveService;
 
 
     @Transactional(readOnly = false)
@@ -487,6 +492,27 @@ public class BaseTaskService {
         TaskInfo info = taskInfoDao.getTaskInfoById(taskId);
         info.setPriority(newPriority);
         taskInfoDao.update(info);
+    }
+    @Transactional(readOnly = false)
+    public void createShipTu(TaskInfo  info, List<WaveDetail> details) {
+        this.create(info);
+        for(WaveDetail detail : details){
+            detail.setShipTaskId(info.getTaskId());
+            detail.setShipUid(info.getOperator());
+        }
+        waveService.updateDetails(details);
+
+    }
+
+    @Transactional(readOnly = false)
+    public void updateShipTu(TaskInfo  info, List<WaveDetail> details) {
+        this.create(info);
+        for(WaveDetail detail : details){
+            detail.setShipAt(DateUtils.getCurrentSeconds());
+        }
+        waveService.updateDetails(details);
+        taskInfoDao.update(info);
+
     }
 
     /**
