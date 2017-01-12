@@ -695,17 +695,38 @@ public class PickRestService implements IPickRestService {
         // hold任务
         iTaskRpcService.hold(taskInfo.getTaskId());
         // 渲染返回值
-        taskIds.remove(taskInfo.getTaskId()); // 去掉挂起的任务
-        List<WaveDetail> nextPickDetails = waveService.getOrderedDetailsByPickTaskIds(taskIds); // 因为可能拆分,所以需要重新获取一次
-        WaveDetail nextPickDetail = new WaveDetail();
-        for (WaveDetail pickDetail: nextPickDetails) {
-            Long pickAt = pickDetail.getPickAt();
-            if (pickAt == null || pickAt.equals(0L)) {
-                nextPickDetail = pickDetail;
-                break;
-            }
-        }
         Map<String, Object> result = new HashMap<String, Object>();
+        Boolean pickDone = false; // 货物是否已捡完
+        Boolean done = false; // 拣货任务是否全部做完
+
+        taskIds.remove(taskInfo.getTaskId()); // 去掉挂起的任务
+
+        if (taskIds.size() > 0) {
+            List<WaveDetail> nextPickDetails = waveService.getOrderedDetailsByPickTaskIds(taskIds); // 因为可能拆分,所以需要重新获取一次
+            WaveDetail nextPickDetail = new WaveDetail();
+            for (WaveDetail pickDetail: nextPickDetails) {
+                Long pickAt = pickDetail.getPickAt();
+                if (pickAt == null || pickAt.equals(0L)) {
+                    nextPickDetail = pickDetail;
+                    break;
+                }
+            }
+            if (nextPickDetail.getPickTaskId() == null || nextPickDetail.getPickTaskId().equals(0L)) {
+                pickDone = true;
+                done = true;
+            } else {
+                done = false;
+                pickDone = false;
+                result.put("next_detail", pickTaskService.renderResult(BeanMapTransUtils.Bean2map(nextPickDetail), "allocPickLocation", "allocPickLocationCode"));
+            }
+        } else {
+            // 集货完成
+            pickDone = true;
+            done = true;
+        }
+
+        result.put("pick_done", pickDone);
+        result.put("done", done);
         return JsonUtils.SUCCESS(result);
     }
 }
