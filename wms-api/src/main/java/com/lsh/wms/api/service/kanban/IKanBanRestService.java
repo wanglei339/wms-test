@@ -8,6 +8,7 @@ import java.util.Map;
 public interface IKanBanRestService {
 
     String getKanbanCount(Long type,Long subType);
+
     String getPoKanbanCount(Long type);
     String getPoDetailKanBanCount(Long orderType);
 
