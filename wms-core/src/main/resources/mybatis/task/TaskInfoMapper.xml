@@ -279,7 +279,12 @@
 			<if test="skuId != null">and sku_id=#{skuId}</if>
 			<if test="ownerId != null">and owner_id=#{ownerId}</if>
 			<if test="itemId != null">and item_id=#{itemId}</if>
-
+			<if test="itemIdList != null">
+				and item_id in
+				<foreach collection="itemIdList"  item="item" index="index" open="(" separator=","  close=")">
+					#{item}
+				</foreach>
+			</if>
 			<if test="fromLocationId != null">and from_location_id=#{fromLocationId}</if>
 			<if test="fromLocationList != null">
 				and from_location_id in
