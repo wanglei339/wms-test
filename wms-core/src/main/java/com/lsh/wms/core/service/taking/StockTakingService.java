@@ -134,14 +134,15 @@ public class StockTakingService {
     @Transactional(readOnly = false)
     public void doneDetail(StockTakingDetail detail) {
         detail.setStatus(StockTakingConstant.PendingAudit);
-
-        if(!detail.getSkuCode().equals("")) {
-            SkuMap skuMap = skuMapService.getSkuMapBySkuCodeAndOwner(detail.getSkuCode(),detail.getOwnerId());
-            if (skuMap == null) {
-                throw new BizCheckedException("2880022", detail.getSkuCode(), "");
+        if(detail.getOwnerId().compareTo(1L)==0 || detail.getOwnerId().compareTo(2L)==0){
+            if(!detail.getSkuCode().equals("")) {
+                SkuMap skuMap = skuMapService.getSkuMapBySkuCodeAndOwner(detail.getSkuCode(),detail.getOwnerId());
+                if (skuMap == null) {
+                    throw new BizCheckedException("2880022", detail.getSkuCode(), "");
+                }
+                detail.setPrice(skuMap.getMovingAveragePrice());
+                detail.setDifferencePrice(detail.getUmoQty().multiply(detail.getPackUnit()).add(detail.getRealQty()).subtract(detail.getTheoreticalQty()).multiply(detail.getPrice()));
             }
-            detail.setPrice(skuMap.getMovingAveragePrice());
-            detail.setDifferencePrice(detail.getRealQty().subtract(detail.getTheoreticalQty()).multiply(detail.getPrice()));
         }
         this.updateDetail(detail);
 
@@ -212,9 +213,9 @@ public class StockTakingService {
             }
             OverLossReport overLossReport = new OverLossReport();
             //StockItem stockItem = new StockItem();
+            BigDecimal realQty = detail.getUmoQty().multiply(detail.getPackUnit()).add(detail.getRealQty());
             if (detail.getSkuId().equals(detail.getRealSkuId())) {
-
-                if(detail.getTheoreticalQty().compareTo(detail.getRealQty())==0){
+                if(detail.getTheoreticalQty().compareTo(realQty)==0){
                     continue;
                 }
 
@@ -233,8 +234,8 @@ public class StockTakingService {
                 overLossReport.setSkuCode(item.getSkuCode());
                 overLossReport.setRefTaskId(detail.getTaskId());
 
-                if (detail.getTheoreticalQty().compareTo(detail.getRealQty()) > 0) {
-                    BigDecimal qty = detail.getTheoreticalQty().subtract(detail.getRealQty());
+                if (detail.getTheoreticalQty().compareTo(realQty) > 0) {
+                    BigDecimal qty = detail.getTheoreticalQty().subtract(realQty);
                     overLossReport.setMoveType(OverLossConstant.LOSS_REPORT);
                     overLossReport.setQty(qty);
 
@@ -246,7 +247,7 @@ public class StockTakingService {
                     //组装回传物美的数据
 
                 } else {
-                    BigDecimal qty = detail.getRealQty().subtract(detail.getTheoreticalQty());
+                    BigDecimal qty = realQty.subtract(detail.getTheoreticalQty());
                     overLossReport.setMoveType(OverLossConstant.OVER_REPORT);
                     overLossReport.setQty(qty);
 
@@ -265,7 +266,7 @@ public class StockTakingService {
                 moveWin.setSkuId(detail.getSkuId());
                 moveWin.setToLocationId(locationService.getInventoryLostLocation().getLocationId());
                 moveWin.setFromLocationId(detail.getLocationId());
-                moveWin.setQty(detail.getRealQty());
+                moveWin.setQty(realQty);
                 moveList.add(moveWin);
 
                 StockMove moveLoss = new StockMove();
@@ -273,7 +274,7 @@ public class StockTakingService {
                 moveLoss.setSkuId(detail.getSkuId());
                 moveLoss.setFromLocationId(locationService.getInventoryLostLocation().getLocationId());
                 moveLoss.setToLocationId(detail.getLocationId());
-                moveLoss.setQty(detail.getRealQty());
+                moveLoss.setQty(realQty);
                 moveList.add(moveLoss);
             }
         }
@@ -296,7 +297,8 @@ public class StockTakingService {
 //        StockRequest request = new StockRequest();
         List<OverLossReport> overLossReports = new ArrayList<OverLossReport>();
         for (StockTakingDetail detail : stockTakingDetails) {
-            if (detail.getRealQty().compareTo(BigDecimal.ZERO)!=0 && detail.getItemId().equals(0L)) {
+            BigDecimal realQty = detail.getUmoQty().multiply(detail.getPackUnit()).add(detail.getRealQty());
+            if (realQty.compareTo(BigDecimal.ZERO)!=0 && detail.getItemId().equals(0L)) {
                 continue;
             }
             detail.setStatus(StockTakingConstant.Done);
@@ -328,7 +330,7 @@ public class StockTakingService {
                 overLossReport.setRefTaskId(detail.getTaskId());
 
                 if (detail.getTheoreticalQty().compareTo(detail.getRealQty()) > 0) {
-                    BigDecimal qty = detail.getTheoreticalQty().subtract(detail.getRealQty());
+                    BigDecimal qty = detail.getTheoreticalQty().subtract(realQty);
                     overLossReport.setMoveType(OverLossConstant.LOSS_REPORT);
                     overLossReport.setQty(qty);
 
@@ -340,7 +342,7 @@ public class StockTakingService {
                     //组装回传物美的数据
 
                 } else {
-                    BigDecimal qty = detail.getRealQty().subtract(detail.getTheoreticalQty());
+                    BigDecimal qty = realQty.subtract(detail.getTheoreticalQty());
                     overLossReport.setMoveType(OverLossConstant.OVER_REPORT);
                     overLossReport.setQty(qty);
 
@@ -675,6 +677,7 @@ public class StockTakingService {
                 detail.setPackUnit(quant.getPackUnit());
                 detail.setOwnerId(quant.getOwnerId());
                 detail.setRealSkuId(sku.getSkuId());
+                detail.setPackCode(item.getPackCode());
                 detail.setLotId(quant.getLotId());
                 detail.setSkuCode(item.getSkuCode());
                 detail.setSkuName(item.getSkuName());
@@ -740,8 +743,8 @@ public class StockTakingService {
                 errorStr.append("第"+index+"行,").append("系统记录库存数量为零,但是导入数量不为零").append(System.getProperty("line.separator"));
             }
             if(isTrue){
-                BigDecimal realQty = detail.getPackUnit().multiply(detailRequest.getUmoQty()).add(detailRequest.getScatterQty());
-                detail.setRealQty(realQty);
+                detail.setRealQty(detailRequest.getScatterQty());
+                detail.setUmoQty(detailRequest.getUmoQty());
                 detail.setStatus(StockTakingConstant.PendingAudit);
                 if(!detail.getSkuCode().equals("")) {
                     SkuMap skuMap = skuMapService.getSkuMapBySkuCodeAndOwner(detail.getSkuCode(),detail.getOwnerId());

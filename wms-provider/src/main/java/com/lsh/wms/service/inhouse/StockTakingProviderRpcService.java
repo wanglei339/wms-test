@@ -790,6 +790,8 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
                         detail.setPackCode(barcode);
                         detail.setRealQty(realEaQty);
                         detail.setUmoQty(realUmoQty);
+                    }else {
+                        throw new BizCheckedException("2550068",barcode,"");
                     }
                 }
 

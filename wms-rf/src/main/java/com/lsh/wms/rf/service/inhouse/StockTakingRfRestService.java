@@ -118,6 +118,7 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
 
         BaseinfoLocation location = locationService.getLocationByCode(locationCode);
         CsiSku sku = null;
+        BaseinfoItem baseinfoItem = null;
         if(location == null){
             return JsonUtils.TOKEN_ERROR("位置不存在");
         }
@@ -128,13 +129,17 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
             //商品码
             barcode = beanMap.get("barcode").toString().trim();
             //盘点数量
-            realEaQty = new BigDecimal(beanMap.get("qty").toString().trim());
+            realEaQty = new BigDecimal(beanMap.get("scatterQty").toString().trim());
             realUmoQty = new BigDecimal(beanMap.get("qty").toString().trim());
             if(barcode != null && !"".equals(barcode)) {
                 sku = skuService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, barcode);
             }
             if(sku==null){
-                throw new BizCheckedException("2550068",barcode,"");
+                List<BaseinfoItem> items = itemService.getItemByPackCode(barcode);
+
+                if (items == null || items.size() == 0) {
+                    throw new BizCheckedException("2550068",barcode,"");
+                }
             }
         }
 

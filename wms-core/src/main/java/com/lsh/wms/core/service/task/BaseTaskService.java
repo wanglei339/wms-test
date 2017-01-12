@@ -135,6 +135,17 @@ public class BaseTaskService {
         }
         return taskInfoList;
     }
+    public boolean checkValidProcurement(Long fromLocationId) throws BizCheckedException {
+        Map<String,Object> checkMap = new HashMap<String, Object>();
+        checkMap.put("fromLocationId",fromLocationId);
+        checkMap.put("type", TaskConstant.TYPE_PROCUREMENT);
+        checkMap.put("valid",1);
+        List<TaskInfo> taskInfoList = taskInfoDao.getTaskInfoList(checkMap);
+        if (taskInfoList == null || taskInfoList.isEmpty()) {
+            return false;
+        }
+        return true;
+    }
 
 
     public int getTaskInfoCount(Map<String, Object> mapQuery) {
