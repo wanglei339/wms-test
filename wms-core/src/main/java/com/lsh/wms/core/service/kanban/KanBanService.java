@@ -120,7 +120,7 @@ public class KanBanService {
         map2.put("skuCount",skuCode2.size());
         Map<String,Object> map4 = new HashMap<String, Object>();
         map4.put("status",4);
-        map2.put("packNum",packSum4);
+        map4.put("packNum",packSum4);
         map4.put("qtyNum" , sumQty4);
         map4.put("containerNum",containerIds4.size());
         map4.put("taskNum",taskId4s.size());
