@@ -21,6 +21,7 @@ public interface IProcurementProveiderRpcService {
     void scanFromLocation(Map<String, Object> params) throws BizCheckedException;
     void scanToLocation(Map<String, Object> params) throws  BizCheckedException;
     Long assign(Long staffId) throws BizCheckedException;
+    void createLoftProcurement(boolean canMax) throws BizCheckedException;
     boolean checkAndFillPlan(StockTransferPlan plan) throws BizCheckedException;
     boolean checkPlan(StockTransferPlan plan) throws BizCheckedException;
     Set<Long> getOutBoundLocation(Long itemId,Long locationId);
