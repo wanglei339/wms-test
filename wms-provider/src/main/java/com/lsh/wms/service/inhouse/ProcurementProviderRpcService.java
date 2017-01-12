@@ -700,7 +700,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
 
 
     //创建阁楼补货任务
-    private void createLoftProcurement(boolean canMax) throws BizCheckedException {
+    public void createLoftProcurement(boolean canMax) throws BizCheckedException {
         Map<String,Object> mapQuery =new HashMap<String, Object>();
 
         //获取所有阁楼拣货位的位置信息
@@ -828,7 +828,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
 
     public void createProcurement(boolean canMax) throws BizCheckedException {
         this.createShelfProcurementBak2(canMax);
-        this.createLoftProcurement(canMax);
+     //   this.createLoftProcurement(canMax);
     }
     public void createProcurementByMax(boolean canMax) throws BizCheckedException {
         this.createShelfProcurement(canMax);

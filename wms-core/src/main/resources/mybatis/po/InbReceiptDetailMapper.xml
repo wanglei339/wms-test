@@ -157,12 +157,6 @@
 			<if test="isException != null">and IS_EXCEPTION=#{isException}</if>
 			<if test="isValid != null">and IS_VALID=#{isValid}</if>
 			<if test="remark != null">and REMARK=#{remark}</if>
-			<if test="itemIdList != null">
-				and ITEM_ID in
-				<foreach collection="itemIdList"  item="item" index="index" open="(" separator=","  close=")">
-					#{item}
-				</foreach>
-			</if>
 		</where>
 	</sql>
    
