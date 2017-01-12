@@ -110,7 +110,8 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
     public void calcelTask(Long taskId) throws BizCheckedException {
         TaskInfo info = baseTaskService.getTaskInfoById(taskId);
         if(info!=null && info.getStatus().equals(TaskConstant.Draft)) {
-            iTaskRpcService.cancel(taskId);
+            StockTakingHead head = stockTakingService.getHeadById(info.getPlanId());
+            iTaskRpcService.cancel(info.getTaskId(), head);
         }
     }
 //    @Transactional(readOnly = false)
@@ -397,15 +398,15 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
         if("".equals(detail.getBarcode())){
             throw new BizCheckedException("2550091");
         }
-        CsiSku  sku = skuService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, detail.getBarcode());
-         if(!itemService.checkSkuItem(item.getItemId(),sku.getSkuId())){
-             throw new BizCheckedException("2550092");
-         }
+        CsiSku sku = null;
+        if(!item.getPackCode().equals(detail.getBarcode())) {
+            sku= skuService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, detail.getBarcode());
+            if (!itemService.checkSkuItem(item.getItemId(), sku.getSkuId())) {
+                throw new BizCheckedException("2550092");
+            }
+        }
         if(!detail.getStatus().equals(StockTakingConstant.PendingAudit)){
             throw new BizCheckedException("2550067");
-        }
-        if(!item.getCode().equals(detail.getBarcode())){
-            throw new BizCheckedException("2550090");
         }
         StockLot lot = new StockLot();
         Long containerId = containerService.createContainerByType(ContainerConstant.PALLET).getContainerId();
@@ -428,7 +429,11 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
         lot.setLotId(RandomUtils.genId());
         lot.setInDate(DateUtils.getCurrentSeconds());
         lot.setItemId(itemId);
-        lot.setSkuId(item.getSkuId());
+        if(sku!=null) {
+            lot.setSkuId(sku.getSkuId());
+        }else {
+            lot.setSkuId(item.getSkuId());
+        }
         lot.setPackName(item.getPackName());
         lot.setPackUnit(item.getPackUnit());
         lot.setCode(item.getCode());
@@ -443,14 +448,24 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
         detail.setPackName(item.getPackName());
         detail.setPackUnit(item.getPackUnit());
         detail.setSkuCode(item.getSkuCode());
+        detail.setSkuId(lot.getSkuId());
+        detail.setRealSkuId(lot.getSkuId());
 
-        SkuMap skuMap = skuMapService.getSkuMapBySkuCodeAndOwner(detail.getSkuCode(),item.getOwnerId());
-        if (skuMap == null) {
-            throw new BizCheckedException("2880022", detail.getSkuCode(), "");
+        if(sku==null) {
+            detail.setBarcode(item.getCode());
+        }else {
+            detail.setBarcode(sku.getCode());
         }
-        detail.setPrice(skuMap.getMovingAveragePrice());
-        detail.setDifferencePrice(detail.getRealQty().subtract(detail.getTheoreticalQty()).multiply(detail.getPrice()));
+        detail.setPackCode(detail.getPackCode());
 
+        if(detail.getOwnerId().compareTo(1L)==0 || detail.getOwnerId().compareTo(2L)==0) {
+            SkuMap skuMap = skuMapService.getSkuMapBySkuCodeAndOwner(detail.getSkuCode(), item.getOwnerId());
+            if (skuMap == null) {
+                throw new BizCheckedException("2880022", detail.getSkuCode(), "");
+            }
+            detail.setPrice(skuMap.getMovingAveragePrice());
+            detail.setDifferencePrice(detail.getRealQty().subtract(detail.getTheoreticalQty()).multiply(detail.getPrice()));
+        }
         stockTakingService.fillEmptyDetail(detail,lot);
 
     }
@@ -739,30 +754,34 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
         StockTakingDetail detail = new StockTakingDetail();
         detail.setLocationCode(location.getLocationCode());
         BaseinfoItem item = null;
+        CsiSku sku = null;
 
         //临时盘点，直接填充库位信息
         List<StockQuant> quants = quantService.getQuantsByLocationId(locationId);
         if(quants!=null && quants.size()!=0){
             StockQuant quant = quants.get(0);
             item = itemService.getItem(quant.getItemId());
-            CsiSku sku = skuService.getSku(quant.getSkuId());
+            sku = skuService.getSku(quant.getSkuId());
             detail.setSkuId(quant.getSkuId());
             detail.setTheoreticalQty(quantService.getQuantQtyByContainerId(quant.getContainerId()));
             detail.setContainerId(quant.getContainerId());
             detail.setItemId(quant.getItemId());
             detail.setRealItemId(quant.getItemId());
             detail.setPackName(quant.getPackName());
+            detail.setRealSkuId(sku.getSkuId());
             detail.setPackUnit(quant.getPackUnit());
             detail.setOwnerId(quant.getOwnerId());
             detail.setLotId(quant.getLotId());
+            detail.setOperator(planner);
             detail.setBarcode(sku.getCode());
             detail.setSkuCode(item.getSkuCode());
             detail.setSkuName(item.getSkuName());
+            detail.setPackCode(item.getPackCode());
         }
 
         if(item!=null){
             //判断国条是不是系统的国条,如国条为空，则是该库位无商品
-            if(item.getCode().equals(barcode) || item.getPackCode().equals(barcode)){
+            if(sku.getCode().equals(barcode) || item.getPackCode().equals(barcode)){
                 detail.setRealQty(realEaQty);
                 detail.setUmoQty(realUmoQty);
                 SkuMap skuMap = skuMapService.getSkuMapBySkuCodeAndOwner(detail.getSkuCode(),item.getOwnerId());
@@ -776,12 +795,12 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
         }else {
           //系统库位无库存
             if(barcode!=null){
-                CsiSku sku = skuService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, barcode);
+                CsiSku csiSku = skuService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, barcode);
                 if(sku!=null){
                     detail.setRealQty(realEaQty);
                     detail.setUmoQty(realUmoQty);
-                    detail.setSkuId(sku.getSkuId());
-                    detail.setRealSkuId(sku.getSkuId());
+                    detail.setSkuId(csiSku.getSkuId());
+                    detail.setRealSkuId(csiSku.getSkuId());
                     detail.setBarcode(barcode);
                     detail.setSkuName(sku.getSkuName());
                 }else {

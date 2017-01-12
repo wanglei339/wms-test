@@ -65,9 +65,9 @@ public class StockTakingDetail implements Serializable {
 	/** 第一次盘点任务的任务类型*/
 	private Long refTaskType = 0L;
 	/** 箱码*/
-	private String packCode;
+	private String packCode = "";
 	/**  实际箱数*/
-	private BigDecimal umoQty ;
+	private BigDecimal umoQty  = BigDecimal.ZERO;
 	/**  */
     private Long createdAt = DateUtils.getCurrentSeconds();
 	/**  */
