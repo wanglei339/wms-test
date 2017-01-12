@@ -132,7 +132,14 @@
 			<if test="lotNum != null">and LOT_NUM=#{lotNum}</if>
 			<if test="skuId != null">and SKU_ID=#{skuId}</if>
 			<if test="itemId != null">and ITEM_ID=#{itemId}</if>
+			<if test="itemIdList != null">
+				and ITEM_ID in
+				<foreach collection="itemIdList"  item="item" index="index" open="(" separator=","  close=")">
+					#{item}
+				</foreach>
+			</if>
 			<if test="skuName != null">and SKU_NAME=#{skuName}</if>
+			<if test="skuNameSearch != null">and SKU_NAME like CONCAT('%',#{skuNameSearch},'%' )</if>
 			<if test="barCode != null">and BAR_CODE=#{barCode}</if>
 			<if test="orderQty != null">and ORDER_QTY=#{orderQty}</if>
 			<if test="packUnit != null">and PACK_UNIT=#{packUnit}</if>
