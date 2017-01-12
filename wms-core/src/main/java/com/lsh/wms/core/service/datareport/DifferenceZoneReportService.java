@@ -11,6 +11,7 @@ import com.lsh.wms.core.service.item.ItemLocationService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.stock.StockMoveService;
 import com.lsh.wms.core.service.stock.StockQuantService;
+import com.lsh.wms.core.service.utils.PackUtil;
 import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.datareport.DifferenceZoneReport;
@@ -93,7 +94,7 @@ public class DifferenceZoneReportService {
             DifferenceZoneReport report = this.getReportByReportId(reportId);
             StockMove move = new StockMove();
             move.setItemId(report.getItemId());
-            move.setQty(report.getQty());
+            move.setQty(PackUtil.UomQty2EAQty(report.getQty(),report.getUnitName()));
             // TODO: 16/8/19 找货品对应的拣货位
             List<BaseinfoItemLocation> itemLocations = itemLocationService.getItemLocationList(report.getItemId());
             for(BaseinfoItemLocation itemLocation : itemLocations){
