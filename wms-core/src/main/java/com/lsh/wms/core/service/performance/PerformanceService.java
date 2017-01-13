@@ -98,17 +98,17 @@ public class PerformanceService {
             newTaskInfoList.add(map);
         }
         List<WaveDetail> pickWaveDetailList = new ArrayList<WaveDetail>();
-        if(pickTaskIdList!= null && pickTaskIdList.size()!=0) {
+        if(pickTaskIdList != null && pickTaskIdList.size() > 0){
             Map<String,Object> waveMap = new HashMap<String, Object>();
-            waveMap.put("pickTaskIds", pickTaskIdList);
+            waveMap.put("pickTaskIds",pickTaskIdList);
             pickWaveDetailList = waveService.getWaveDetails(waveMap);
         }
         List<WaveDetail> qcWaveDetailList = new ArrayList<WaveDetail>();
-        if(qcTaskIdList!= null && qcTaskIdList.size()!=0) {
-            Map<String,Object> waveMap = new HashMap<String, Object>();
-            waveMap.put("qcTaskIds", qcTaskIdList);
-            qcWaveDetailList = waveService.getWaveDetails(waveMap);
-        }
+       if(qcTaskIdList != null && qcTaskIdList.size() >0){
+           Map<String,Object> waveMap = new HashMap<String, Object>();
+           waveMap.put("qcTaskIds",qcTaskIdList);
+           qcWaveDetailList = waveService.getWaveDetails(waveMap);
+       }
         Map<Long,Set<Long>> itemSetByTaskId = new HashMap<Long, Set<Long>>();
         //统计每个拣货任务中的商品数
         for (WaveDetail waveDetail : pickWaveDetailList) {
@@ -130,22 +130,24 @@ public class PerformanceService {
             itemSet.add(waveDetail.getItemId());
             itemSetByTaskId.put(taskId,itemSet);
         }
-        //将商品数匹配到每条绩效记录中
-        for (Map<String,Object> map : taskInfoList) {
-            String taskInfos = map.get("taskIds").toString();
-            String taskInfoArr [] = taskInfos.split(",");
-            Long type = (Long) map.get("type");
-            if(type != TaskConstant.TYPE_QC && type != TaskConstant.TYPE_PICK) {
-                continue;
-            }
-            Set<Long> itemSet = new HashSet<Long>();//统计每条绩效的商品sku数
-            for(String taskIds : taskInfoArr){
-                Long taskId = Long.parseLong(taskIds);
-                if(itemSetByTaskId.get(taskId) != null){
-                    itemSet.addAll(itemSetByTaskId.get(taskId));
+        if(itemSetByTaskId.size() > 0){
+            //将商品数匹配到每条绩效记录中
+            for (Map<String,Object> map : taskInfoList) {
+                String taskInfos = map.get("taskIds").toString();
+                String taskInfoArr [] = taskInfos.split(",");
+                Long type = (Long) map.get("type");
+                if(type != TaskConstant.TYPE_QC && type != TaskConstant.TYPE_PICK) {
+                    continue;
                 }
+                Set<Long> itemSet = new HashSet<Long>();//统计每条绩效的商品sku数
+                for(String taskIds : taskInfoArr){
+                    Long taskId = Long.parseLong(taskIds);
+                    if(itemSetByTaskId.get(taskId) != null){
+                        itemSet.addAll(itemSetByTaskId.get(taskId));
+                    }
+                }
+                map.put("skuCount",itemSet.size());
             }
-            map.put("skuCount",itemSet.size());
         }
         return newTaskInfoList;
     }

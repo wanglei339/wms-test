@@ -440,11 +440,11 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
                                 BigDecimal needQty = BigDecimal.ZERO;
                                     if(locationCategory.equals("A")){
                                         needQty = qty;
-                                    }else if(needContinue && nowQuant.compareTo(maxQty) > 0){
+                                    }else if(needContinue && nowQuant.compareTo(maxQty) < 0){
                                         //已达到max值,但是 补货后数量 - 出库数量+ min <0
                                         BigDecimal needMax = needAndOutQty.getOutQty().add(itemLocation.getMinQty());
                                         if (nowQuant.compareTo(needMax) > 0) {
-                                            needQty = needMax.subtract(nowQuant.subtract(qty));
+                                            needQty = needAndOutQty.getOutQty().subtract(nowQuant.subtract(qty));
                                         } else {
                                             needQty = qty;
                                         }
@@ -812,7 +812,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
 
     public void createProcurement(boolean canMax) throws BizCheckedException {
         this.createShelfProcurementBak2(canMax);
-        this.createLoftProcurement(canMax);
+     //   this.createLoftProcurement(canMax);
     }
     public void createProcurementByMax(boolean canMax) throws BizCheckedException {
         this.createShelfProcurement(canMax);

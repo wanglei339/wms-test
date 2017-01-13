@@ -308,6 +308,8 @@ public class SmsRestService implements ISmsRestService {
         List<Map> moveList = JSON.parseArray(mapQuery.get("moveList").toString(), Map.class);
         Long fromLocationId = Long.valueOf(mapQuery.get("fromLocationId").toString());
         Long toLocationId = Long.valueOf(mapQuery.get("toLocationId").toString());
+        Long fromContainerId = Long.valueOf(mapQuery.get("fromContainerId").toString());
+        Long toContainerId = Long.valueOf(mapQuery.get("toContainerId").toString());
         for (Map move: moveList) {
             Long itemId = Long.valueOf(move.get("itemId").toString());
             BaseinfoItem item = itemService.getItem(itemId);
@@ -319,6 +321,8 @@ public class SmsRestService implements ISmsRestService {
             stockMove.setItemId(itemId);
             stockMove.setFromLocationId(fromLocationId);
             stockMove.setToLocationId(toLocationId);
+            stockMove.setFromContainerId(fromContainerId);
+            stockMove.setToContainerId(toContainerId);
             stockMove.setQty(qty);
             stockMoveService.move(stockMove);
         }

@@ -85,11 +85,13 @@ public class StockQuantRpcService implements IStockQuantRpcService {
 
     public List<StockQuant> getQuantList(StockQuantCondition condition) throws BizCheckedException {
         Map<String, Object> mapQuery = this.getQueryCondition(condition);
+        this.setExcludeLocationList(mapQuery);
         List<StockQuant> quantList = quantService.getQuants(mapQuery);
         return quantList == null ? new ArrayList<StockQuant>() : quantList;
     }
     public Integer countQuantList(StockQuantCondition condition) throws BizCheckedException {
         Map<String, Object> mapQuery = this.getQueryCondition(condition);
+        this.setExcludeLocationList(mapQuery);
         Integer count = quantService.countStockQuant(mapQuery);
         return count;
     }

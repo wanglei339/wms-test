@@ -86,8 +86,8 @@ public class FilterInterceptor{
                     redisStringDao.expire(key, PropertyUtils.getLong("tokenExpire"));
                     try {
 //                        if(serialNumber == null){
-                        logger.info("结束时间:"+sdf.format(new Date()));
-                        return pjp.proceed();
+//                            logger.info("结束时间:"+sdf.format(new Date()));
+//                            return pjp.proceed();
 //                        }
 //                        if(redisStringDao.get(serialNumber) == null){
 //                            //将结果放到redis中。
@@ -103,7 +103,8 @@ public class FilterInterceptor{
 //                            logger.info("结束时间:"+sdf.format(new Date()));
 //                            return redisStringDao.get(serialNumber);
 //                        }
-                        //return pjp.proceed();
+
+                        return pjp.proceed();
                     } catch (Throwable ex) {
                         throw ex;
 
