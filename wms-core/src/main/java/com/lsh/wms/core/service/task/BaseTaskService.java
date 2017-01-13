@@ -85,6 +85,26 @@ public class BaseTaskService {
         }
     }
     @Transactional(readOnly = false)
+    public void cancelTask(TaskEntry entry,StockTakingHead head, TaskHandler taskHandler) throws BizCheckedException {
+        this.cancel(entry.getTaskInfo().getTaskId(), taskHandler);
+
+        //查看task是否都是取消状态，如果都是，则设置head为取消状态
+        Map<String,Object> queryMap = new HashMap<String, Object>();
+        queryMap.put("planId", head.getTakingId());
+        List<TaskInfo> infos = this.getTaskInfoList(queryMap);
+        boolean isAllCancel = true;
+        for(TaskInfo info:infos){
+            if(info.getStatus().compareTo(TaskConstant.Cancel)!=0){
+                isAllCancel = false;
+            }
+        }
+        if(isAllCancel){
+            head.setStatus(StockTakingConstant.Cancel);
+            stockTakingService.updateHead(head);
+        }
+
+    }
+    @Transactional(readOnly = false)
     public TaskInfo create(TaskInfo taskInfo) throws BizCheckedException {
         taskInfo.setDraftTime(DateUtils.getCurrentSeconds());
         taskInfo.setStatus(TaskConstant.Draft);
@@ -139,6 +159,17 @@ public class BaseTaskService {
             }
         }
         return taskInfoList;
+    }
+    public boolean checkValidProcurement(Long fromLocationId) throws BizCheckedException {
+        Map<String,Object> checkMap = new HashMap<String, Object>();
+        checkMap.put("fromLocationId",fromLocationId);
+        checkMap.put("type", TaskConstant.TYPE_PROCUREMENT);
+        checkMap.put("valid",1);
+        List<TaskInfo> taskInfoList = taskInfoDao.getTaskInfoList(checkMap);
+        if (taskInfoList == null || taskInfoList.isEmpty()) {
+            return false;
+        }
+        return true;
     }
 
 

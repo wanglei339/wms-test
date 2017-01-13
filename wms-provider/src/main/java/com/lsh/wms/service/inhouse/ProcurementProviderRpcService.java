@@ -184,7 +184,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
         return true;
     }
     //创建货架补货任务
-    private void createShelfProcurementBak2(boolean canMax) throws BizCheckedException {
+    public void createShelfProcurementBak2(boolean canMax) throws BizCheckedException {
         Map<String,Object> mapQuery =new HashMap<String, Object>();
         //获取所有货架拣货位的位置信息
         List<BaseinfoLocation> shelfLocationList = locationService.getBinsByFatherTypeAndUsage(LocationConstant.SHELF, BinUsageConstant.BIN_UASGE_PICK);
@@ -255,13 +255,9 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
                     String locationCategory  = this.checkContainerAndPickLocationVolBak(itemLocation.getPickLocationid(), item);
                     for(StockQuant quant:sortQuants) {
 
-                        //判断存货位是否有捡货任务
-                        Map<String,Object> checkMap = new HashMap<String, Object>();
-                        checkMap.put("fromLocationId",quant.getLocationId());
-                        checkMap.put("type", TaskConstant.TYPE_PROCUREMENT);
-                        checkMap.put("valid",1);
-                        List<TaskInfo> checkTaskInfos = baseTaskService.getTaskInfoList(checkMap);
-                        if(checkTaskInfos!=null && checkTaskInfos.size()>0){
+                        //判断存货位是否有补货任务
+                        boolean isDingTask = baseTaskService.checkValidProcurement(quant.getLocationId());
+                        if(isDingTask){
                             continue;
                         }
 
@@ -328,7 +324,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
         }
     }
     //创建货架补货任务
-    private void createShelfProcurementBak(boolean canMax) throws BizCheckedException {
+    public void createShelfProcurementBak(boolean canMax) throws BizCheckedException {
         Map<String,Object> mapQuery =new HashMap<String, Object>();
         //获取所有货架拣货位的位置信息
         List<BaseinfoLocation> shelfLocationList = locationService.getBinsByFatherTypeAndUsage(LocationConstant.SHELF, BinUsageConstant.BIN_UASGE_PICK);
@@ -403,13 +399,9 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
                     String locationCategory  = this.checkContainerAndPickLocationVolBak(itemLocation.getPickLocationid(), item);
                     for(StockQuant quant:sortQuants) {
 
-                        //判断存货位是否有捡货任务
-                        Map<String,Object> checkMap = new HashMap<String, Object>();
-                        checkMap.put("fromLocationId",quant.getLocationId());
-                        checkMap.put("type", TaskConstant.TYPE_PROCUREMENT);
-                        checkMap.put("valid",1);
-                        List<TaskInfo> checkTaskInfos = baseTaskService.getTaskInfoList(checkMap);
-                        if(checkTaskInfos!=null && checkTaskInfos.size()>0){
+                        //判断存货位是否有补货任务
+                        boolean isDingTask = baseTaskService.checkValidProcurement(quant.getLocationId());
+                        if(isDingTask){
                             continue;
                         }
 
@@ -481,7 +473,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
         }
     }
     //创建货架补货任务
-    private void createShelfProcurement(boolean canMax) throws BizCheckedException {
+    public void createShelfProcurement(boolean canMax) throws BizCheckedException {
         Map<String,Object> mapQuery =new HashMap<String, Object>();
         //获取所有货架拣货位的位置信息
         List<BaseinfoLocation> shelfLocationList = locationService.getBinsByFatherTypeAndUsage(LocationConstant.SHELF, BinUsageConstant.BIN_UASGE_PICK);
@@ -554,13 +546,9 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
                     List<StockQuant> sortQuants = this.sortQuant(quantList);
                     for(StockQuant quant:sortQuants) {
 
-                        //判断存货位是否有捡货任务
-                        Map<String,Object> checkMap = new HashMap<String, Object>();
-                        checkMap.put("fromLocationId",quant.getLocationId());
-                        checkMap.put("type", TaskConstant.TYPE_PROCUREMENT);
-                        checkMap.put("valid",1);
-                        List<TaskInfo> checkTaskInfos = baseTaskService.getTaskInfoList(checkMap);
-                        if(checkTaskInfos!=null && checkTaskInfos.size()>0){
+                        //判断存货位是否有补货任务
+                        boolean isDingTask = baseTaskService.checkValidProcurement(quant.getLocationId());
+                        if(isDingTask){
                             continue;
                         }
 
@@ -741,12 +729,8 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
                     List<StockQuant> sortQuants = this.sortQuant(quantList);
                     for(StockQuant quant:sortQuants) {
                         //判断存货位是否有补货任务
-                        Map<String,Object> checkMap = new HashMap<String, Object>();
-                        checkMap.put("fromLocationId",quant.getLocationId());
-                        checkMap.put("type", TaskConstant.TYPE_PROCUREMENT);
-                        checkMap.put("valid", 1);
-                        List<TaskInfo> checkTaskInfos = baseTaskService.getTaskInfoList(checkMap);
-                        if(checkTaskInfos!=null && checkTaskInfos.size()>0){
+                        boolean isDingTask = baseTaskService.checkValidProcurement(quant.getLocationId());
+                        if(isDingTask){
                             continue;
                         }
 
