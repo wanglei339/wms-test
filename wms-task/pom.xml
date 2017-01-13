@@ -85,7 +85,7 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <properties>
-                <profile.name>wuhao</profile.name>
+                <profile.name>dev</profile.name>
                 <log.file>/data/logs/pub-provider/provider.log</log.file>
                 <db.url>jdbc:mysql://127.0.0.1:3306/lsh_wms?useUnicode=true&amp;autoReconnect=true&amp;characterEncoding=UTF8&amp;allowMultiQueries=true</db.url>
                 <db.username>root</db.username>
