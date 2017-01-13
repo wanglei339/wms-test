@@ -639,7 +639,9 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
             }
         }
         locations.removeAll(taskLocation);
-
+        if(locations==null|| locations.size()==0){
+            throw new BizCheckedException("2550099");
+        }
         List<Object> details = new ArrayList<Object>();
         StockTakingHead head = new StockTakingHead();
         head.setPlanType(takingType);
@@ -712,6 +714,11 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
             }
             //移除已盘点的库位
             locations.removeAll(taskLocation);
+
+            if(locations==null|| locations.size()==0){
+                throw new BizCheckedException("2550099");
+            }
+
             List<Object> details = new ArrayList<Object>();
             TaskEntry taskEntry = new TaskEntry();
             TaskInfo info = new TaskInfo();
