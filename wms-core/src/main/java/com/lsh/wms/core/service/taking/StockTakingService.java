@@ -141,7 +141,7 @@ public class StockTakingService {
                     throw new BizCheckedException("2880022", detail.getSkuCode(), "");
                 }
                 detail.setPrice(skuMap.getMovingAveragePrice());
-                detail.setDifferencePrice(detail.getUmoQty().multiply(detail.getPackUnit()).add(detail.getRealQty()).subtract(detail.getTheoreticalQty()).multiply(detail.getPrice()));
+                detail.setDifferencePrice((detail.getUmoQty().multiply(detail.getPackUnit()).add(detail.getRealQty()).subtract(detail.getTheoreticalQty())).multiply(detail.getPrice()));
             }
         }
         this.updateDetail(detail);
@@ -701,7 +701,13 @@ public class StockTakingService {
         int index = 2;
 
         for(Object detailMap :detailRequestList){
-            DetailRequest detailRequest = BeanMapTransUtils.map2Bean((Map) detailMap, DetailRequest.class);
+            DetailRequest detailRequest = null;
+            try {
+                detailRequest = BeanMapTransUtils.map2Bean((Map) detailMap, DetailRequest.class);
+            }catch (Exception e){
+                throw new BizCheckedException("2550097","第"+index+"倒入格式有误");
+            }
+
             Long taskId = detailRequest.getTaskId();
             //判断任务
             if(!taskMap.containsKey(taskId)) {
@@ -753,7 +759,7 @@ public class StockTakingService {
                         errorStr.append("第"+index+"行,").append("货码"+detail.getSkuCode()+"无移动平均价").append(System.getProperty("line.separator"));
                     }else {
                         detail.setPrice(skuMap.getMovingAveragePrice());
-                        detail.setDifferencePrice(detail.getRealQty().subtract(detail.getTheoreticalQty()).multiply(detail.getPrice()));
+                        detail.setDifferencePrice((detail.getRealQty().add(detail.getUmoQty().multiply(detail.getPackUnit())).subtract(detail.getTheoreticalQty())).multiply(detail.getPrice()));
                     }
                 }
                 this.updateDetail(detail);

@@ -186,13 +186,19 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
                 detail.setRealSkuId(sku.getSkuId());
                 detail.setUmoQty(realUmoQty);
                 detail.setRealQty(realEaQty);
+            }else {
+                //箱码
+                detail.setPackCode(barcode);
+                detail.setUmoQty(realUmoQty);
+                detail.setRealQty(realEaQty);
             }
-        }
-        if(!("").equals(barcode) && ((csiSku!=null && csiSku.getCode().equals(barcode)) || (item!=null && item.getPackCode().equals(barcode)))) {
-            //库位有商品
-            detail.setRealQty(realEaQty);
-            detail.setUmoQty(realUmoQty);
-            stockTakingService.updateDetail(detail);
+        }else if(!("").equals(barcode)){
+          if((csiSku!=null && csiSku.getCode().equals(barcode)) || (item!=null && item.getPackCode().equals(barcode))) {
+              //库位有商品
+              detail.setRealQty(realEaQty);
+              detail.setUmoQty(realUmoQty);
+              stockTakingService.updateDetail(detail);
+          }
         }
 
         stockTakingService.doneDetail(detail);
