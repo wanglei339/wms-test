@@ -117,6 +117,12 @@ public class ItemService {
         }
         return items.get(0);
     }
+    public List<BaseinfoItem> getItemByPackCode(String packCode){
+        Map<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("packCode", packCode);
+        List<BaseinfoItem> items = itemDao.getBaseinfoItemList(mapQuery);
+        return items;
+    }
 
 //    /**
 //     * 查找有效的item

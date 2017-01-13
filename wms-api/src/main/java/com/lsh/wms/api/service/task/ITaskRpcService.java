@@ -25,6 +25,7 @@ public interface ITaskRpcService {
     void assign(Long taskId, Long staffId, Long containerId) throws BizCheckedException;
     void assignMul(List<Map<String, Long>> params) throws BizCheckedException;
     void cancel(Long taskId) throws BizCheckedException;
+    void cancel(Long taskId,StockTakingHead head) throws BizCheckedException;
     List<TaskEntry> getTaskList(Long taskType, Map<String, Object> mapQuery);
     int getTaskCount(Long taskType, Map<String, Object> mapQuery);
     List<TaskEntry> getTaskHeadList(Long taskType, Map<String, Object> mapQuery);

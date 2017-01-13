@@ -8,7 +8,9 @@ import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.inhouse.IProcurementProviderRestService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
+import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.dao.utils.NsHeadClient;
+import com.lsh.wms.model.ProcurementInfo;
 import com.lsh.wms.model.transfer.StockTransferPlan;
 import com.lsh.wms.service.sync.AsyncEventService;
 import org.slf4j.Logger;
@@ -131,7 +133,16 @@ public class ProcurementProviderRestService implements IProcurementProviderRestS
     public String createProcurement()  throws BizCheckedException {
         try{
 //            rpcService.createProcurement(true);
-            AsyncEventService.post(true);
+            ProcurementInfo loftInfo = new ProcurementInfo();
+            loftInfo.setCanMax(true);
+            loftInfo.setLocationType(LocationConstant.LOFTS);
+            loftInfo.setTaskType(2);
+            AsyncEventService.post(loftInfo);
+            ProcurementInfo shelfInfo = new ProcurementInfo();
+            shelfInfo.setCanMax(true);
+            shelfInfo.setTaskType(2);
+            shelfInfo.setLocationType(LocationConstant.SHELFS);
+            AsyncEventService.post(shelfInfo);
         } catch (BizCheckedException e) {
             throw e;
         } catch (Exception e) {
@@ -145,7 +156,16 @@ public class ProcurementProviderRestService implements IProcurementProviderRestS
     public String autoCreateWaveTask()  throws BizCheckedException {
         try{
             //rpcService.createProcurement(2);
-            AsyncEventService.post(false);
+            ProcurementInfo loftInfo = new ProcurementInfo();
+            loftInfo.setCanMax(false);
+            loftInfo.setLocationType(LocationConstant.LOFTS);
+            loftInfo.setTaskType(1);
+            AsyncEventService.post(loftInfo);
+            ProcurementInfo shelfInfo = new ProcurementInfo();
+            shelfInfo.setCanMax(false);
+            shelfInfo.setTaskType(1);
+            shelfInfo.setLocationType(LocationConstant.SHELFS);
+            AsyncEventService.post(shelfInfo);
         } catch (BizCheckedException e) {
             throw e;
         } catch (Exception e) {

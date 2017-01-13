@@ -25,4 +25,7 @@ public interface IProcurementProveiderRpcService {
     boolean checkAndFillPlan(StockTransferPlan plan) throws BizCheckedException;
     boolean checkPlan(StockTransferPlan plan) throws BizCheckedException;
     Set<Long> getOutBoundLocation(Long itemId,Long locationId);
+    void createShelfProcurementBak2(boolean canMax) throws BizCheckedException;
+    void createShelfProcurementBak(boolean canMax) throws BizCheckedException;
+    void createShelfProcurement(boolean canMax) throws BizCheckedException;
 }
