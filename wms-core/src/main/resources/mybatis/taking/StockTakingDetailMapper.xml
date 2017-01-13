@@ -134,7 +134,7 @@
 
 	<select id="getStockTakingItemList" parameterType="map" resultMap="stockTakingDetailResultMap">
 		select item_id,barcode,sku_code,sku_name,pack_name,
-		sum(real_qty) as real_qty,price,sum(difference_price) as difference_price,sum(theoretical_qty) as theoretical_qty
+		sum(real_qty + umo_qty * pack_unit) as real_qty,price,sum(difference_price) as difference_price,sum(theoretical_qty) as theoretical_qty
 		from stock_taking_detail
 		<include refid="queryCondition"/>
 		group by item_id
