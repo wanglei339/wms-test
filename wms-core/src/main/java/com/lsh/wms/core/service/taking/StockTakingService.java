@@ -299,7 +299,7 @@ public class StockTakingService {
         for (StockTakingDetail detail : stockTakingDetails) {
             BigDecimal realQty = detail.getUmoQty().multiply(detail.getPackUnit()).add(detail.getRealQty());
             if (realQty.compareTo(BigDecimal.ZERO)!=0 && detail.getItemId().equals(0L)) {
-                continue;
+                throw new BizCheckedException("2550098","任务号:"+detail.getTaskId()+",库位:"+detail.getLocationCode()+"");
             }
             detail.setStatus(StockTakingConstant.Done);
             detail.setIsFinal(1);

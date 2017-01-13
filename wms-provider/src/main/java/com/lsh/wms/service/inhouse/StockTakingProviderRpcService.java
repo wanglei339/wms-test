@@ -171,6 +171,8 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
         List<StockTakingDetail> details = stockTakingService.getDetails(queryMap);
         if(details!=null && details.size()!=0){
             stockTakingService.confirm(details);
+        }else {
+            throw new BizCheckedException("2550097");
         }
     }
     public void createTask(StockTakingHead head, List<StockTakingDetail> detailList,Long round,Long dueTime) throws BizCheckedException{
