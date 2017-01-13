@@ -26,10 +26,13 @@ public interface TaskInfoDao {
 
     List<Map<String, Object>> getKanBanCount(Long type);
 
+    List<TaskInfo> getKanBanCountNew(Map<String, Object> params);
+
     List<Map<String, Object>> getKanBanCountByStatus(Long type);
 
     BigDecimal getQty(Map<String, Object> params);
 
     TaskInfo lockById(Long taskId);
+
 
 }

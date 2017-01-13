@@ -233,12 +233,12 @@ public class StockMoveService {
     }
 
     @Transactional(readOnly = false)
-    public void moveToConsume(Set<Long> containerIds) throws BizCheckedException {
+    public void moveToConsume(Set<Long> containerIds,Long taskId) throws BizCheckedException {
         BaseinfoLocation location = locationService.getLocationsByType(LocationConstant.CONSUME_AREA).get(0);
 
         for (Long containerId : containerIds ) {
             Long fromLocationId = quantService.getLocationIdByContainerId(containerId).get(0);
-            this.moveWholeContainer(containerId, 0L, 0L, fromLocationId, location.getLocationId());
+            this.moveWholeContainer(containerId, taskId, 0L, fromLocationId, location.getLocationId());
         }
     }
 
