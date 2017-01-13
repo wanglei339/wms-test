@@ -312,9 +312,6 @@ public class StockMoveService {
         }
         for(StockMove move:lists){
             BaseinfoLocation fromLocation = locationService.getLocation(move.getFromLocationId());
-            if(fromLocation.getLocationId().compareTo(9003889543191l)==0){
-                System.out.print("ca");
-            }
             BaseinfoLocation toLocation = locationService.getLocation(move.getToLocationId());
             if(fromLocation.getCanStore().compareTo(LocationConstant.CAN_STORE)==0){
                 if(!savedLocation.containsKey(fromLocation.getLocationId())){
