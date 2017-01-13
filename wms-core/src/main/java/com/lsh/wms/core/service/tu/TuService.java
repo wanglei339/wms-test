@@ -497,6 +497,7 @@ public class TuService {
 
             //deliveryDetails.add(deliveryDetail);
         }
+
         for (Long key : mapHeader.keySet()) {
             OutbDeliveryHeader header = mapHeader.get(key);
             List<OutbDeliveryDetail> realDetails = new LinkedList<OutbDeliveryDetail>();
@@ -591,12 +592,11 @@ public class TuService {
                     move.setFromLocationId(locationService.getSoAreaInbound().getLocationId());
                 }
                 move.setItemId(deliveryDetail.getItemId());
-                //todo 兼容供商退货的没有taskId的方法
-                if (null == taskId) {
-                    move.setTaskId(header.getDeliveryId());
-                } else {
-                    move.setTaskId(header.getDeliveryId());
+                //此处设置taskId
+                if (null == taskId){
+                    taskId = deliveryDetail.getDeliveryId();
                 }
+                move.setTaskId(taskId);
                 move.setQty(deliveryDetail.getDeliveryNum());
                 orderTaskStockMoveList.add(move);
             }
@@ -634,9 +634,20 @@ public class TuService {
                 waveService.setStatus(iWaveId, WaveConstant.STATUS_SUCC);
             }
         }
+        //进行taskID的处理,如果是供商退货的会传入null
+        if (null == taskId) {
+            if (mapHeader.keySet().iterator().hasNext()) {
+                Long tempOrderId = mapHeader.keySet().iterator().next();
+                OutbDeliveryHeader tempHeader = mapHeader.get(tempOrderId);
+                taskId = tempHeader.getDeliveryId();
+            } else {
+                taskId = 0L;
+            }
+        }
         //这里做obd占用数量扣减
         stockMoveService.move(orderTaskStockMoveList);
         //做真实库存移动出库
+        //兼容so供商退货的taskId   供商退货
         this.moveItemToConsumeArea(totalContainers, taskId);
         return totalWaveDetails;
     }
@@ -719,7 +730,7 @@ public class TuService {
      * @param shipTaskId
      */
     @Transactional(readOnly = false)
-    public void createShipTask(List<WaveDetail> totalWaveDetails,TuHead tuHead,Long shipTaskId) throws BizCheckedException{
+    public void createShipTask(List<WaveDetail> totalWaveDetails, TuHead tuHead, Long shipTaskId) throws BizCheckedException {
         //创建发货任务
         {
 //            TaskEntry taskEntry = new TaskEntry();
@@ -747,10 +758,10 @@ public class TuService {
 
     @Transactional(readOnly = false)
     public void createTaskAndObdMove(TuHead tuHead,
-                                     List<TuDetail> tuDetails, Long shipTaskId){
+                                     List<TuDetail> tuDetails, Long shipTaskId) {
         //销库存 写在同个事务中,生成发货单 osd的托盘生命结束,因此只能运行一次
         List<WaveDetail> totalWaveDetails = this.createObdAndMoveStockQuantV2(tuHead, tuDetails, shipTaskId);
-        this.createShipTask(totalWaveDetails,tuHead,shipTaskId);
+        this.createShipTask(totalWaveDetails, tuHead, shipTaskId);
     }
 
 
