@@ -385,14 +385,16 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
             }
         }
         //sort location
-        List<BaseinfoLocation> sortedLocationList = new ArrayList<BaseinfoLocation>();
-        for(Long locationId:locations){
-            sortedLocationList.add(locationService.getLocation(locationId));
-        }
-        sortedLocationList  = locationService.calcZwayOrder(sortedLocationList,true);
-        locations.removeAll(locations);
-        for(BaseinfoLocation location:sortedLocationList){
-            locations.add(location.getLocationId());
+        if(needSort) {
+            List<BaseinfoLocation> sortedLocationList = new ArrayList<BaseinfoLocation>();
+            for (Long locationId : locations) {
+                sortedLocationList.add(locationService.getLocation(locationId));
+            }
+            sortedLocationList = locationService.calcZwayOrder(sortedLocationList, true);
+            locations.removeAll(locations);
+            for (BaseinfoLocation location : sortedLocationList) {
+                locations.add(location.getLocationId());
+            }
         }
         return locations;
     }
@@ -488,7 +490,7 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
             return;
         }
         List<Long> locationList = new ArrayList<Long>();
-        if( request.getLocationList().equals("") || request.getLocationList() ==null || request.getLocationList().equals("null")) {
+        if( request.getLocationList() ==null || request.getLocationList().equals("") || request.getLocationList().equals("null")) {
             locationList = this.getTakingLocation(request,false);
         }else {
             locationList = JSON.parseArray(request.getLocationList(), Long.class);
