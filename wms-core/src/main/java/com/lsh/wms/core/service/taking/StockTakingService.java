@@ -329,7 +329,7 @@ public class StockTakingService {
                 overLossReport.setSkuCode(item.getSkuCode());
                 overLossReport.setRefTaskId(detail.getTaskId());
 
-                if (detail.getTheoreticalQty().compareTo(detail.getRealQty()) > 0) {
+                if (detail.getTheoreticalQty().compareTo(realQty) > 0) {
                     BigDecimal qty = detail.getTheoreticalQty().subtract(realQty);
                     overLossReport.setMoveType(OverLossConstant.LOSS_REPORT);
                     overLossReport.setQty(qty);
