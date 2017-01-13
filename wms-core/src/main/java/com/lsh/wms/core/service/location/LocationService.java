@@ -331,6 +331,24 @@ public class LocationService {
         List<BaseinfoLocation> locations = locationDao.getChildrenLocationList(params);
         return null != locations && !locations.isEmpty() ? locations : new ArrayList<BaseinfoLocation>();
     }
+    /**
+     * 根据type获取子节点
+     *
+     * @param locationId
+     * @param sonType
+     * @return
+     */
+    public List<BaseinfoLocation> getChildrenLocationsByCanStoreType(Long locationId, Long sonType,Integer canStore) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        BaseinfoLocation location = this.getLocation(locationId);
+        params.put("leftRange", location.getLeftRange());
+        params.put("rightRange", location.getRightRange());
+        params.put("canStore", canStore);
+        params.put("type", sonType);
+        params.put("isValid", LocationConstant.IS_VALID);
+        List<BaseinfoLocation> locations = locationDao.getChildrenLocationList(params);
+        return null != locations && !locations.isEmpty() ? locations : new ArrayList<BaseinfoLocation>();
+    }
 
 
     /**

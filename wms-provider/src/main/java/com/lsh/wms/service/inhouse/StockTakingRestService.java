@@ -544,7 +544,7 @@ public class StockTakingRestService implements IStockTakingRestService {
 //            }
 //        }
 //        return targetList;
-        List<BaseinfoLocation> baseinfoLocations =  locationService.getChildrenLocationsByType(locationId,LocationConstant.BIN);
+        List<BaseinfoLocation> baseinfoLocations =  locationService.getChildrenLocationsByCanStoreType(locationId, LocationConstant.BIN, LocationConstant.CAN_STORE);
         for(BaseinfoLocation location :baseinfoLocations){
             targetList.add(location.getLocationId());
         }

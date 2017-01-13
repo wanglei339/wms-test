@@ -318,7 +318,7 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
         } else if (!request.getAreaId().equals(0L)) {
             fatherLocationId = request.getAreaId();
         }
-        List<BaseinfoLocation> baseinfoLocations = locationService.getChildrenLocationsByType(fatherLocationId, LocationConstant.BIN);
+        List<BaseinfoLocation> baseinfoLocations = locationService.getChildrenLocationsByCanStoreType(fatherLocationId, LocationConstant.BIN, LocationConstant.CAN_STORE);
         for(BaseinfoLocation baseinfoLocation:baseinfoLocations) {
             locationList.add(baseinfoLocation.getLocationId());
         }
@@ -340,7 +340,7 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
             for (StockQuant quant : quantList) {
                 BaseinfoLocation location = locationService.getLocation(quant.getLocationId());
                 if(location.getRegionType().equals(LocationConstant.SHELFS) || location.getRegionType().equals(LocationConstant.LOFTS) || location.getRegionType().equals(LocationConstant.SPLIT_AREA)){
-                    if(!location.getBinUsage().equals(0)) {
+                    if(location.getCanStore().equals(LocationConstant.CAN_STORE)) {
                         longs.add(quant.getLocationId());
                     }
                 }
