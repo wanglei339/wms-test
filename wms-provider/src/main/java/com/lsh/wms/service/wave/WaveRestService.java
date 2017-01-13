@@ -29,6 +29,7 @@ import com.lsh.wms.model.wave.WaveDetail;
 import com.lsh.wms.model.wave.WaveHead;
 import com.lsh.wms.model.wave.WaveRequest;
 import com.lsh.wms.model.wave.WaveTemplate;
+import com.lsh.wms.model.zone.WorkZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -304,6 +305,25 @@ public class WaveRestService implements IWaveRestService {
     @Path("updatePickModel")
     public String updatePickModel(PickModel model) {
         try{
+            // 根据拣货分区设置pickType
+            Long pickZoneId = model.getPickZoneId();
+            WorkZone workZone = workZoneService.getWorkZone(pickZoneId);
+            String locations = workZone.getLocations();
+            String[] locationIds = locations.split(",");
+            if (locationIds.length > 0) {
+                Long locationId = Long.valueOf(locationIds[0]);
+                BaseinfoLocation location = locationService.getLocation(locationId);
+                if (null != location) {
+                    // 暂时写死了
+                    if (location.getType().equals(LocationConstant.LOFTS)) {
+                        model.setPickType(2L);
+                    } else if (location.getType().equals(LocationConstant.SPLIT_AREA)) {
+                        model.setPickType(3L);
+                    } else  {
+                        model.setPickType(1L);
+                    }
+                }
+            }
             modelService.updatePickModel(model);
         }catch (Exception e){
             logger.error(e.getCause()!=null ? e.getCause().getMessage():e.getMessage());
