@@ -349,7 +349,7 @@ public class StockTakingRestService implements IStockTakingRestService {
     @POST
     @Path("getTakingLocation")
     public String getTakingLocation(StockTakingRequest request) {
-        List<Long> locations = iStockTakingProviderRpcService.getTakingLocation(request);
+        List<Long> locations = iStockTakingProviderRpcService.getTakingLocation(request,true);
         return JsonUtils.SUCCESS(locations);
     }
     @POST

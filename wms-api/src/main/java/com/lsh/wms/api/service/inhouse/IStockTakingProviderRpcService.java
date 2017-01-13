@@ -16,7 +16,7 @@ public interface IStockTakingProviderRpcService {
     void create(Long locationId,Long uid) throws BizCheckedException;
     void createTask(StockTakingHead head, List<StockTakingDetail> detailList,Long round,Long dueTime) throws BizCheckedException;
     List<StockTakingDetail> prepareDetailList(StockTakingHead head);
-    List<Long> getTakingLocation(StockTakingRequest request);
+    List<Long> getTakingLocation(StockTakingRequest request,boolean needSort);
     void createTemporary(StockTakingRequest request);
     void  updateItem(Long itemId,Long detailId,Long proDate,Long round) throws BizCheckedException;
     void confirmDetail(List<Long> detailList) throws BizCheckedException;

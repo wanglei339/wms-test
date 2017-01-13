@@ -299,4 +299,33 @@ public class StockMoveService {
         return lists.get(0);
 
     }
+    public List<Long> getMovedLocationByDate(Long beginAt,Long endAt){
+        Map<String,Object> map = new HashMap<String, Object>();
+        List<Long> locationList = new ArrayList<Long>();
+        //存储已存入List中的值，避免重复存储
+        Map<Long,Integer> savedLocation = new HashMap<Long, Integer>();
+        map.put("beginAt",beginAt);
+        map.put("endAt",endAt);
+        List<StockMove> lists = moveDao.getStockMoveList(map);
+        if (CollectionUtils.isEmpty(lists)){
+            return new ArrayList<Long>();
+        }
+        for(StockMove move:lists){
+            BaseinfoLocation fromLocation = locationService.getLocation(move.getFromLocationId());
+            BaseinfoLocation toLocation = locationService.getLocation(move.getToLocationId());
+            if(fromLocation.getCanUse().compareTo(LocationConstant.CAN_STORE)==0){
+                if(!savedLocation.containsKey(fromLocation.getLocationId())){
+                    locationList.add(fromLocation.getLocationId());
+                    savedLocation.put(fromLocation.getLocationId(),1);
+                }
+            }
+            if(toLocation.getCanUse().compareTo(LocationConstant.CAN_STORE)==0){
+                if(!savedLocation.containsKey(toLocation.getLocationId())){
+                    locationList.add(toLocation.getLocationId());
+                    savedLocation.put(toLocation.getLocationId(),1);
+                }
+            }
+        }
+        return locationList;
+    }
 }

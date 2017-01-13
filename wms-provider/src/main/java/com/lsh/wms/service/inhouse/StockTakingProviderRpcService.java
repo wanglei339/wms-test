@@ -18,6 +18,7 @@ import com.lsh.wms.core.service.csi.CsiSkuService;
 import com.lsh.wms.core.service.datareport.SkuMapService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.location.LocationService;
+import com.lsh.wms.core.service.stock.StockMoveService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.taking.StockTakingService;
 import com.lsh.wms.core.service.task.BaseTaskService;
@@ -69,13 +70,13 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
     @Autowired
     private WorkZoneService workZoneService;
     @Autowired
-    private WaveService waveService;
-    @Autowired
     private ItemService itemService;
     @Autowired
     private ContainerService containerService;
     @Autowired
     private CsiSkuService skuService;
+    @Autowired
+    private StockMoveService moveService;
     @Autowired
     private SkuMapService skuMapService;
 
@@ -299,7 +300,7 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
         logger.info(JsonUtils.SUCCESS(detailList));
         return detailList;
     }
-    public List<Long> getTakingLocation(StockTakingRequest request){
+    public List<Long> getTakingLocation(StockTakingRequest request,boolean needSort){
         List<Long> locationList = new ArrayList<Long>();
         List<Long> locations = new ArrayList<Long>();
         int locationNum= Integer.MAX_VALUE;
@@ -382,6 +383,16 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
                 locations.add(locationId);
                 i++;
             }
+        }
+        //sort location
+        List<BaseinfoLocation> sortedLocationList = new ArrayList<BaseinfoLocation>();
+        for(Long locationId:locations){
+            sortedLocationList.add(locationService.getLocation(locationId));
+        }
+        sortedLocationList  = locationService.calcZwayOrder(sortedLocationList,true);
+        locations.removeAll(locations);
+        for(BaseinfoLocation location:sortedLocationList){
+            locations.add(location.getLocationId());
         }
         return locations;
     }
@@ -478,7 +489,7 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
         }
         List<Long> locationList = new ArrayList<Long>();
         if( request.getLocationList().equals("") || request.getLocationList() ==null || request.getLocationList().equals("null")) {
-            locationList = this.getTakingLocation(request);
+            locationList = this.getTakingLocation(request,false);
         }else {
             locationList = JSON.parseArray(request.getLocationList(), Long.class);
         }
@@ -575,9 +586,9 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
         List<WorkZone> zoneList = this.getSelectedZones(zoneIds);
 
         //拉取动销库位,从wavedetail里面去拿,通过picklocation
-        long begin_at = DateUtils.getTodayBeginSeconds();
-        long end_at = DateUtils.getCurrentSeconds();
-        List<Long> pickLocations = waveService.getPickLocationsByPickTimeRegion(begin_at, end_at);
+        long beginAt = DateUtils.getTodayBeginSeconds();
+        long endAt = DateUtils.getCurrentSeconds();
+        List<Long> saleLocations = moveService.getMovedLocationByDate(beginAt, endAt);
         Set<Long> setBinDup = new HashSet<Long>();
         Map<Long, List<Long>> mapZoneBinArrs = new HashMap<Long, List<Long>>();
         for (WorkZone zone : zoneList) {
@@ -591,7 +602,7 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
                         //抛异常也行
                         continue;
                     }
-                    for (Long bin : pickLocations) {
+                    for (Long bin : saleLocations) {
                         if (location.getLocationId() <= bin && bin <= location.getRightRange()) {
                             //hehe in the zone;
                             if (!setBinDup.contains(location.getLocationId())) {

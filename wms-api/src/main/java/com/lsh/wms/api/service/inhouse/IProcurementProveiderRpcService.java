@@ -28,5 +28,4 @@ public interface IProcurementProveiderRpcService {
     void createShelfProcurementBak2(boolean canMax) throws BizCheckedException;
     void createShelfProcurementBak(boolean canMax) throws BizCheckedException;
     void createShelfProcurement(boolean canMax) throws BizCheckedException;
-    void createLoftProcurement(boolean canMax) throws BizCheckedException;
 }
