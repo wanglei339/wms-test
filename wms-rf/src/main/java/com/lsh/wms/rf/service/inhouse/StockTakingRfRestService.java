@@ -105,7 +105,7 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
             object = JSONObject.fromObject(request.get("result"));
             //库位编码
             locationCode = object.get("locationCode").toString();
-            
+
             uid =  Long.valueOf(RequestUtils.getHeader("uid"));
 
             if(object.get("taskId")!=null && !"".equals(object.get("taskId").toString())) {
@@ -129,8 +129,12 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
             //商品码
             barcode = beanMap.get("barcode").toString().trim();
             //盘点数量
-            realEaQty = new BigDecimal(beanMap.get("scatterQty").toString().trim());
-            realUmoQty = new BigDecimal(beanMap.get("qty").toString().trim());
+            if(beanMap.get("scatterQty")!=null && !beanMap.get("scatterQty").toString().trim().equals("")) {
+                realEaQty = new BigDecimal(beanMap.get("scatterQty").toString().trim());
+            }
+            if(beanMap.get("qty")!=null && !beanMap.get("qty").toString().trim().equals("")) {
+                realUmoQty = new BigDecimal(beanMap.get("qty").toString().trim());
+            }
             if(barcode != null && !"".equals(barcode)) {
                 sku = skuService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, barcode);
             }
@@ -170,7 +174,7 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
         if(!detail.getSkuId().equals(0L)) {
             csiSku = skuService.getSku(detail.getSkuId());
         }
-        if(!detail.getItemId().equals(0L)){
+        if(!detail.getItemId().equals(0L)) {
             item =  itemService.getItem(detail.getItemId());
         }
         if(detail.getTheoreticalQty().compareTo(BigDecimal.ZERO)==0){
@@ -560,7 +564,7 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
         result.put("barcode", sku == null ? "" : sku.getCode());
         result.put("skuCode", item == null ? "" : item.getSkuCode());
         result.put("packCode", item == null ? "" : item.getPackCode());
-        result.put("packName",quant==null ? "" : quantList.get(0).getPackName());
+        result.put("packName",quant ==null ? "" : quantList.get(0).getPackName());
         return JsonUtils.SUCCESS(result);
 
     }
