@@ -55,82 +55,46 @@ public class KanBanService {
         mapQuery.put("subType",subType);
         List<TaskInfo> taskInfos = taskInfoDao.getKanBanCountNew(mapQuery);
         List<WaveDetail> waveDetails = waveService.getWaveDetails(new HashMap<String, Object>());
-
         List<Map<String,Object>> resultList = new ArrayList<Map<String, Object>>();
-        List<Long> taskId1s = new ArrayList<Long>();
-        List<Long> taskId2s = new ArrayList<Long>();
-        List<Long> taskId4s = new ArrayList<Long>();
-        Set<Long> containerIds1 = new HashSet<Long>();
-        Set<Long> containerIds2 = new HashSet<Long>();
-        Set<Long> containerIds4 = new HashSet<Long>();
+        resultList.add(this.getKanBanByStatus(taskInfos,waveDetails,1L));
+        resultList.add(this.getKanBanByStatus(taskInfos,waveDetails,2L));
+        resultList.add(this.getKanBanByStatus(taskInfos,waveDetails,4L));
+        return resultList;
+    }
 
+    public Map<String,Object> getKanBanByStatus(List<TaskInfo> taskInfos,List<WaveDetail> waveDetails,Long status){
+        Map<String,Object> map = new HashMap<String, Object>();
+        Set<Long> containerIds = new HashSet<Long>();
+        List<Long> taskIds = new ArrayList<Long>();
         for (TaskInfo taskInfo : taskInfos) {
             //1待拣货,先将id统计
-            if(taskInfo.getStatus() == 1){
-                taskId1s.add(taskInfo.getTaskId());
-                containerIds1.add(taskInfo.getContainerId());
-            }else if(taskInfo.getStatus() == 2){
-                taskId2s.add(taskInfo.getTaskId());
-                containerIds2.add(taskInfo.getContainerId());
-            }else if(taskInfo.getStatus() == 4){
-                taskId4s.add(taskInfo.getTaskId());
-                containerIds4.add(taskInfo.getContainerId());
+            if(taskInfo.getStatus() == status){
+                taskIds.add(taskInfo.getTaskId());
+                containerIds.add(taskInfo.getContainerId());
             }
         }
         //统计箱数与商品数
-        BigDecimal sumQty1 = BigDecimal.ZERO;
-        BigDecimal sumQty2 = BigDecimal.ZERO;
-        BigDecimal sumQty4 = BigDecimal.ZERO;
-
-        BigDecimal packSum1 = BigDecimal.ZERO;
-        BigDecimal packSum2 = BigDecimal.ZERO;
-        BigDecimal packSum4 = BigDecimal.ZERO;
-        Set<Long> skuCode1 = new HashSet<Long>();
-        Set<Long> skuCode2 = new HashSet<Long>();
-        Set<Long> skuCode4 = new HashSet<Long>();
-
+        BigDecimal sumQty = BigDecimal.ZERO;
+        BigDecimal packSum = BigDecimal.ZERO;
+        Set<Long> skuCode = new HashSet<Long>();
         for (WaveDetail waveDetail : waveDetails) {
-            if(taskId1s != null && taskId1s.contains(waveDetail.getPickTaskId())){
-                skuCode1.add(waveDetail.getItemId());
-                sumQty1 = sumQty1.add(waveDetail.getAllocQty());
-                packSum1 = packSum1.add(waveDetail.getAllocUnitQty());
-            }else if(taskId2s != null && taskId2s.contains(waveDetail.getPickTaskId())){
-                skuCode2.add(waveDetail.getItemId());
-                sumQty2 = sumQty2.add(waveDetail.getAllocQty());
-                packSum2 = packSum2.add(waveDetail.getAllocUnitQty());
-            }else if(taskId4s != null && taskId4s.contains(waveDetail.getPickTaskId())){
-                skuCode4.add(waveDetail.getItemId());
-                sumQty4 = sumQty4.add(waveDetail.getAllocQty());
-                packSum4 = packSum4.add(waveDetail.getAllocUnitQty());
+            if(taskIds != null && taskIds.contains(waveDetail.getPickTaskId())){
+                skuCode.add(waveDetail.getItemId());
+                sumQty = sumQty.add(waveDetail.getAllocQty());
+                packSum = packSum.add(waveDetail.getAllocUnitQty());
             }
         }
-        Map<String,Object> map1 = new HashMap<String, Object>();
-        map1.put("status",1);
-        map1.put("qtyNum" , sumQty1);
-        map1.put("packNum" , packSum1);
-        map1.put("containerNum",containerIds1.size());
-        map1.put("taskNum",taskId1s.size());
-        map1.put("skuCount",skuCode1.size());
-        Map<String,Object> map2 = new HashMap<String, Object>();
-        map2.put("status",2);
-        map2.put("packNum",packSum2);
-        map2.put("qtyNum" , sumQty2);
-        map2.put("containerNum",containerIds2.size());
-        map2.put("taskNum",taskId2s.size());
-        map2.put("skuCount",skuCode2.size());
-        Map<String,Object> map4 = new HashMap<String, Object>();
-        map4.put("status",4);
-        map4.put("packNum",packSum4);
-        map4.put("qtyNum" , sumQty4);
-        map4.put("containerNum",containerIds4.size());
-        map4.put("taskNum",taskId4s.size());
-        map4.put("skuCount",skuCode4.size());
-        resultList.add(map1);
-        resultList.add(map2);
-        resultList.add(map4);
+        map.put("status",status);
+        map.put("qtyNum" , sumQty);
+        map.put("packNum" , packSum);
+        map.put("containerNum",containerIds.size());
+        map.put("taskNum",taskIds.size());
+        map.put("skuCount",skuCode.size());
+        return map;
 
-        return resultList;
     }
+
+
 
     public List<Map<String,Object>> getKanBanCountByStatus(Long type){
         return taskInfoDao.getKanBanCountByStatus(type);
