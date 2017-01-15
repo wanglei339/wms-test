@@ -8,6 +8,7 @@ import com.lsh.wms.core.constant.*;
 import com.lsh.wms.core.dao.tu.TuDetailDao;
 import com.lsh.wms.core.dao.tu.TuHeadDao;
 import com.lsh.wms.core.service.item.ItemService;
+import com.lsh.wms.core.service.key.KeyLockService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.persistence.PersistenceManager;
 import com.lsh.wms.core.service.persistence.PersistenceProxy;
@@ -16,8 +17,9 @@ import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.stock.StockMoveService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.stock.StockSummaryService;
+import com.lsh.wms.core.service.task.BaseTaskService;
+import com.lsh.wms.core.service.utils.IdGenerator;
 import com.lsh.wms.core.service.wave.WaveService;
-import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.so.ObdDetail;
 import com.lsh.wms.model.so.ObdHeader;
@@ -25,6 +27,8 @@ import com.lsh.wms.model.so.OutbDeliveryDetail;
 import com.lsh.wms.model.so.OutbDeliveryHeader;
 import com.lsh.wms.model.stock.StockMove;
 import com.lsh.wms.model.stock.StockQuant;
+import com.lsh.wms.model.task.TaskEntry;
+import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.tu.TuDetail;
 import com.lsh.wms.model.tu.TuEntry;
 import com.lsh.wms.model.tu.TuHead;
@@ -72,6 +76,12 @@ public class TuService {
     private PersistenceProxy persistenceProxy;
     @Autowired
     private StockSummaryService stockSummaryService;
+    @Autowired
+    private KeyLockService keyLockService;
+    @Autowired
+    private IdGenerator idGenerator;
+    @Autowired
+    private BaseTaskService baseTaskService;
 
     @Transactional(readOnly = false)
     public void create(TuHead head) {
@@ -225,11 +235,11 @@ public class TuService {
      * @return
      */
     @Transactional(readOnly = false)
-    public boolean moveItemToConsumeArea(Set<Long> containerIds) {
+    public boolean moveItemToConsumeArea(Set<Long> containerIds, Long taskId) {
         if (containerIds.size() == 0) {
             return true;
         }
-        stockMoveService.moveToConsume(containerIds);
+        stockMoveService.moveToConsume(containerIds, taskId);
         return true;
     }
 
@@ -388,7 +398,7 @@ public class TuService {
 
     @Transactional(readOnly = false)
     public List<WaveDetail> createObdAndMoveStockQuant(TuHead tuHead,
-                                                 List<TuDetail> tuDetails) {
+                                                       List<TuDetail> tuDetails, Long taskId) {
         Set<Long> totalContainers = new HashSet<Long>();
         //获取全量的wave_detail
         List<WaveDetail> totalWaveDetails = new ArrayList<WaveDetail>();
@@ -422,7 +432,7 @@ public class TuService {
                 header.setTransPlan(tuHead.getTuId());  //FIXME 17/1/3 路线号会有修改
                 header.setTransTime(new Date());
                 ObdHeader obdHeader = mapObdHeader.get(waveDetail.getOrderId());
-                if(obdHeader == null) {
+                if (obdHeader == null) {
                     obdHeader = soOrderService.getOutbSoHeaderByOrderId(waveDetail.getOrderId());
                     if (null == obdHeader) {
                         throw new BizCheckedException("2900007");
@@ -471,7 +481,7 @@ public class TuService {
                 //通过stock quant获取到对应的lot信息
                 Map<String, Object> mapQuery = new HashMap<String, Object>();
                 mapQuery.put("containerId", waveDetail.getContainerId());
-                mapQuery.put("itemId",waveDetail.getItemId());
+                mapQuery.put("itemId", waveDetail.getItemId());
                 //List<StockQuant> stockQuants = stockQuantService.getQuantsByContainerId(waveDetail.getContainerId());
                 List<StockQuant> stockQuants = stockQuantService.getQuants(mapQuery);
                 StockQuant stockQuant = (null != stockQuants && stockQuants.size() > 0) ? stockQuants.get(0) : null;
@@ -487,6 +497,7 @@ public class TuService {
 
             //deliveryDetails.add(deliveryDetail);
         }
+
         for (Long key : mapHeader.keySet()) {
             OutbDeliveryHeader header = mapHeader.get(key);
             List<OutbDeliveryDetail> realDetails = new LinkedList<OutbDeliveryDetail>();
@@ -571,7 +582,7 @@ public class TuService {
             /*
             这里做obd占用数量扣减
              */
-            for(OutbDeliveryDetail deliveryDetail : realDetails){
+            for (OutbDeliveryDetail deliveryDetail : realDetails) {
                 ObdHeader obdHeader = mapObdHeader.get(deliveryDetail.getOrderId());
                 StockMove move = new StockMove();
                 move.setToLocationId(locationService.getNullArea().getLocationId());
@@ -581,7 +592,11 @@ public class TuService {
                     move.setFromLocationId(locationService.getSoAreaInbound().getLocationId());
                 }
                 move.setItemId(deliveryDetail.getItemId());
-                move.setTaskId(header.getDeliveryId());
+                //此处设置taskId
+                if (null == taskId){
+                    taskId = deliveryDetail.getDeliveryId();
+                }
+                move.setTaskId(taskId);
                 move.setQty(deliveryDetail.getDeliveryNum());
                 orderTaskStockMoveList.add(move);
             }
@@ -619,10 +634,21 @@ public class TuService {
                 waveService.setStatus(iWaveId, WaveConstant.STATUS_SUCC);
             }
         }
+        //进行taskID的处理,如果是供商退货的会传入null
+        if (null == taskId) {
+            if (mapHeader.keySet().iterator().hasNext()) {
+                Long tempOrderId = mapHeader.keySet().iterator().next();
+                OutbDeliveryHeader tempHeader = mapHeader.get(tempOrderId);
+                taskId = tempHeader.getDeliveryId();
+            } else {
+                taskId = 0L;
+            }
+        }
         //这里做obd占用数量扣减
         stockMoveService.move(orderTaskStockMoveList);
         //做真实库存移动出库
-        this.moveItemToConsumeArea(totalContainers);
+        //兼容so供商退货的taskId   供商退货
+        this.moveItemToConsumeArea(totalContainers, taskId);
         return totalWaveDetails;
     }
 
@@ -653,9 +679,9 @@ public class TuService {
     */
     @Transactional(readOnly = false)
     public List<WaveDetail> createObdAndMoveStockQuantV2(TuHead tuHead,
-                                                         List<TuDetail> tuDetails) {
+                                                         List<TuDetail> tuDetails, Long taskId) throws BizCheckedException {
 
-        List<WaveDetail> totalWaveDetails = this.createObdAndMoveStockQuant(tuHead, tuDetails);
+        List<WaveDetail> totalWaveDetails = this.createObdAndMoveStockQuant(tuHead, tuDetails, taskId);
         //释放已经没有库存的集货道
         Set<Long> locationIds = new HashSet<Long>();
         for (WaveDetail detail : totalWaveDetails) {
@@ -695,5 +721,48 @@ public class TuService {
         this.createBatchDetail(tuDetails);
         return tuEntry;
     }
+
+    /**
+     * 创建tuHead 和tuDetailList
+     *
+     * @param totalWaveDetails
+     * @param tuHead
+     * @param shipTaskId
+     */
+    @Transactional(readOnly = false)
+    public void createShipTask(List<WaveDetail> totalWaveDetails, TuHead tuHead, Long shipTaskId) throws BizCheckedException {
+        //创建发货任务
+        {
+//            TaskEntry taskEntry = new TaskEntry();
+            TaskInfo shipTaskInfo = new TaskInfo();
+            shipTaskInfo.setType(TaskConstant.TYPE_TU_SHIP);
+            shipTaskInfo.setTaskId(shipTaskId);
+            shipTaskInfo.setTaskName("优供的发货任务[" + totalWaveDetails.get(0).getContainerId() + "]");
+            shipTaskInfo.setContainerId(totalWaveDetails.get(0).getContainerId());
+            shipTaskInfo.setOperator(tuHead.getLoadUid()); //一个人装车
+            shipTaskInfo.setBusinessMode(TaskConstant.MODE_INBOUND);
+            shipTaskInfo.setLocationId(totalWaveDetails.get(0).getRealCollectLocation());
+
+
+            baseTaskService.createShipTu(shipTaskInfo, totalWaveDetails);
+            shipTaskInfo.setStatus(TaskConstant.Done);
+            shipTaskInfo.setAssignTime(DateUtils.getCurrentSeconds());
+            shipTaskInfo.setFinishTime(DateUtils.getCurrentSeconds());
+            shipTaskInfo.setUpdatedAt(DateUtils.getCurrentSeconds());
+            //设置done状态
+//            taskEntry.setTaskInfo(shipTaskInfo);
+//            taskEntry.setTaskDetailList((List<Object>) (List<?>) totalWaveDetails);
+            baseTaskService.update(shipTaskInfo);
+        }
+    }
+
+    @Transactional(readOnly = false)
+    public void createTaskAndObdMove(TuHead tuHead,
+                                     List<TuDetail> tuDetails, Long shipTaskId) {
+        //销库存 写在同个事务中,生成发货单 osd的托盘生命结束,因此只能运行一次
+        List<WaveDetail> totalWaveDetails = this.createObdAndMoveStockQuantV2(tuHead, tuDetails, shipTaskId);
+        this.createShipTask(totalWaveDetails, tuHead, shipTaskId);
+    }
+
 
 }

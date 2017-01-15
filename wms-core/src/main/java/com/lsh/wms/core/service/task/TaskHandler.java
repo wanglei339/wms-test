@@ -39,6 +39,7 @@ public interface TaskHandler {
     void done(Long taskId, Long locationId, Long staffId) throws BizCheckedException;
     void done(Long taskId, List<StockMove> moveList) throws BizCheckedException;
     void cancel(Long taskId);
+    void cancel(TaskEntry entry,StockTakingHead head);
     void update(TaskEntry taskEntry);
 
     void doneConcrete(Long taskId);

@@ -17,8 +17,9 @@ public class KanBanRpcService implements IKanBanRpcService {
     @Autowired
     private KanBanService kanBanService;
 
-    public List<Map<String, Object>> getKanbanCount(Long type) {
-        return kanBanService.getKanBanCount(type);
+    public List<Map<String, Object>> getKanbanCount(Long type,Long subType) {
+        //return kanBanService.getKanBanCount(type);
+        return kanBanService.getKanBanCountNew(type,subType);
     }
 
     public List<Map<String, Object>> getPoKanbanCount(Long type) {

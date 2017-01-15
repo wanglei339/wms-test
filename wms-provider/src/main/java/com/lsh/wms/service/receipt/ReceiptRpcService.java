@@ -257,7 +257,8 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 inbReceiptDetail.setOrderId(ibdHeader.getOrderId());
 
                 //根据InbPoHeader中的OwnerUid及InbReceiptDetail中的SkuId获取Item
-                BaseinfoItem baseinfoItem = itemService.getItem(ibdHeader.getOwnerUid(), inbReceiptDetail.getSkuId());
+                //BaseinfoItem baseinfoItem = itemService.getItem(ibdHeader.getOwnerUid(), inbReceiptDetail.getSkuId());
+                BaseinfoItem baseinfoItem = itemService.getItem(receiptItem.getItemId());
                 inbReceiptDetail.setItemId(baseinfoItem.getItemId());
                 inbReceiptDetail.setBarCode(baseinfoItem.getCode());
 
@@ -423,7 +424,8 @@ public class ReceiptRpcService implements IReceiptRpcService {
                     throw new BizCheckedException("2020022");
                 }
 
-                BaseinfoItem baseinfoItem = itemService.getItem(ibdHeader.getOwnerUid(), csiSku.getSkuId());
+                //BaseinfoItem baseinfoItem = itemService.getItem(ibdHeader.getOwnerUid(), csiSku.getSkuId());
+                BaseinfoItem baseinfoItem = itemService.getItem(receiptItem.getItemId());
 
                 //根据OrderId及SkuId获取InbPoDetail
                 List<IbdDetail> ibdDetailList = poOrderService.getInbPoDetailByOrderAndSkuCode(receiptItem.getOrderId(), baseinfoItem.getSkuCode());
@@ -507,7 +509,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
                     //如果单位不为ea 判断下是否为整件
                     if(inboundUnitQty.divideAndRemainder(ibdPackUnit)[1].compareTo(BigDecimal.ZERO) == 0) {
                         obdStreamDetail.setAllocUnitName(receiptItem.getPackName());
-                        obdStreamDetail.setAllocUnitQty(PackUtil.EAQty2UomQty(inboundUnitQty,receiptItem.getPackName()));
+                        obdStreamDetail.setAllocUnitQty(PackUtil.EAQty2UomQty(inboundUnitQty,receiptItem.getPackUnit()));
                     }else{
                         obdStreamDetail.setAllocUnitName("EA");
                         obdStreamDetail.setAllocUnitQty(inboundUnitQty);
@@ -906,12 +908,14 @@ public class ReceiptRpcService implements IReceiptRpcService {
 //            ObdDetail obdDetail = obdDetails.get(0);
             item.setArriveNum(ibdDetail.getOrderQty());
             item.setOrderId(ibdHeader.getOrderId());
-            //item.setBarCode(obdDetail);
+            item.setBarCode(baseinfoItem.getCode());
+            item.setItemId(baseinfoItem.getItemId());
             item.setInboundQty(ibdDetail.getOrderQty());
             item.setPackName(ibdDetail.getPackName());
             item.setPackUnit(ibdDetail.getPackUnit());
             //item.setSkuId(obdDetail.getSkuId());
             item.setSkuId(baseinfoItem.getSkuId());
+            item.setSkuCode(baseinfoItem.getSkuCode());
             item.setSkuName(ibdDetail.getSkuName());
             item.setDetailOtherId(ibdDetail.getDetailOtherId());
             items.add(item);
@@ -1059,7 +1063,8 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 throw new BizCheckedException("2020022");
             }
             inbReceiptDetail.setSkuId(csiSku.getSkuId());
-            BaseinfoItem baseinfoItem = itemService.getItem(ibdHeader.getOwnerUid(), csiSku.getSkuId());
+            //BaseinfoItem baseinfoItem = itemService.getItem(ibdHeader.getOwnerUid(), csiSku.getSkuId());
+            BaseinfoItem baseinfoItem = itemService.getItem(receiptItem.getItemId());
             inbReceiptDetail.setItemId(baseinfoItem.getItemId());
 
             //根据OrderId及SkuCode获取InbPoDetail

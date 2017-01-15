@@ -17,10 +17,15 @@ public interface IProcurementProveiderRpcService {
     boolean addProcurementPlan (StockTransferPlan plan) throws  BizCheckedException;
     boolean updateProcurementPlan(StockTransferPlan plan)  throws BizCheckedException;
     void createProcurement(boolean canMax) throws BizCheckedException;
+    void createProcurementByMax(boolean canMax) throws BizCheckedException;
     void scanFromLocation(Map<String, Object> params) throws BizCheckedException;
     void scanToLocation(Map<String, Object> params) throws  BizCheckedException;
     Long assign(Long staffId) throws BizCheckedException;
+    void createLoftProcurement(boolean canMax) throws BizCheckedException;
     boolean checkAndFillPlan(StockTransferPlan plan) throws BizCheckedException;
     boolean checkPlan(StockTransferPlan plan) throws BizCheckedException;
     Set<Long> getOutBoundLocation(Long itemId,Long locationId);
+    void createShelfProcurementBak2(boolean canMax) throws BizCheckedException;
+    void createShelfProcurementBak(boolean canMax) throws BizCheckedException;
+    void createShelfProcurement(boolean canMax) throws BizCheckedException;
 }

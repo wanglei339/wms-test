@@ -388,6 +388,7 @@ public class AtticShelveRestService implements IAtticShelveRestService{
                 one.put("supplierId",quant.getSupplierId());
                 one.put("ownerId",quant.getOwnerId());
                 one.put("finishTime",info.getFinishTime());
+                one.put("itemId",info.getItemId());
                 resultList.add(one);
             }else {
                 AtticShelveTaskDetail detail = (AtticShelveTaskDetail)(details.get(0));
@@ -397,6 +398,7 @@ public class AtticShelveRestService implements IAtticShelveRestService{
                 one.put("supplierId",detail.getSupplierId());
                 one.put("ownerId",detail.getOwnerId());
                 one.put("finishTime",info.getFinishTime());
+                one.put("itemId",info.getItemId());
                 resultList.add(one);
             }
         }

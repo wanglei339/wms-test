@@ -30,6 +30,8 @@
 		<result property="barcode" column="barcode"/>
 		<result property="locationCode" column="location_code"/>
 		<result property="skuCode" column="sku_code"/>
+		<result property="packCode" column="pack_code"/>
+		<result property="umoQty" column="umo_qty"/>
 		<result property="skuName" column="sku_name"/>
 		<result property="status" column="status"/>
 		<result property="isFinal" column="is_final"/>
@@ -40,12 +42,12 @@
 		insert into stock_taking_detail (
 			taking_id,detail_id,round,real_qty,theoretical_qty,container_id,
 			lot_id,sku_id,real_sku_id,location_id,operator,created_at,updated_at,task_id,item_id,real_item_id,owner_id,is_valid,
-			pack_unit,pack_name,is_final,status,zone_id,price,difference_price,barcode,sku_code,sku_name,location_code,ref_task_type
+			pack_unit,pack_name,is_final,status,zone_id,price,difference_price,barcode,sku_code,sku_name,location_code,ref_task_type,pack_code,umo_qty
     	) values (
 			#{takingId},#{detailId},#{round},#{realQty},#{theoreticalQty},#{containerId},
 			#{lotId},#{skuId},#{realSkuId},#{locationId},#{operator},#{createdAt},
 			#{updatedAt},#{taskId},#{itemId},#{realItemId},#{ownerId},#{isValid},#{packUnit},#{packName},#{isFinal},#{status},#{zoneId},
-			#{price},#{differencePrice},#{barcode},#{skuCode},#{skuName},#{locationCode},#{refTaskType}
+			#{price},#{differencePrice},#{barcode},#{skuCode},#{skuName},#{locationCode},#{refTaskType},#{packCode},#{umoQty}
     	)
 	</insert>
 
@@ -54,13 +56,13 @@
 		taking_id,detail_id,round,real_qty,theoretical_qty,container_id,
 		lot_id,sku_id,real_sku_id,location_id,operator,created_at,
 		updated_at,task_id,item_id,real_item_id,owner_id,is_valid,pack_unit,pack_name,is_final,status,zone_id,
-		price,difference_price,barcode,sku_code,sku_name,location_code
+		price,difference_price,barcode,sku_code,sku_name,location_code,pack_code,umo_qty
 		) values
 		<foreach collection="list" item="item" index="index" separator="," >
 			(#{item.takingId},#{item.detailId},#{item.round},#{item.realQty},#{item.theoreticalQty},#{item.containerId},
 			#{item.lotId},#{item.skuId},#{item.realSkuId},#{item.locationId},#{item.operator},#{item.createdAt},
 			#{item.updatedAt},#{item.taskId},#{item.itemId},#{item.realItemId},#{item.ownerId},#{item.isValid},#{item.packUnit},#{item.packName},#{item.isFinal},#{item.status},#{item.zoneId},
-			#{item.price},#{item.differencePrice},#{item.barcode},#{item.skuCode},#{item.skuName},#{item.locationCode},#{item.refTaskType}
+			#{item.price},#{item.differencePrice},#{item.barcode},#{item.skuCode},#{item.skuName},#{item.locationCode},#{item.refTaskType},#{item.packCode},#{item.umoQty}
 			)
 		</foreach>
 	</insert>
@@ -97,6 +99,8 @@
 			<if test="skuName !=null">sku_name=#{skuName},</if>
 			<if test="locationCode !=null">location_code=#{locationCode},</if>
 			<if test="isFinal !=null">is_final=#{isFinal},</if>
+			<if test="umoQty !=null">umo_qty=#{umoQty},</if>
+			<if test="packCode !=null">pack_code=#{packCode},</if>
 			<if test="refTaskType !=null">ref_task_type=#{refTaskType}</if>
 		</set>
 		where id=#{id}
@@ -130,7 +134,7 @@
 
 	<select id="getStockTakingItemList" parameterType="map" resultMap="stockTakingDetailResultMap">
 		select item_id,barcode,sku_code,sku_name,pack_name,
-		sum(real_qty) as real_qty,price,sum(difference_price) as difference_price,sum(theoretical_qty) as theoretical_qty
+		sum(real_qty + umo_qty * pack_unit) as real_qty,price,sum(difference_price) as difference_price,sum(theoretical_qty) as theoretical_qty
 		from stock_taking_detail
 		<include refid="queryCondition"/>
 		group by item_id
@@ -178,6 +182,8 @@
 			<if test="barcode !=null"> and barcode=#{barcode}</if>
 			<if test="skuCode !=null"> and sku_code=#{skuCode}</if>
 			<if test="skuName !=null"> and sku_name=#{skuName}</if>
+			<if test="packCode !=null"> and pack_code=#{packCode}</if>
+			<if test="umoQty !=null"> and umo_qty=#{umoQty}</if>
 			<if test="refTaskType !=null"> and ref_task_type=#{refTaskType}</if>
 			<if test="locationCode !=null"> and location_code=#{locationCode}</if>
 			<if test="skuCodeSearch != null">and sku_code like CONCAT('%',#{skuCodeSearch},'%' )</if>

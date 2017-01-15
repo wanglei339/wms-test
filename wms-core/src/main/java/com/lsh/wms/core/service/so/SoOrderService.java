@@ -389,7 +389,7 @@ public class SoOrderService {
             waveService.insertDetail(waveDetail);
         }
         //生成obd moveStockQuant
-        tuService.createObdAndMoveStockQuant(tuHead,tuDetails);
+        tuService.createObdAndMoveStockQuant(tuHead,tuDetails,null);
 
         //退货成功修改订单状态
         this.update(obdHeader);

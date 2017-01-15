@@ -201,7 +201,7 @@
 	</select>
 
 	<select id="getPerformance" parameterType="map" resultType="java.util.HashMap">
-		select operator as uid, type, sub_type,count(id) as taskQty,
+		select group_concat(task_id) as taskIds,operator as uid, type, sub_type,business_mode,count(id) as taskQty,
 		count(distinct container_id) as containerQty, sum(task_ea_qty) as taskEaQty,
 		sum(task_pack_qty) as taskPackQty, sum(task_amount) taskAmount,ifnull(sum(task_board_qty),0) as taskBoardQty,date from task_info
 		<where>
@@ -219,7 +219,7 @@
 			<if test="startDate != null">and #{startDate} &lt;= date</if>
 			<if test="endDate != null">and date &lt;= #{endDate}</if>
 		</where>
-		 	group by operator, date, type, sub_type
+		 	group by operator, date, type, business_mode,sub_type
 			order by date desc
 		<if test="start != null and limit != null">
 			limit #{start},#{limit}
@@ -252,6 +252,11 @@
 		group by status,sub_type
 	</select>
 
+	<select id="getKanBanCountNew" parameterType="map" resultMap="taskInfoResultMap">
+		select * from task_info
+		where type = #{type} and sub_type = #{subType} and  status not in (5,6) and DATE_FORMAT(FROM_UNIXTIME(draft_time),'%Y-%m-%d')>= date_format(NOW(),'%Y-%m-%d')
+	</select>
+
 	<select id="getKanBanCountByStatus" parameterType="Long" resultType="java.util.HashMap">
 		select status, count(id) as taskNum, count(distinct container_id) as containerNum, sum(qty_done) as qtyNum from task_info
 		where type = #{type} and  status not in (5,6) and DATE_FORMAT(FROM_UNIXTIME(draft_time),'%Y-%m-%d')>= date_format(NOW(),'%Y-%m-%d')
@@ -275,7 +280,12 @@
 			<if test="skuId != null">and sku_id=#{skuId}</if>
 			<if test="ownerId != null">and owner_id=#{ownerId}</if>
 			<if test="itemId != null">and item_id=#{itemId}</if>
-
+			<if test="itemIdList != null">
+				and item_id in
+				<foreach collection="itemIdList"  item="item" index="index" open="(" separator=","  close=")">
+					#{item}
+				</foreach>
+			</if>
 			<if test="fromLocationId != null">and from_location_id=#{fromLocationId}</if>
 			<if test="fromLocationList != null">
 				and from_location_id in

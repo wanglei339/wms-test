@@ -6,15 +6,18 @@ import com.lsh.wms.core.constant.StockTakingConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.dao.task.TaskInfoDao;
 import com.lsh.wms.core.service.taking.StockTakingService;
+import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.stock.StockMove;
 import com.lsh.wms.model.system.SysLog;
 import com.lsh.wms.model.taking.StockTakingHead;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.task.TaskMsg;
+import com.lsh.wms.model.wave.WaveDetail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.PreferencesPlaceholderConfigurer;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,6 +40,8 @@ public class BaseTaskService {
     private StockTakingService stockTakingService;
     @Autowired
     private MessageService messageService;
+    @Autowired
+    private WaveService waveService;
 
 
     @Transactional(readOnly = false)
@@ -78,6 +83,26 @@ public class BaseTaskService {
         for(TaskEntry entry:entries) {
            this.cancel(entry.getTaskInfo().getTaskId(),taskHandler);
         }
+    }
+    @Transactional(readOnly = false)
+    public void cancelTask(TaskEntry entry,StockTakingHead head, TaskHandler taskHandler) throws BizCheckedException {
+        this.cancel(entry.getTaskInfo().getTaskId(), taskHandler);
+
+        //查看task是否都是取消状态，如果都是，则设置head为取消状态
+        Map<String,Object> queryMap = new HashMap<String, Object>();
+        queryMap.put("planId", head.getTakingId());
+        List<TaskInfo> infos = this.getTaskInfoList(queryMap);
+        boolean isAllCancel = true;
+        for(TaskInfo info:infos){
+            if(info.getStatus().compareTo(TaskConstant.Cancel)!=0){
+                isAllCancel = false;
+            }
+        }
+        if(isAllCancel){
+            head.setStatus(StockTakingConstant.Cancel);
+            stockTakingService.updateHead(head);
+        }
+
     }
     @Transactional(readOnly = false)
     public TaskInfo create(TaskInfo taskInfo) throws BizCheckedException {
@@ -134,6 +159,17 @@ public class BaseTaskService {
             }
         }
         return taskInfoList;
+    }
+    public boolean checkValidProcurement(Long fromLocationId) throws BizCheckedException {
+        Map<String,Object> checkMap = new HashMap<String, Object>();
+        checkMap.put("fromLocationId",fromLocationId);
+        checkMap.put("type", TaskConstant.TYPE_PROCUREMENT);
+        checkMap.put("valid",1);
+        List<TaskInfo> taskInfoList = taskInfoDao.getTaskInfoList(checkMap);
+        if (taskInfoList == null || taskInfoList.isEmpty()) {
+            return false;
+        }
+        return true;
     }
 
 
@@ -346,7 +382,7 @@ public class BaseTaskService {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("toLocationId", toLocationId);
         params.put("businessId", toLocationId);
-        params.put("taskType", taskType);
+        params.put("type", taskType);
         List<TaskInfo> taskInfos = this.getTaskInfoList(params);
         for (TaskInfo taskInfo : taskInfos) {
             if (!taskInfo.getStatus().equals(TaskConstant.Done) && !taskInfo.getStatus().equals(TaskConstant.Cancel)) {
@@ -487,6 +523,27 @@ public class BaseTaskService {
         TaskInfo info = taskInfoDao.getTaskInfoById(taskId);
         info.setPriority(newPriority);
         taskInfoDao.update(info);
+    }
+    @Transactional(readOnly = false)
+    public void createShipTu(TaskInfo  info, List<WaveDetail> details) {
+        this.create(info);
+        for(WaveDetail detail : details){
+            detail.setShipTaskId(info.getTaskId());
+            detail.setShipUid(info.getOperator());
+        }
+        waveService.updateDetails(details);
+
+    }
+
+    @Transactional(readOnly = false)
+    public void updateShipTu(TaskInfo  info, List<WaveDetail> details) {
+        this.create(info);
+        for(WaveDetail detail : details){
+            detail.setShipAt(DateUtils.getCurrentSeconds());
+        }
+        waveService.updateDetails(details);
+        taskInfoDao.update(info);
+
     }
 
     /**

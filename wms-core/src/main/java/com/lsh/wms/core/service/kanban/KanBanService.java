@@ -2,12 +2,17 @@ package com.lsh.wms.core.service.kanban;
 
 
 import com.lsh.wms.core.constant.PoConstant;
+import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.dao.po.IbdDetailDao;
 import com.lsh.wms.core.dao.po.IbdHeaderDao;
 import com.lsh.wms.core.dao.so.ObdHeaderDao;
 import com.lsh.wms.core.dao.task.TaskInfoDao;
 import com.lsh.wms.core.dao.wave.WaveHeadDao;
+import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.po.IbdHeader;
+import com.lsh.wms.model.task.TaskInfo;
+import com.lsh.wms.model.wave.WaveDetail;
+import org.apache.poi.ss.formula.functions.T;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,11 +40,61 @@ public class KanBanService {
 
     @Autowired
     private WaveHeadDao waveHeadDao;
+    @Autowired
+    private WaveService waveService;
 
 
     public List<Map<String,Object>> getKanBanCount(Long type){
+
         return taskInfoDao.getKanBanCount(type);
     }
+
+    public  List<Map<String,Object>> getKanBanCountNew(Long type,Long subType){
+        Map<String,Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("type",type);
+        mapQuery.put("subType",subType);
+        List<TaskInfo> taskInfos = taskInfoDao.getKanBanCountNew(mapQuery);
+        List<WaveDetail> waveDetails = waveService.getWaveDetails(new HashMap<String, Object>());
+        List<Map<String,Object>> resultList = new ArrayList<Map<String, Object>>();
+        resultList.add(this.getKanBanByStatus(taskInfos,waveDetails,1L));
+        resultList.add(this.getKanBanByStatus(taskInfos,waveDetails,2L));
+        resultList.add(this.getKanBanByStatus(taskInfos,waveDetails,4L));
+        return resultList;
+    }
+
+    public Map<String,Object> getKanBanByStatus(List<TaskInfo> taskInfos,List<WaveDetail> waveDetails,Long status){
+        Map<String,Object> map = new HashMap<String, Object>();
+        Set<Long> containerIds = new HashSet<Long>();
+        List<Long> taskIds = new ArrayList<Long>();
+        for (TaskInfo taskInfo : taskInfos) {
+            //1待拣货,先将id统计
+            if(taskInfo.getStatus() == status){
+                taskIds.add(taskInfo.getTaskId());
+                containerIds.add(taskInfo.getContainerId());
+            }
+        }
+        //统计箱数与商品数
+        BigDecimal sumQty = BigDecimal.ZERO;
+        BigDecimal packSum = BigDecimal.ZERO;
+        Set<Long> skuCode = new HashSet<Long>();
+        for (WaveDetail waveDetail : waveDetails) {
+            if(taskIds != null && taskIds.contains(waveDetail.getPickTaskId())){
+                skuCode.add(waveDetail.getItemId());
+                sumQty = sumQty.add(waveDetail.getAllocQty());
+                packSum = packSum.add(waveDetail.getAllocUnitQty());
+            }
+        }
+        map.put("status",status);
+        map.put("qtyNum" , sumQty);
+        map.put("packNum" , packSum);
+        map.put("containerNum",containerIds.size());
+        map.put("taskNum",taskIds.size());
+        map.put("skuCount",skuCode.size());
+        return map;
+
+    }
+
+
 
     public List<Map<String,Object>> getKanBanCountByStatus(Long type){
         return taskInfoDao.getKanBanCountByStatus(type);

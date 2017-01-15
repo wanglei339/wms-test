@@ -16,13 +16,16 @@ import com.lsh.wms.api.service.tmstu.ITmsTuService;
 import com.lsh.wms.api.service.tu.ITuRestService;
 import com.lsh.wms.api.service.tu.ITuRpcService;
 import com.lsh.wms.api.service.wumart.IWuMart;
+import com.lsh.wms.core.constant.KeyLockConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.constant.TuConstant;
+import com.lsh.wms.core.service.key.KeyLockService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.tu.TuService;
 import com.lsh.wms.core.service.utils.IdGenerator;
 import com.lsh.wms.core.service.wave.WaveService;
+import com.lsh.wms.model.key.KeyLock;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.stock.StockQuantCondition;
 import com.lsh.wms.model.task.TaskEntry;
@@ -62,6 +65,8 @@ public class TuRestService implements ITuRestService {
     private StockQuantService stockQuantService;
     @Autowired
     private LocationService locationService;
+    @Autowired
+    private KeyLockService keyLockService;
 
     @Reference
     private IStockQuantRpcService stockQuantRpcService;
@@ -145,30 +150,41 @@ public class TuRestService implements ITuRestService {
             throw new BizCheckedException("2990041");
         }
         //生成发货单 osd的托盘生命结束并销库存
-        tuService.createObdAndMoveStockQuantV2(tuHead, details);
+        //todo taskId
+        String idKey = "task_" + TaskConstant.TYPE_TU_SHIP.toString();
+        Long shipTaskId = idGenerator.genId(idKey, true, true);
+        //通过KeyLock辅助表作为请求的限制
+        try {
+            KeyLock keyLock = new KeyLock();
+            keyLock.setKeyId(tuHead.getTuId());
+            keyLock.setType(KeyLockConstant.TYPE_TU);
+            keyLockService.lockIdByInsert(keyLock);
+        } catch (Exception e) {
+            logger.info("ship tu " + tuHead.getTuId() + " more");
+            throw new BizCheckedException("2990047");
+        }
+        tuService.createObdAndMoveStockQuantV2(tuHead, details,shipTaskId);
         //TODO 后面一旦失败,用户的绩效就记不住了,这里是非常不严谨的 <写成一个任务,记个数字以后> 其实这也是个事务
-        for (TuDetail detail : details) {
-            //贵品不记录绩效
-            if (detail.getIsExpensive().equals(TuConstant.IS_EXPENSIVE)) {
-                continue;   //贵品不记录绩效
-            }
-            String idKey = "task_" + TaskConstant.TYPE_DIRECT_SHIP.toString();
-            Long shipTaskId = idGenerator.genId(idKey, true, true);
+//        for (TuDetail detail : details) {
+        //贵品不记录绩效
+//            if (detail.getIsExpensive().equals(TuConstant.IS_EXPENSIVE)) {
+//                continue;   //贵品不记录绩效
+//            }
             TaskEntry taskEntry = new TaskEntry();
             TaskInfo shipTaskInfo = new TaskInfo();
             shipTaskInfo.setTaskId(shipTaskId);
-            shipTaskInfo.setType(TaskConstant.TYPE_DIRECT_SHIP);
-            shipTaskInfo.setTaskName("门店发货任务[" + detail.getMergedContainerId() + "]");
-            shipTaskInfo.setContainerId(detail.getMergedContainerId()); //小店没和板子,就是原来了物理托盘码
+            shipTaskInfo.setType(TaskConstant.TYPE_TU_SHIP);
+            shipTaskInfo.setTaskName("门店发货任务[" + details.get(0).getMergedContainerId() + "]");
+            shipTaskInfo.setContainerId(details.get(0).getMergedContainerId()); //小店没和板子,就是原来了物理托盘码
             shipTaskInfo.setOperator(tuHead.getLoadUid()); //一个人装车
             shipTaskInfo.setBusinessMode(TaskConstant.MODE_DIRECT);
             shipTaskInfo.setSubType(TuConstant.SCALE_STORE.equals(tuHead.getScale()) ? TaskConstant.TASK_DIRECT_SMALL_SHIP : TaskConstant.TASK_DIRECT_LARGE_SHIP);
             taskEntry.setTaskInfo(shipTaskInfo);
-            iTaskRpcService.create(TaskConstant.TYPE_DIRECT_SHIP, taskEntry);
+            iTaskRpcService.create(TaskConstant.TYPE_TU_SHIP, taskEntry);
             // 直接完成
             iTaskRpcService.done(shipTaskId);
 
-        }
+//        }
         try {
             // 传给TMS运单发车信息,此过程可以重复调用
             Boolean postResult = iTmsTuRpcService.postTuDetails(tuId);

@@ -112,6 +112,12 @@
     <select id="getBaseinfoLocationList" parameterType="map" resultMap="baseinfoLocationResultMap">
         select * from baseinfo_location
         <include refid="queryCondition"/>
+        <if test='"locationCode".equals(orderBy)  and "desc".equals(orderType)'>
+            ORDER BY  location_code DESC
+        </if>
+        <if test='"locationCode".equals(orderBy)  and "asc".equals(orderType)'>
+            ORDER BY  location_code ASC
+        </if>
         <if test="start != null and limit != null">
             limit #{start},#{limit}
         </if>
@@ -185,7 +191,7 @@
         <where>
             <if test="id != null">id=#{id}</if>
             <if test="locationId != null">and location_id=#{locationId}</if>
-            <if test="locationCode != null">and location_code like CONCAT('%',#{locationCode},'%' )</if>
+            <if test="locationCode != null">and location_code like CONCAT(#{locationCode},'%' )</if>
             <if test="fatherId != null">and father_id=#{fatherId}</if>
             <if test="leftRange != null">and left_range=#{leftRange}</if>
             <if test="rightRange != null">and right_range=#{rightRange}</if>

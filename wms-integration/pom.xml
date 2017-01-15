@@ -78,13 +78,40 @@
     <!-- 针对不同运行环境的配置 -->
     <profiles>
         <profile>
-            <id>dev</id>
+            <id>wuhao</id>
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
             <properties>
                 <profile.name>dev</profile.name>
                 <log.file>/data/logs/pub-provider/provider.log</log.file>
+                <db.url>jdbc:mysql://127.0.0.1:3306/lsh_wms?useUnicode=true&amp;autoReconnect=true&amp;characterEncoding=UTF8&amp;allowMultiQueries=true</db.url>
+                <db.username>root</db.username>
+                <db.password>wuhao4830</db.password>
+                <redis.host.w>127.0.0.1</redis.host.w>
+                <redis.port.w>6379</redis.port.w>
+                <redis.passwd.w></redis.passwd.w>
+                <redis.host.r>127.0.0.1</redis.host.r>
+                <redis.port.r>6379</redis.port.r>
+                <redis.passwd.r></redis.passwd.r>
+                <upload.path.root>/data/upload/staticfile</upload.path.root>
+                <oss.file.endpoint>oss-cn-beijing.aliyuncs.com</oss.file.endpoint>
+                <oss.image.endpoint>oss-cn-beijing.aliyuncs.com</oss.image.endpoint>
+                <zookeeper.ip>127.0.0.1</zookeeper.ip>
+                <dubbo.ip>127.0.0.1</dubbo.ip>
+                <live.rest.host>127.0.0.1:8890</live.rest.host>
+                <pili.live.hubname>lsh-test</pili.live.hubname>
+                <pili.live.save.callback>http://test.api.pub.lsh.com/api/pub/java/v1/pili/tcCallback</pili.live.save.callback>
+            </properties>
+        </profile>
+        <profile>
+            <id>dev</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <profile.name>dev</profile.name>
+                <log.file>/data/logs/pub-provider</log.file>
                 <db.url>jdbc:mysql://192.168.60.48:5201/lsh_wms?useUnicode=true&amp;autoReconnect=true&amp;characterEncoding=UTF8&amp;allowMultiQueries=true</db.url>
                 <db.username>root</db.username>
                 <db.password>root123</db.password>
@@ -108,7 +135,7 @@
             <id>test</id>
             <properties>
                 <profile.name>test</profile.name>
-                <log.file>/data/logs/pub-provider/provider.log</log.file>
+                <log.file>/data/logs/pub-provider</log.file>
                 <db.url>jdbc:mysql://10.1.1.4:3306/lsh-wms?useUnicode=true&amp;autoReconnect=true&amp;characterEncoding=UTF8&amp;allowMultiQueries=true</db.url>
                 <db.username>root</db.username>
                 <db.password>lsh2015</db.password>
@@ -133,7 +160,7 @@
             <id>pro</id>
             <properties>
                 <profile.name>pro</profile.name>
-                <log.file>/data/logs/pub-provider/provider.log</log.file>
+                <log.file>/data/logs/pub-provider</log.file>
                 <db.url>jdbc:mysql://localhost:3306/lsh-pub?useUnicode=true&amp;autoReconnect=true&amp;characterEncoding=UTF8&amp;allowMultiQueries=true</db.url>
                 <db.username>lsh</db.username>
                 <db.password></db.password>

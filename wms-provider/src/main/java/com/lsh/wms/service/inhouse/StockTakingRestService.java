@@ -349,7 +349,7 @@ public class StockTakingRestService implements IStockTakingRestService {
     @POST
     @Path("getTakingLocation")
     public String getTakingLocation(StockTakingRequest request) {
-        List<Long> locations = iStockTakingProviderRpcService.getTakingLocation(request);
+        List<Long> locations = iStockTakingProviderRpcService.getTakingLocation(request,true);
         return JsonUtils.SUCCESS(locations);
     }
     @POST
@@ -544,7 +544,7 @@ public class StockTakingRestService implements IStockTakingRestService {
 //            }
 //        }
 //        return targetList;
-        List<BaseinfoLocation> baseinfoLocations =  locationService.getChildrenLocationsByType(locationId,LocationConstant.BIN);
+        List<BaseinfoLocation> baseinfoLocations =  locationService.getChildrenLocationsByCanStoreType(locationId, LocationConstant.BIN, LocationConstant.CAN_STORE);
         for(BaseinfoLocation location :baseinfoLocations){
             targetList.add(location.getLocationId());
         }
