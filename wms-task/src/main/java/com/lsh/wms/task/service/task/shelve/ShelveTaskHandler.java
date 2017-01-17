@@ -8,6 +8,7 @@ import com.lsh.wms.api.service.stock.IStockMoveRpcService;
 import com.lsh.wms.core.constant.*;
 import com.lsh.wms.core.service.container.ContainerService;
 import com.lsh.wms.core.service.item.ItemLocationService;
+import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.stock.StockLotService;
 import com.lsh.wms.core.service.stock.StockMoveService;
@@ -15,6 +16,7 @@ import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.stock.StockSummaryService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.model.baseinfo.BaseinfoContainer;
+import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.shelve.ShelveTaskHead;
@@ -63,6 +65,8 @@ public class ShelveTaskHandler extends AbsTaskHandler {
     private ItemLocationService itemLocationService;
     @Reference
     private IShelveRpcService iShelveRpcService;
+    @Autowired
+    private ItemService itemService;
 
     @PostConstruct
     public void postConstruct() {
@@ -249,8 +253,10 @@ public class ShelveTaskHandler extends AbsTaskHandler {
         taskEntry.setTaskHead(taskService.getShelveTaskHead(taskEntry.getTaskInfo().getTaskId()));
     }
     public void calcPerformance(TaskInfo taskInfo) {
-        //写入箱数
-        taskInfo.setTaskPackQty(taskInfo.getQty().divide(taskInfo.getPackUnit(), 2, BigDecimal.ROUND_DOWN));
+        //写入箱数 按商品基础数据中的箱规
+        BaseinfoItem item = itemService.getItem(taskInfo.getItemId());
+        BigDecimal packUnit = item == null ? taskInfo.getPackUnit() : item.getPackUnit();
+        taskInfo.setTaskPackQty(taskInfo.getQty().divide(packUnit, 2, BigDecimal.ROUND_DOWN));
         //taskInfo.setTaskQty(taskInfo.getQty().divide(taskInfo.getPackUnit(), 2, BigDecimal.ROUND_DOWN));
         taskInfo.setTaskEaQty(taskInfo.getQty());
         taskInfo.setQtyDone(taskInfo.getQty());
