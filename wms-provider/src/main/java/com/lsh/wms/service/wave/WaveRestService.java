@@ -315,9 +315,9 @@ public class WaveRestService implements IWaveRestService {
                 BaseinfoLocation location = locationService.getLocation(locationId);
                 if (null != location) {
                     // 暂时写死了
-                    if (location.getType().equals(LocationConstant.LOFTS)) {
+                    if (location.getRegionType().equals(LocationConstant.LOFTS)) {
                         model.setPickType(2L);
-                    } else if (location.getType().equals(LocationConstant.SPLIT_AREA)) {
+                    } else if (location.getRegionType().equals(LocationConstant.SPLIT_AREA)) {
                         model.setPickType(3L);
                     } else  {
                         model.setPickType(1L);
