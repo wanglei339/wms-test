@@ -103,14 +103,17 @@ public class StockTransferRFService implements IStockTransferRFService{
             condition.setLocationId(location.getLocationId());
             String barcode = null;
             if(params.get("barcode")!=null && params.get("barcode").toString().trim().length()>0){
-                CsiSku csiSku = itemRpcService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, params.get("barcode").toString().trim());
+               String  code = params.get("barcode").toString().trim();
+                CsiSku csiSku = itemRpcService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, code);
                 if (csiSku == null) {
-                    List<BaseinfoItem> items = itemService.getItemByPackCode(barcode);
+                    List<BaseinfoItem> items = itemService.getItemByPackCode(code);
                     if (items == null || items.size() == 0) {
-                        throw new BizCheckedException("2550068",barcode,"");
+                        throw new BizCheckedException("2550068",code,"");
                     }
-                    condition.setSkuId(items.get(0).getSkuId());
+                    condition.setItemId(items.get(0).getItemId());
+                    barcode = items.get(0).getCode();
                 }else {
+                    barcode = csiSku.getCode();
                     condition.setSkuId(csiSku.getSkuId());
                 }
             }
