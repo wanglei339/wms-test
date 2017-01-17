@@ -142,7 +142,8 @@ public class SearchRestService implements ISearchRestService{
             quantSb.append("商品编码: " + item.getSkuCode() + "\n");
             quantSb.append("商品名称: " + item.getSkuName() + "\n");
             quantSb.append("箱规 : " + item.getPackUnit().longValue() + "\n");
-            quantSb.append("数量 : " + quant.getQty().subtract(item.getPackUnit()).setScale(2, BigDecimal.ROUND_HALF_UP) + "\n");
+            quantSb.append("箱数 : " + quant.getQty().subtract(item.getPackUnit()).setScale(2, BigDecimal.ROUND_HALF_UP) + "\n");
+            quantSb.append("数量 : " + quant.getQty().setScale(2, BigDecimal.ROUND_HALF_UP) + "\n");
             //quantSb.append("货主 : " + quant.getOwnerId() + " \n ");
         }
         Map<String,Object> rep = new HashMap<String, Object>();
