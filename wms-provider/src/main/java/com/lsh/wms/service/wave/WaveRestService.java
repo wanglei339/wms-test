@@ -292,6 +292,7 @@ public class WaveRestService implements IWaveRestService {
         if(workZoneService.getWorkZone(zoneId) == null){
             throw new BizCheckedException("2040004");
         }
+        model = modelService.setPickType(model);
         try{
             modelService.createPickModel(model);
         }catch (Exception e ){
@@ -304,26 +305,8 @@ public class WaveRestService implements IWaveRestService {
     @POST
     @Path("updatePickModel")
     public String updatePickModel(PickModel model) {
+        model = modelService.setPickType(model);
         try{
-            // 根据拣货分区设置pickType
-            Long pickZoneId = model.getPickZoneId();
-            WorkZone workZone = workZoneService.getWorkZone(pickZoneId);
-            String locations = workZone.getLocations();
-            String[] locationIds = locations.split(",");
-            if (locationIds.length > 0) {
-                Long locationId = Long.valueOf(locationIds[0]);
-                BaseinfoLocation location = locationService.getLocation(locationId);
-                if (null != location) {
-                    // 暂时写死了
-                    if (location.getRegionType().equals(LocationConstant.LOFTS)) {
-                        model.setPickType(2L);
-                    } else if (location.getRegionType().equals(LocationConstant.SPLIT_AREA)) {
-                        model.setPickType(3L);
-                    } else  {
-                        model.setPickType(1L);
-                    }
-                }
-            }
             modelService.updatePickModel(model);
         }catch (Exception e){
             logger.error(e.getCause()!=null ? e.getCause().getMessage():e.getMessage());

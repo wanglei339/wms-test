@@ -2,11 +2,16 @@ package com.lsh.wms.core.service.pick;
 
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.RandomUtils;
+import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.dao.pick.PickModelDao;
 import com.lsh.wms.core.dao.pick.PickModelTemplateDao;
+import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.utils.IdGenerator;
+import com.lsh.wms.core.service.zone.WorkZoneService;
+import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.pick.PickModel;
 import com.lsh.wms.model.pick.PickModelTemplate;
+import com.lsh.wms.model.zone.WorkZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +36,10 @@ public class PickModelService {
     PickModelTemplateDao modelTemplateDao;
     @Autowired
     private IdGenerator idGenerator;
+    @Autowired
+    private WorkZoneService workZoneService;
+    @Autowired
+    private LocationService locationService;
 
     @Transactional(readOnly = false)
     public void createPickModelTemplate(PickModelTemplate tpl){
@@ -84,6 +93,29 @@ public class PickModelService {
     @Transactional(readOnly = false)
     public void updatePickModel(PickModel model){
         modelDao.update(model);
+    }
+
+    public PickModel setPickType(PickModel pickModel) {
+        // 根据拣货分区设置pickType
+        Long pickZoneId = pickModel.getPickZoneId();
+        WorkZone workZone = workZoneService.getWorkZone(pickZoneId);
+        String locations = workZone.getLocations();
+        String[] locationIds = locations.split(",");
+        if (locationIds.length > 0) {
+            Long locationId = Long.valueOf(locationIds[0]);
+            BaseinfoLocation location = locationService.getLocation(locationId);
+            if (null != location) {
+                // 暂时写死了
+                if (location.getRegionType().equals(LocationConstant.LOFTS)) {
+                    pickModel.setPickType(2L);
+                } else if (location.getRegionType().equals(LocationConstant.SPLIT_AREA)) {
+                    pickModel.setPickType(3L);
+                } else  {
+                    pickModel.setPickType(1L);
+                }
+            }
+        }
+        return pickModel;
     }
 
 }
