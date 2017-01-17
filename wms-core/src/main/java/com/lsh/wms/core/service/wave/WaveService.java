@@ -788,4 +788,13 @@ public class WaveService {
         return locationIds == null ? new LinkedList<Long>() : locationIds;
     }
 
+    @Transactional(readOnly = true)
+    public List<WaveDetail> getWaveDetailByTuDetailId(Long tuDeatilId){
+        Map<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("isValid", 1);
+        mapQuery.put("tuDeatilId", tuDeatilId);
+        List<WaveDetail> waveDetails = detailDao.getWaveDetailList(mapQuery);
+        return waveDetails == null ? new ArrayList<WaveDetail>() : waveDetails;
+    }
+
 }

@@ -402,6 +402,7 @@ public class TuService {
         Set<Long> totalContainers = new HashSet<Long>();
         //获取全量的wave_detail
         List<WaveDetail> totalWaveDetails = new ArrayList<WaveDetail>();
+        //todo 获取wave_detail的问题
         for (TuDetail detail : tuDetails) {
             List<WaveDetail> waveDetails = waveService.getAliveDetailsByContainerId(detail.getMergedContainerId());
             if (null == waveDetails || waveDetails.size() < 1) {
@@ -429,7 +430,6 @@ public class TuService {
                 header.setWarehouseId(0L);
                 header.setShippingAreaCode("" + waveDetail.getRealCollectLocation());
                 header.setWaveId(waveDetail.getWaveId());
-                header.setTransPlan(tuHead.getTuId());  //FIXME 17/1/3 路线号会有修改
                 header.setTransTime(new Date());
                 ObdHeader obdHeader = mapObdHeader.get(waveDetail.getOrderId());
                 if (obdHeader == null) {
@@ -439,6 +439,7 @@ public class TuService {
                     }
                     mapObdHeader.put(waveDetail.getOrderId(), obdHeader);
                 }
+                header.setTransPlan(obdHeader.getTransPlan());  //FIXME 17/1/3 路线号会有修改,这里需要按照线路编号写入
                 header.setDeliveryCode(obdHeader.getDeliveryCode());
                 header.setDeliveryUser(tuHead.getLoadUid().toString());
                 header.setDeliveryType(obdHeader.getOrderType());
@@ -762,6 +763,91 @@ public class TuService {
         //销库存 写在同个事务中,生成发货单 osd的托盘生命结束,因此只能运行一次
         List<WaveDetail> totalWaveDetails = this.createObdAndMoveStockQuantV2(tuHead, tuDetails, shipTaskId);
         this.createShipTask(totalWaveDetails, tuHead, shipTaskId);
+    }
+
+    @Transactional(readOnly = false)
+    public void createTuEntryByQcListAndDriverInfo(Long loadUid, String locationCodes,Map<Long, List<TaskInfo>> mergedQcListMap, TuHead driverInfo) throws BizCheckedException{
+        TuHead tuHead = new TuHead();
+        String idKey = "tuId";
+        Long tuIdStr = idGenerator.genId(idKey, true, true);
+        tuHead.setTuId(tuIdStr.toString());
+        tuHead.setType(TuConstant.TYPE_YOUGONG);
+        tuHead.setScale(0);
+        tuHead.setStatus(TuConstant.LOAD_OVER);
+        //如果没有,就缺失,别影响流程
+        tuHead.setCarNumber(driverInfo.getCarNumber());
+        tuHead.setCellphone(driverInfo.getCellphone());
+        tuHead.setTransUid(driverInfo.getTransUid());
+        tuHead.setTransPlan(driverInfo.getTransPlan());
+        tuHead.setName(driverInfo.getName());
+
+        tuHead.setPreBoard(0L);
+        tuHead.setStoreIds("");
+        tuHead.setCommitedAt(DateUtils.getCurrentSeconds());
+        tuHead.setLoadUid(loadUid);
+        tuHead.setLoadedAt(DateUtils.getCurrentSeconds());
+        tuHead.setCollectionCodes(locationCodes);
+
+        //装车数据插入
+        //一键装车物资的trick操作,如果连个托盘合起来,托盘上的周转箱物资按照最大的操作    //FIXME 以后会有合盘的操作
+        //wave_detail的回写tu_detail的业务id
+        List<TuDetail> tuDetails = new ArrayList<TuDetail>();
+        //回写的WaveDetails
+        List<WaveDetail> reWriteWaveDetails = new ArrayList<WaveDetail>();
+
+        for (Long mergedContainerId : mergedQcListMap.keySet()) {
+            List<TaskInfo> Infos = mergedQcListMap.get(mergedContainerId);
+            long boxNum = 0L;
+            long turnoverBoxNum = 0l;
+            TuDetail tuDetail = new TuDetail();
+
+            //统计箱数,周转箱按照两个托盘中最大的周转箱中的来 FIXME
+            for (TaskInfo qcInfo : Infos) {
+                boxNum += qcInfo.getExt4();    //箱数
+                if (turnoverBoxNum < qcInfo.getExt3()) {
+                    turnoverBoxNum = qcInfo.getExt3();
+                }
+            }
+            //生成tuDetail的业务id
+            String detailKey = "tuDetailId";
+            Long tuDetailId = idGenerator.genId(detailKey, true, true);
+            tuDetail.setTuDetailId(tuDetailId);
+
+            tuDetail.setTuId(tuHead.getTuId());
+            tuDetail.setMergedContainerId(mergedContainerId);
+            tuDetail.setBoxNum(new BigDecimal(boxNum)); //箱数
+            tuDetail.setContainerNum(1);     //托盘数
+            tuDetail.setTurnoverBoxNum(turnoverBoxNum); //周转箱数
+            tuDetail.setBoardNum(1L); //一板多托数量
+            tuDetail.setStoreId(0L);
+            tuDetail.setLoadAt(DateUtils.getCurrentSeconds());
+            tuDetail.setIsValid(1);
+
+            //回写tuDetail的ID到waveDetail中
+            List<WaveDetail> containerDetailList = waveService.getAliveDetailsByContainerId(mergedContainerId);
+            if (null == containerDetailList || containerDetailList.isEmpty()) {
+                containerDetailList = waveService.getWaveDetailsByMergedContainerId(mergedContainerId);
+            }
+            if (null == containerDetailList || containerDetailList.isEmpty()) {
+                logger.info("this mergedContainerId " + mergedContainerId + " has no waveDetail");
+                throw new BizCheckedException("2990054");
+            }
+            for (WaveDetail detail : containerDetailList) {
+                detail.setTuDetailId(tuDetailId);
+            }
+
+
+            reWriteWaveDetails.addAll(containerDetailList);
+            tuDetails.add(tuDetail);
+        }
+
+        TuEntry tuEntry = new TuEntry();
+        tuEntry.setTuHead(tuHead);
+        tuEntry.setTuDetails(tuDetails);
+        this.createTuEntry(tuEntry);
+
+        //更新waveDetails
+        waveService.updateDetails(reWriteWaveDetails);
     }
 
 
