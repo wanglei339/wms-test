@@ -249,7 +249,9 @@ public class ShelveTaskHandler extends AbsTaskHandler {
         taskEntry.setTaskHead(taskService.getShelveTaskHead(taskEntry.getTaskInfo().getTaskId()));
     }
     public void calcPerformance(TaskInfo taskInfo) {
-        taskInfo.setTaskQty(taskInfo.getQty().divide(taskInfo.getPackUnit(), 2, BigDecimal.ROUND_DOWN));
+        //写入箱数
+        taskInfo.setTaskPackQty(taskInfo.getQty().divide(taskInfo.getPackUnit(), 2, BigDecimal.ROUND_DOWN));
+        //taskInfo.setTaskQty(taskInfo.getQty().divide(taskInfo.getPackUnit(), 2, BigDecimal.ROUND_DOWN));
         taskInfo.setTaskEaQty(taskInfo.getQty());
         taskInfo.setQtyDone(taskInfo.getQty());
     }
