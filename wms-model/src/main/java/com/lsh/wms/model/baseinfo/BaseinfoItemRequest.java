@@ -57,6 +57,27 @@ public class BaseinfoItemRequest implements Serializable {
 	private Integer isShelfLifeValid = 1;
 	/**箱码*/
 	private String packCode;
+	/** 基本单位-长 */
+	private BigDecimal length = new BigDecimal(0);
+	/** 基本单位-宽 */
+	private BigDecimal width = new BigDecimal(0);
+	/** 基本单位-高 */
+	private BigDecimal height = new BigDecimal(0);
+//    /** 基本单位-重量 */
+//    private BigDecimal weight = new BigDecimal(0);
+	/** 2级包装－长 */
+	private BigDecimal l2Length = new BigDecimal(0);
+	/** 2级包装－宽 */
+	private BigDecimal l2Width= new BigDecimal(0);
+	/** 2级包装－高 */
+	private BigDecimal l2Height= new BigDecimal(0);
+
+	/** 外包装－长 */
+	private BigDecimal packLength= new BigDecimal(0);
+	/** 外包装－宽 */
+	private BigDecimal packWidth= new BigDecimal(0);
+	/** 外包装－高 */
+	private BigDecimal packHeight= new BigDecimal(0);
 
 
 	public Long getOwnerId(){
@@ -253,4 +274,75 @@ public class BaseinfoItemRequest implements Serializable {
 		this.packCode = packCode;
 	}
 
+	public BigDecimal getLength() {
+		return length;
+	}
+
+	public void setLength(BigDecimal length) {
+		this.length = length;
+	}
+
+	public BigDecimal getWidth() {
+		return width;
+	}
+
+	public void setWidth(BigDecimal width) {
+		this.width = width;
+	}
+
+	public BigDecimal getHeight() {
+		return height;
+	}
+
+	public void setHeight(BigDecimal height) {
+		this.height = height;
+	}
+
+	public BigDecimal getL2Length() {
+		return l2Length;
+	}
+
+	public void setL2Length(BigDecimal l2Length) {
+		this.l2Length = l2Length;
+	}
+
+	public BigDecimal getL2Width() {
+		return l2Width;
+	}
+
+	public void setL2Width(BigDecimal l2Width) {
+		this.l2Width = l2Width;
+	}
+
+	public BigDecimal getL2Height() {
+		return l2Height;
+	}
+
+	public void setL2Height(BigDecimal l2Height) {
+		this.l2Height = l2Height;
+	}
+
+	public BigDecimal getPackLength() {
+		return packLength;
+	}
+
+	public void setPackLength(BigDecimal packLength) {
+		this.packLength = packLength;
+	}
+
+	public BigDecimal getPackWidth() {
+		return packWidth;
+	}
+
+	public void setPackWidth(BigDecimal packWidth) {
+		this.packWidth = packWidth;
+	}
+
+	public BigDecimal getPackHeight() {
+		return packHeight;
+	}
+
+	public void setPackHeight(BigDecimal packHeight) {
+		this.packHeight = packHeight;
+	}
 }
