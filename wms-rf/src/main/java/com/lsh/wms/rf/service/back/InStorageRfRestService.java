@@ -6,21 +6,28 @@ import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.back.IInStorageRfRestService;
+import com.lsh.wms.api.service.item.IItemRpcService;
 import com.lsh.wms.api.service.location.ILocationRpcService;
 import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.task.ITaskRpcService;
+import com.lsh.wms.core.constant.BinUsageConstant;
+import com.lsh.wms.core.constant.CsiConstan;
 import com.lsh.wms.core.constant.LocationConstant;
-import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.csi.CsiSupplierService;
+import com.lsh.wms.core.service.item.ItemLocationService;
+import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.so.SoOrderService;
+import com.lsh.wms.core.service.stock.StockMoveService;
+import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.task.BaseTaskService;
-import com.lsh.wms.model.back.BackTaskDetail;
+import com.lsh.wms.model.baseinfo.BaseinfoItem;
+import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
-import com.lsh.wms.model.so.ObdDetail;
-import com.lsh.wms.model.so.ObdHeader;
-import com.lsh.wms.model.task.TaskEntry;
-import com.lsh.wms.model.task.TaskInfo;
+import com.lsh.wms.model.csi.CsiSku;
+import com.lsh.wms.model.stock.StockMove;
+import com.lsh.wms.model.stock.StockQuant;
+import net.sf.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +42,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by wuhao on 2016/10/21.
@@ -49,66 +58,133 @@ public class InStorageRfRestService  implements IInStorageRfRestService {
 
     @Autowired
     SoOrderService soOrderService;
+    @Autowired
+    private ItemService itemService;
+    @Reference
+    private IItemRpcService itemRpcService;
+    @Autowired
+    private ItemLocationService itemLocationService;
 
     @Reference
     private ITaskRpcService iTaskRpcService;
 
     @Autowired
     private BaseTaskService baseTaskService;
+    @Autowired
+    private StockQuantService quantService;
 
     @Autowired
     private LocationService locationService;
 
     @Autowired
     private CsiSupplierService supplierService;
+    @Autowired
+    private StockMoveService moveService;
 
     @Reference
     private ILocationRpcService locationRpcService;
     /**
-     * 获得供商库位信息
+     * 获得捡货位信息
      * @return
      * @throws BizCheckedException
      */
     @POST
-    @Path("getSupplierInfo")
+    @Path("getPickLocation")
     @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
     @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
-    public String getSupplierInfo() throws BizCheckedException {
-        String soOtherId = "";
-        Long uId = 0L;
+    public String getPickLocation() throws BizCheckedException {
+        List<String>  barcodeList= null;
+        Map<String,Object> result = new HashMap<String, Object>();
         Map<String, Object> request = RequestUtils.getRequest();
         try {
-            uId =  Long.valueOf(RequestUtils.getHeader("uid"));
-            soOtherId =request.get("soOtherId").toString().trim();
+ //           barcodeList =(List)request.get("barcodeList");
+            JSONArray jsonArray = JSONArray.fromObject(request.get("barcodeList"));
+            barcodeList = (List) JSONArray.toCollection(jsonArray,
+                    String.class);
         }catch (Exception e) {
             logger.error(e.getMessage());
             return JsonUtils.TOKEN_ERROR("参数传递格式有误");
         }
-        ObdHeader header = soOrderService.getOutbSoHeaderByOrderOtherId(soOtherId);
-        if(header == null){
-            return JsonUtils.TOKEN_ERROR("该退货供货签不存在");
+        //check 国条信息
+        boolean isAllTrue = true;
+        BaseinfoLocation backLocation = locationService.getAntiLocation();
+        StringBuilder errorStr = new StringBuilder();
+        List<Map> locationList = new ArrayList<Map>();
+        List<BaseinfoLocation> shelfLocation = new ArrayList<BaseinfoLocation>();
+        List<BaseinfoLocation> loftLocation = new ArrayList<BaseinfoLocation>();
+        Map<Long,Map> locationMap = new HashMap<Long, Map>();
+        Map<Long,Integer> itemMap = new HashMap<Long, Integer>();
+        if(barcodeList == null || barcodeList.size()==0){
+            return JsonUtils.TOKEN_ERROR("请扫国条或箱码");
         }
-        Map<String,Object> queryMap = new HashMap<String, Object>();
-        queryMap.put("orderId", header.getOrderId());
-        queryMap.put("type",TaskConstant.TYPE_BACK_IN_STORAGE);
-        List<TaskInfo> infos =  baseTaskService.getTaskInfoList(queryMap);
-        if(infos== null || infos.size()==0 ){
-            return JsonUtils.TOKEN_ERROR("入库任务不存在");
+        for(String barcode:barcodeList) {
+            barcode = barcode.trim();
+            Long itemId = 0L;
+            CsiSku csiSku = itemRpcService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, barcode);
+            if (csiSku == null) {
+                List<BaseinfoItem> items = itemService.getItemByPackCode(barcode);
+                if (items == null || items.size() == 0) {
+                    errorStr.append("国条(箱码)"+barcode+",").append("在仓库不存在").append(System.getProperty("line.separator"));
+                    isAllTrue = false;
+                    continue;
+                }
+                itemId= items.get(0).getItemId();
+            } else {
+                //货主默认为链商
+                itemId  = itemService.getItemIdBySkuAndOwner(CsiConstan.OWNER_LSH,csiSku.getSkuId());
+            }
+            if(itemMap.containsKey(itemId)){
+                continue;
+            }
+            itemMap.put(itemId,1);
+            //check itemID 在反仓区有没有库存
+            Map<String,Object> locationOne = new HashMap<String, Object>();
+            List<BaseinfoItemLocation> itemLocationList = itemLocationService.getItemLocationList(itemId);
+            if(itemLocationList ==null || itemLocationList.size() ==0){
+                isAllTrue = false;
+                errorStr.append("国条(箱码)"+barcode+",").append("在仓库没有维护捡货位").append(System.getProperty("line.separator"));
+                continue;
+            }
+            BigDecimal backQty = quantService.getQuantQtyByLocationIdAndItemId(backLocation.getLocationId(),itemId);
+            if(backQty.compareTo(BigDecimal.ZERO)==0){
+                isAllTrue = false;
+                errorStr.append("国条(箱码)"+barcode+",").append("在反仓区无库存").append(System.getProperty("line.separator"));
+                continue;
+            }
+            BaseinfoLocation pickLocation = locationService.getLocation(itemLocationList.get(0).getPickLocationid());
+            BaseinfoItem item = itemService.getItem(itemId);
+            locationOne.put("locationCode",pickLocation.getLocationCode());
+            locationOne.put("locationId",pickLocation.getLocationId());
+            locationOne.put("skuCode",item.getSkuCode());
+            if(csiSku==null) {
+                locationOne.put("barcode", item.getCode());
+            }else {
+                locationOne.put("barcode", barcode);
+            }
+            locationOne.put("packCode",item.getPackCode());
+            locationOne.put("packName",item.getPackName());
+            locationOne.put("skuName", item.getSkuName());
+            if(pickLocation.getRegionType().compareTo(LocationConstant.LOFTS) == 0) {
+                loftLocation.add(pickLocation);
+            }else {
+                shelfLocation.add(pickLocation);
+            }
+            locationMap.put(pickLocation.getLocationId(), locationOne);
         }
-        TaskInfo info = infos.get(0);
-        if(info.getStatus().compareTo(TaskConstant.Done)==0){
-            return JsonUtils.TOKEN_ERROR("该入库任务已完成");
+        if(isAllTrue) {
+            shelfLocation  = locationService.calcZwayOrder(shelfLocation,true);
+            loftLocation = locationService.calcZwayOrder(loftLocation,true);
+            for(BaseinfoLocation baseinfoLocation:shelfLocation){
+                locationList.add(locationMap.get(baseinfoLocation.getLocationId()));
+            }
+            for(BaseinfoLocation baseinfoLocation:loftLocation){
+                locationList.add(locationMap.get(baseinfoLocation.getLocationId()));
+            }
+            result.put("locationList",locationList);
+            return JsonUtils.SUCCESS(result);
+        }else {
+            return JsonUtils.TOKEN_ERROR(errorStr.toString());
         }
-        iTaskRpcService.assign(info.getTaskId(), uId);
-        Map<String,Object> result = new HashMap<String, Object>();
-        result.put("taskId", info.getTaskId().toString());
-//        List<BaseinfoLocation> locations = locationService.getLocationBySupplierNo(LocationConstant.SUPPLIER_RETURN_IN_BIN, header.getSupplierNo());
-//        if(locations==null || locations.size()==0){
-//            return JsonUtils.TOKEN_ERROR("该供商没有配入库位");
-//        }
-//        result.put("supplierName",supplierService.getSuppler(header.getSupplierNo(),header.getOwnerUid()).getSupplierName());
-//        result.put("locationCode",locations.get(0).getLocationCode());
-        return JsonUtils.SUCCESS(result);
     }
     /**
      * 获得so detail信息
@@ -121,66 +197,83 @@ public class InStorageRfRestService  implements IInStorageRfRestService {
     @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
     public String scanLocation() throws BizCheckedException {
         Map<String, Object> params = RequestUtils.getRequest();
+        Pattern pattern = Pattern.compile("[0-9]*");
         String locationCode = params.get("locationCode").toString().trim();
-        Long taskId = Long.valueOf(params.get("taskId").toString().trim());
-        BaseinfoLocation location = locationRpcService.getLocationByCode(locationCode);
-        TaskInfo info = baseTaskService.getTaskInfoById(taskId);
-        if(info==null){
-            return JsonUtils.TOKEN_ERROR("任务不存在");
-        }
-        ObdHeader header = soOrderService.getOutbSoHeaderByOrderId(info.getOrderId());
-//        if(!location.getSupplierNo().equals(header.getSupplierNo()) || location.getType().compareTo(LocationConstant.SUPPLIER_RETURN_IN_BIN)!=0) {
-//            return JsonUtils.TOKEN_ERROR("扫描库位不属于该供商入库位");
-//        }
-        Map<String,Object> query = new HashMap<String, Object>();
-        query.put("orderId",header.getOrderId());
-        List<ObdDetail> details = soOrderService.getOutbSoDetailList(query);
-        Map<String,Object> result = new HashMap<String, Object>();
-        List<Map> list = new ArrayList<Map>();
-        info.setLocationId(location.getLocationId());
-        baseTaskService.update(info);
-        result.put("taskId",taskId);
-        for(ObdDetail detail:details){
-            Map<String,Object> one = new HashMap<String, Object>();
-            one.put("skuName",detail.getSkuName());
-            one.put("packName",detail.getPackName());
-            one.put("qty",detail.getOrderQty());
-            one.put("skuId",detail.getSkuId());
-            list.add(one);
-        }
-        result.put("list",list);
-        return JsonUtils.SUCCESS(result);
-    }
-    /**
-     * 确认入库任务
-     * @return
-     * @throws BizCheckedException
-     */
-    @POST
-    @Path("backConfirm")
-    @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
-    @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
-    public String backConfirm() throws BizCheckedException {
-        Map<String, Object> params = RequestUtils.getRequest();
-        Long taskId = Long.valueOf(params.get("taskId").toString().trim());
-        Map<String,String> result = (Map)params.get("map");
-
-        TaskEntry entry = iTaskRpcService.getTaskEntryById(taskId);
-        if(entry==null){
-            return JsonUtils.TOKEN_ERROR("任务不存在");
-        }
-        List<Object> objectList = entry.getTaskDetailList();
-        List<BackTaskDetail> details = new ArrayList<BackTaskDetail>();
-        for(Object one:objectList){
-            BackTaskDetail detail = (BackTaskDetail)one;
-            if(result.get(detail.getSkuId().toString())!=null){
-                detail.setRealQty(new BigDecimal(result.get(detail.getSkuId().toString())));
+        BigDecimal umoQty = BigDecimal.ZERO;
+        BigDecimal scatterQty = BigDecimal.ZERO;
+        Long uId =  Long.valueOf(RequestUtils.getHeader("uid"));
+        if(params.get("umoQty")!=null && !params.get("umoQty").toString().trim().equals("")){
+            String umoQtyStr = params.get("umoQty").toString().trim();
+            Matcher isNum = pattern.matcher(umoQtyStr);
+            if( !isNum.matches() ){
+                return JsonUtils.TOKEN_ERROR("箱数非法");
             }
-            details.add(detail);
+            umoQty = new BigDecimal(umoQtyStr);
         }
-        entry.setTaskDetailList((List<Object>) (List<?>)details);
-        iTaskRpcService.update(TaskConstant.TYPE_BACK_IN_STORAGE,entry);
-        iTaskRpcService.done(taskId);
+        if(params.get("scatterQty")!=null && !params.get("scatterQty").toString().trim().equals("")){
+            String scatterQtyStr = params.get("scatterQty").toString().trim();
+            Matcher isNum = pattern.matcher(scatterQtyStr);
+            if( !isNum.matches() ){
+                return JsonUtils.TOKEN_ERROR("ea数非法");
+            }
+            scatterQty = new BigDecimal(scatterQtyStr);
+        }
+        BaseinfoLocation location = locationRpcService.getLocationByCode(locationCode);
+        if(location == null){
+            return JsonUtils.TOKEN_ERROR("扫描库位信息有误");
+        }
+        if(!location.getBinUsage().equals(BinUsageConstant.BIN_UASGE_PICK) && !location.getBinUsage().equals(BinUsageConstant.BIN_PICK_STORE)){
+            return JsonUtils.TOKEN_ERROR("请扫描捡货位");
+        }
+        List<BaseinfoItemLocation> itemLocationList = itemLocationService.getItemLocationByLocationId(location.getLocationId());
+        if(itemLocationList ==null){
+            return JsonUtils.TOKEN_ERROR("该捡货位未维护商品信息");
+        }
+        BaseinfoItem item = itemService.getItem(itemLocationList.get(0).getItemId());
+        BigDecimal moveQty = umoQty.multiply(item.getPackUnit()).add(scatterQty);
+        BaseinfoLocation backLocation = locationService.getAntiLocation();
+        //拿到捡货位的托盘码，如果没有，则为0
+        Long containerId = null;
+        List<Long> containerIdList = quantService.getContainerIdByLocationId(location.getLocationId());
+        if(containerIdList !=null && containerIdList.size()!=0){
+            containerId = containerIdList.get(0);
+        }
+        //move,可能有多个托盘移动
+        List<StockQuant> quants = quantService.getQuantByLocationIdAndItemId(backLocation.getLocationId(),item.getItemId());
+        Map<Long,Integer> movedContainer = new HashMap<Long, Integer>();
+        List<StockMove> moves = new ArrayList<StockMove>();
+        for(StockQuant quant :quants){
+            if(moveQty.compareTo(BigDecimal.ZERO)<=0) {
+                break;
+            }
+            if(movedContainer.containsKey(quant.getContainerId())){
+                continue;
+            }
+            BigDecimal containerQty = quantService.getQuantQtyByContainerId(quant.getContainerId());
+            StockMove move = new StockMove();
+            move.setItemId(item.getItemId());
+            move.setFromContainerId(quant.getContainerId());
+            move.setFromLocationId(backLocation.getLocationId());
+            move.setToLocationId(location.getLocationId());
+            move.setOperator(uId);
+            if(containerId!=null) {
+                move.setToContainerId(containerId);
+            }else {
+                move.setToContainerId(quant.getContainerId());
+            }
+            if(containerQty.compareTo(moveQty)<0){
+                move.setQty(containerQty);
+            }else {
+                move.setQty(moveQty);
+            }
+            moveQty  = moveQty.subtract(containerQty);
+            moves.add(move);
+            movedContainer.put(quant.getContainerId(),1);
+        }
+        if(moveQty.compareTo(BigDecimal.ZERO)>0){
+            return JsonUtils.TOKEN_ERROR("反仓区库存不足");
+        }
+        moveService.move(moves);
         return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
             {
                 put("response", true);

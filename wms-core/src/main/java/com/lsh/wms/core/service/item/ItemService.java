@@ -302,6 +302,19 @@ public class ItemService {
         }
         return skuCodes;
     }
+    /**
+     * 根据skuId + ownerId 查找商品ItemId
+     */
+    public Long getItemIdBySkuAndOwner(Long ownerId,Long skuId){
+        Map<String,Object> map = new HashMap<String, Object>();
+        map.put("ownerId", ownerId);
+        map.put("skuId", skuId);
+        List<BaseinfoItem> itemList = itemDao.getBaseinfoItemList(map);
+        if(itemList == null || itemList.size()==0){
+            return null;
+        }
+        return itemList.get(0).getItemId();
+    }
 
     /**
      * 根据itemId查询历史国条

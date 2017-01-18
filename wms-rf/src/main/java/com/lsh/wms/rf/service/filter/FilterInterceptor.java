@@ -76,7 +76,7 @@ public class FilterInterceptor{
                 //redis中获取key
                 String value = redisStringDao.get(key);
 //                //取出流水号
-//                String serialNumber = request.getHeader("serialNumber");
+                //String serialNumber = request.getHeader("serialNumber");
                 if (value == null || !value.equals(utoken)) {
                     //return ResUtils.getResponse(ResponseConstant.RES_CODE_2660003, ResponseConstant.RES_MSG_ERROR, null);
                     return JsonUtils.PARAMETER_ERROR("2660003","Token校验失败,请重新登录");
