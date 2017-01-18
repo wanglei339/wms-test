@@ -57,6 +57,27 @@ public class BaseinfoItemRequest implements Serializable {
 	private Integer isShelfLifeValid = 1;
 	/**箱码*/
 	private String packCode;
+	/** 基本单位-长 */
+	private BigDecimal length = new BigDecimal(0);
+	/** 基本单位-宽 */
+	private BigDecimal width = new BigDecimal(0);
+	/** 基本单位-高 */
+	private BigDecimal height = new BigDecimal(0);
+//    /** 基本单位-重量 */
+//    private BigDecimal weight = new BigDecimal(0);
+	/** 2级包装－长 */
+	private BigDecimal l2Length = new BigDecimal(0);
+	/** 2级包装－宽 */
+	private BigDecimal l2Width= new BigDecimal(0);
+	/** 2级包装－高 */
+	private BigDecimal l2Height= new BigDecimal(0);
+
+	/** 外包装－长 */
+	private BigDecimal packLength= new BigDecimal(0);
+	/** 外包装－宽 */
+	private BigDecimal packWidth= new BigDecimal(0);
+	/** 外包装－高 */
+	private BigDecimal packHeight= new BigDecimal(0);
 
 
 	public Long getOwnerId(){
