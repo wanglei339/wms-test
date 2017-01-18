@@ -274,4 +274,75 @@ public class BaseinfoItemRequest implements Serializable {
 		this.packCode = packCode;
 	}
 
+	public BigDecimal getLength() {
+		return length;
+	}
+
+	public void setLength(BigDecimal length) {
+		this.length = length;
+	}
+
+	public BigDecimal getWidth() {
+		return width;
+	}
+
+	public void setWidth(BigDecimal width) {
+		this.width = width;
+	}
+
+	public BigDecimal getHeight() {
+		return height;
+	}
+
+	public void setHeight(BigDecimal height) {
+		this.height = height;
+	}
+
+	public BigDecimal getL2Length() {
+		return l2Length;
+	}
+
+	public void setL2Length(BigDecimal l2Length) {
+		this.l2Length = l2Length;
+	}
+
+	public BigDecimal getL2Width() {
+		return l2Width;
+	}
+
+	public void setL2Width(BigDecimal l2Width) {
+		this.l2Width = l2Width;
+	}
+
+	public BigDecimal getL2Height() {
+		return l2Height;
+	}
+
+	public void setL2Height(BigDecimal l2Height) {
+		this.l2Height = l2Height;
+	}
+
+	public BigDecimal getPackLength() {
+		return packLength;
+	}
+
+	public void setPackLength(BigDecimal packLength) {
+		this.packLength = packLength;
+	}
+
+	public BigDecimal getPackWidth() {
+		return packWidth;
+	}
+
+	public void setPackWidth(BigDecimal packWidth) {
+		this.packWidth = packWidth;
+	}
+
+	public BigDecimal getPackHeight() {
+		return packHeight;
+	}
+
+	public void setPackHeight(BigDecimal packHeight) {
+		this.packHeight = packHeight;
+	}
 }
