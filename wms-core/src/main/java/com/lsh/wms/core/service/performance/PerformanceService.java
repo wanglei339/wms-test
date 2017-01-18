@@ -2,7 +2,9 @@ package com.lsh.wms.core.service.performance;
 
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.dao.task.TaskInfoDao;
+import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.wave.WaveService;
+import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.wave.WaveDetail;
 import org.slf4j.Logger;
@@ -11,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 
 /**
@@ -25,6 +29,8 @@ public class PerformanceService {
     private TaskInfoDao taskInfoDao;
     @Autowired
     private WaveService waveService;
+    @Autowired
+    private ItemService itemService;
 
 
     /*public List<Map<String, Object>> getPerformance(Map<String, Object> condition) {
@@ -112,18 +118,36 @@ public class PerformanceService {
         //改为list
         //Map<Long,Set<Long>> itemSetByTaskId = new HashMap<Long, Set<Long>>();
         Map<Long,List<Long>> itemListByTaskId = new HashMap<Long, List<Long>>();
+        Map<Long,BigDecimal> packTotalByTaskId = new HashMap<Long, BigDecimal>();
+        Map<Long,BaseinfoItem> baseinfoItems = new HashMap<Long, BaseinfoItem>();
+        //拣货箱数 取wave_detail 中的AllocUnitQty
         //统计每个拣货任务中的商品数
+        BigDecimal sumPack = BigDecimal.ZERO;
         for (WaveDetail waveDetail : pickWaveDetailList) {
             Long taskId = waveDetail.getPickTaskId();
             if(itemListByTaskId.get(taskId) == null){
                 itemListByTaskId.put(taskId,new ArrayList<Long>());
             }
+            if(packTotalByTaskId.get(taskId) == null){
+                packTotalByTaskId.put(taskId,BigDecimal.ZERO);
+            }
+            //每个任务中的总箱数
+            BigDecimal packUnit = BigDecimal.ONE;
+            if(baseinfoItems.get(waveDetail.getItemId()) == null){
+                packUnit = itemService.getItem(waveDetail.getItemId()).getPackUnit();
+            }else{
+                packUnit = baseinfoItems.get(waveDetail.getItemId()).getPackUnit();
+            }
 
+            sumPack = packTotalByTaskId.get(taskId).add(waveDetail.getPickQty().divide(packUnit,2, RoundingMode.HALF_UP));
+            packTotalByTaskId.put(taskId,sumPack);
+
+            //每个任务中的商品数
             List<Long> itemList = itemListByTaskId.get(taskId);
             itemList.add(waveDetail.getItemId());
             itemListByTaskId.put(taskId,itemList);
         }
-        //统计每个QC任务中的商品数
+        //统计每个QC任务中的商品条数
         for (WaveDetail waveDetail : qcWaveDetailList) {
             Long taskId = waveDetail.getQcTaskId();
             if(itemListByTaskId.get(taskId) == null){
@@ -143,11 +167,18 @@ public class PerformanceService {
                     continue;
                 }
                 List<Long> itemSet = new ArrayList<Long>();//统计每条绩效的商品sku数
+                BigDecimal packTotal = BigDecimal.ZERO;
                 for(String taskIds : taskInfoArr){
                     Long taskId = Long.parseLong(taskIds);
                     if(itemListByTaskId.get(taskId) != null){
                         itemSet.addAll(itemListByTaskId.get(taskId));
                     }
+                    if(packTotalByTaskId.get(taskId) != null){
+                        packTotal = packTotal.add(packTotalByTaskId.get(taskId));
+                    }
+                }
+                if(type == TaskConstant.TYPE_PICK){
+                    map.put("taskPackQty",packTotal);
                 }
                 map.put("skuCount",itemSet.size());
             }
