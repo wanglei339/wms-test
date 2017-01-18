@@ -355,6 +355,15 @@ public class WaveRestService implements IWaveRestService {
     }
 
     @GET
+    @Path("getWaveDetailByTuDetailId")
+    public String getWaveDetailByTuDetailId(@QueryParam("tuDetailId")Long tuDetailId) throws BizCheckedException{
+        if (null == tuDetailId){
+            throw new BizCheckedException("2990056");
+        }
+        return JsonUtils.SUCCESS(waveService.getWaveDetailByTuDetailId(tuDetailId));
+    }
+
+    @GET
     @Path("getWaveQcExceptionList")
     public String getWaveQcExceptionList(@QueryParam("waveId") long iWaveId) {
         return JsonUtils.SUCCESS(waveService.getExceptionsByWaveId(iWaveId));
@@ -458,4 +467,6 @@ public class WaveRestService implements IWaveRestService {
         }
         return JsonUtils.SUCCESS();
     }
+
+
 }

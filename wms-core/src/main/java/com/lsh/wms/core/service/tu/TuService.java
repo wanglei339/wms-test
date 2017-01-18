@@ -191,21 +191,32 @@ public class TuService {
 
     public List<TuDetail> getTuDeailList(Map<String, Object> mapQuery) {
         mapQuery.put("isValid", 1);
-        return tuDetailDao.getTuDetailList(mapQuery);
+        List<TuDetail> tuDetails = tuDetailDao.getTuDetailList(mapQuery);
+        return (null == tuDetails || tuDetails.isEmpty()) ? new ArrayList<TuDetail>() : tuDetails;
     }
 
     public List<TuDetail> getTuDeailListByMergedContainerId(Long mergedContainerId) {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("mergedContainerId", mergedContainerId);
         params.put("isValid", 1);
-        return tuDetailDao.getTuDetailList(params);
+        List<TuDetail> tuDetails = tuDetailDao.getTuDetailList(params);
+        return (null == tuDetails || tuDetails.isEmpty()) ? new ArrayList<TuDetail>() : tuDetails;
     }
 
     public List<TuDetail> getTuDeailListByTuId(String tuId) {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("tuId", tuId);
         params.put("isValid", 1);
-        return tuDetailDao.getTuDetailList(params);
+        List<TuDetail> tuDetails = tuDetailDao.getTuDetailList(params);
+        return (null == tuDetails || tuDetails.isEmpty()) ? new ArrayList<TuDetail>() : tuDetails;
+    }
+
+    public TuDetail getTuDeailListByTuDetailId(Long tuDetailId) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("tuDetailId", tuDetailId);
+        params.put("isValid", 1);
+        List<TuDetail> tuDetails = tuDetailDao.getTuDetailList(params);
+        return (null == tuDetails || tuDetails.isEmpty()) ? null : tuDetails.get(0);
     }
 
     public Integer countTuDetail(Map<String, Object> mapQuery) {
@@ -594,7 +605,7 @@ public class TuService {
                 }
                 move.setItemId(deliveryDetail.getItemId());
                 //此处设置taskId
-                if (null == taskId){
+                if (null == taskId) {
                     taskId = deliveryDetail.getDeliveryId();
                 }
                 move.setTaskId(taskId);
@@ -766,7 +777,7 @@ public class TuService {
     }
 
     @Transactional(readOnly = false)
-    public void createTuEntryByQcListAndDriverInfo(Long loadUid, String locationCodes,Map<Long, List<TaskInfo>> mergedQcListMap, TuHead driverInfo) throws BizCheckedException{
+    public void createTuEntryByQcListAndDriverInfo(Long loadUid, String locationCodes, Map<Long, List<TaskInfo>> mergedQcListMap, TuHead driverInfo) throws BizCheckedException {
         TuHead tuHead = new TuHead();
         String idKey = "tuId";
         Long tuIdStr = idGenerator.genId(idKey, true, true);

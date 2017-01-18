@@ -204,7 +204,7 @@ public class TmsTuRpc implements ITmsTuRpcService {
      */
     public static TuHead test(String transPlan) throws BizCheckedException {
         if (null == transPlan) {
-            throw new BizCheckedException("2990048");
+            throw new BizCheckedException("2990055");
         }
         Map<String, Object> request = new HashMap<String, Object>();
         request.put("transPlan", transPlan);
