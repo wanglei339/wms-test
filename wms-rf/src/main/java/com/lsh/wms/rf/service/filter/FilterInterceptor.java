@@ -76,7 +76,7 @@ public class FilterInterceptor{
                 //redis中获取key
                 String value = redisStringDao.get(key);
 //                //取出流水号
-                String serialNumber = request.getHeader("serialNumber");
+                //String serialNumber = request.getHeader("serialNumber");
                 if (value == null || !value.equals(utoken)) {
                     //return ResUtils.getResponse(ResponseConstant.RES_CODE_2660003, ResponseConstant.RES_MSG_ERROR, null);
                     return JsonUtils.PARAMETER_ERROR("2660003","Token校验失败,请重新登录");
@@ -85,26 +85,26 @@ public class FilterInterceptor{
                     //如果验证成功，说明此用户进行了一次有效操作，延长token的过期时间
                     redisStringDao.expire(key, PropertyUtils.getLong("tokenExpire"));
                     try {
-                        if(serialNumber == null){
-                            logger.info("结束时间:"+sdf.format(new Date()));
-                            return pjp.proceed();
-                        }
-                        if(redisStringDao.get(serialNumber) == null){
-                            //将结果放到redis中。
-                            logger.info("1111111111111111111111111111~~~~~~serialNumber" + serialNumber);
-                            String result = (String) pjp.proceed();
-                            redisStringDao.set(serialNumber,result);
-                            logger.info("结束时间:"+sdf.format(new Date()));
-                            logger.info("2222222222222222222222222222~~~~~~~~~~result" + result);
-                            return result;
-                            //return pjp.proceed();
-                        }
-                        else{
-                            logger.info("结束时间:"+sdf.format(new Date()));
-                            return redisStringDao.get(serialNumber);
-                        }
+//                        if(serialNumber == null){
+//                            logger.info("结束时间:"+sdf.format(new Date()));
+//                            return pjp.proceed();
+//                        }
+//                        if(redisStringDao.get(serialNumber) == null){
+//                            //将结果放到redis中。
+//                            logger.info("1111111111111111111111111111~~~~~~serialNumber" + serialNumber);
+//                            String result = (String) pjp.proceed();
+//                            redisStringDao.set(serialNumber,result);
+//                            logger.info("结束时间:"+sdf.format(new Date()));
+//                            logger.info("2222222222222222222222222222~~~~~~~~~~result" + result);
+//                            return result;
+//                            //return pjp.proceed();
+//                        }
+//                        else{
+//                            logger.info("结束时间:"+sdf.format(new Date()));
+//                            return redisStringDao.get(serialNumber);
+//                        }
 
-//                        return pjp.proceed();
+                        return pjp.proceed();
                     } catch (Throwable ex) {
                         throw ex;
 
