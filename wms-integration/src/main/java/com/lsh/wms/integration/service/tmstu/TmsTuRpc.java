@@ -5,7 +5,9 @@ import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.fastjson.JSON;
 import com.lsh.base.common.config.PropertyUtils;
 import com.lsh.base.common.exception.BizCheckedException;
+import com.lsh.base.common.net.HttpClientUtils;
 import com.lsh.base.common.utils.BeanMapTransUtils;
+import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.api.service.location.ILocationRpcService;
 import com.lsh.wms.api.service.tmstu.ITmsTuRpcService;
 import com.lsh.wms.api.service.tu.ITuRpcService;
@@ -35,7 +37,7 @@ import java.util.*;
  * Created by fengkun on 2016/11/16.
  */
 @Service(protocol = "dubbo")
-public class TmsTuRpc implements ITmsTuRpcService{
+public class TmsTuRpc implements ITmsTuRpcService {
     private static Logger logger = LoggerFactory.getLogger(TmsTu.class);
 
     @Autowired
@@ -76,7 +78,7 @@ public class TmsTuRpc implements ITmsTuRpcService{
             throw new BizCheckedException("2990037");
         }
         List<TuDetail> tuDetails = tuService.getTuDeailListByTuId(tuId);
-        List<Map<String,Object>> travelOrderList = this.getTravelOrderList(tuId);
+        List<Map<String, Object>> travelOrderList = this.getTravelOrderList(tuId);
         List<Map<String, Object>> details = new ArrayList<Map<String, Object>>();
         for (TuDetail tuDetail : tuDetails) {
             Map<String, Object> detail = BeanMapTransUtils.Bean2map(tuDetail);
@@ -110,6 +112,7 @@ public class TmsTuRpc implements ITmsTuRpcService{
 
     /**
      * 根据tu获取以门店聚类的发货单单号的list
+     *
      * @param tuId
      * @return
      * @throws BizCheckedException
@@ -192,4 +195,112 @@ public class TmsTuRpc implements ITmsTuRpcService{
     }
 
 
+    /**
+     * 使用post请求tms获取,通过线路编号获取司机的信息
+     *
+     * @param transPlan
+     * @return
+     * @throws BizCheckedException
+     */
+    public static TuHead test(String transPlan) throws BizCheckedException {
+        if (null == transPlan) {
+            throw new BizCheckedException("2990055");
+        }
+        Map<String, Object> request = new HashMap<String, Object>();
+        request.put("transPlan", transPlan);
+
+        // String url = PropertyUtils.getString("tms_trans_request_url");
+        String url = "http://qa2.market-tms.wmdev.lsh123.com/order/wave/getroutetransinfo";
+//        int tms_timeout = PropertyUtils.getInt("tms_timeout");
+//        String tms_charset = PropertyUtils.getString("tms_charset");
+//        Map<String, String> headerMap = new HashMap<String, String>();
+//        headerMap.put("Content-type", "application/json; charset=utf-8");
+//        headerMap.put("Accept", "application/json");
+//        headerMap.put("api-version", "1.1");
+//        headerMap.put("random", RandomUtils.randomStr2(32));
+//        headerMap.put("platform", "1");
+//        //String url, Map<String, String> params, int timeout, String charset, Map<String, String> headMap
+//        String res = HttpClientUtils.post(url, request, tms_timeout, tms_charset, headerMap);
+        logger.info("request tms json : " + JSON.toJSONString(request));
+        String responseBody = HttpUtils.doPostByForm(url, request);
+
+        logger.info("tms transPlan Response jsonStr :" + responseBody + "~~~~~~~~~~~~~");
+        Map<String, Object> responseMap = JSON.parseObject(responseBody, Map.class);
+        TuHead tuHead = new TuHead();
+        try {
+            logger.info("tms transPlan map " + responseMap + "~~~~~~~~~~~~~");
+
+            if (null != responseMap) {
+                Map<String,Map<String,Object>> driverInfo = (Map<String, Map<String, Object>>) responseMap.get("content");
+                if (null == driverInfo || driverInfo.isEmpty()) {
+                    throw new BizCheckedException("2990049");
+                }
+                if (null==driverInfo.get("transPlan")
+                        ||null==driverInfo.get("transUid")
+                        ||null==driverInfo.get("carNumber")
+                        ||null==driverInfo.get("name")
+                        ||null==driverInfo.get("cellphone")){
+                    throw new BizCheckedException("2990051");
+                }
+
+                tuHead.setCarNumber(driverInfo.get("carNumber").toString());
+                //tranPlan
+                tuHead.setTransPlan(driverInfo.get("transPlan").toString());
+                tuHead.setName(driverInfo.get("name").toString());
+                tuHead.setCellphone(driverInfo.get("cellphone").toString());
+                tuHead.setTransUid(Long.valueOf(driverInfo.get("cellphone").toString()));
+
+            } else {
+                throw new BizCheckedException("2990050");
+            }
+        } catch (Exception e) {
+            logger.info("抛出异常 ex:" + e);
+        }
+        return tuHead;
+    }
+    public TuHead requestTMSGetDriverInfo(String transPlan) throws BizCheckedException {
+        if (null == transPlan) {
+            throw new BizCheckedException("2990048");
+        }
+        Map<String, Object> request = new HashMap<String, Object>();
+        request.put("transPlan", transPlan);
+
+       // String url = PropertyUtils.getString("tms_trans_request_url");
+        String url = "http://qa2.market-tms.wmdev.lsh123.com/order/wave/getroutetransinfo";
+        logger.info("request tms json : " + JSON.toJSONString(request));
+        String responseBody = HttpUtils.doPostByForm(url, request);
+
+        logger.info("tms transPlan Response jsonStr :" + responseBody + "~~~~~~~~~~~~~");
+        Map<String, Map<String,Object>> responseMap = JSON.parseObject(responseBody, Map.class);
+        TuHead tuHead = new TuHead();
+        try {
+            logger.info("tms transPlan map " + responseMap.get("content") + "~~~~~~~~~~~~~");
+            if (null != responseMap) {
+                Map<String,Object> content =  responseMap.get("content");
+                if (null == content || content.isEmpty()) {
+                    throw new BizCheckedException("2990049");
+                }
+                if (null==content.get("transPlan")
+                        ||null==content.get("transUid")
+                        ||null==content.get("carNumber")
+                        ||null==content.get("name")
+                        ||null==content.get("cellphone")){
+                    throw new BizCheckedException("2990051");
+                }
+
+                tuHead.setCarNumber(content.get("carNumber").toString());
+                //tranPlan
+                tuHead.setTransPlan(content.get("transPlan").toString());
+                tuHead.setName(content.get("name").toString());
+                tuHead.setCellphone(content.get("cellphone").toString());
+                tuHead.setTransUid(Long.valueOf(content.get("cellphone").toString()));
+            } else {
+                throw new BizCheckedException("2990050");
+            }
+        } catch (Exception e) {
+            logger.info("抛出异常 ex:" + e);
+            throw new BizCheckedException("2990052");
+        }
+        return tuHead;
+    }
 }
