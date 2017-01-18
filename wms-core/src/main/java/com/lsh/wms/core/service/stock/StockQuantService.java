@@ -420,6 +420,14 @@ public class StockQuantService {
         }
         return qty;
     }
+    public List<StockQuant> getQuantByLocationIdAndItemId(Long locationId, Long itemId) {
+        Map<String, Object> queryMap = new HashMap();
+        queryMap.put("locationId", locationId);
+        queryMap.put("itemId", itemId);
+        this.prepareQuery(queryMap);
+        List<StockQuant> stockQuants = stockQuantDao.getQuants(queryMap);
+        return stockQuants;
+    }
 
     public BigDecimal getQuantQtyByContainerId(Long containerId) {
         Map<String, Object> queryMap = new HashMap();
