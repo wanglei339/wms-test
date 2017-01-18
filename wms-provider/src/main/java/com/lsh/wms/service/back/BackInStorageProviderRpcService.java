@@ -83,7 +83,6 @@ public class BackInStorageProviderRpcService implements IBackInStorageProviderRp
                 chargeMap.put(header.getOrderId(),1);
             }
         }
-
         taskRpcService.batchCreate(TaskConstant.TYPE_BACK_IN_STORAGE,entries);
 
     }

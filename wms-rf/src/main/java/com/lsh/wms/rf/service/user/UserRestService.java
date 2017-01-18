@@ -120,6 +120,7 @@ public class UserRestService implements IUserRestService {
                     put("do_load", "装车");
                     put("do_releasecollection", "一键装车");
                     put("do_search", "查询");
+                    put("do_return", "反仓");
 
                 }
             };
