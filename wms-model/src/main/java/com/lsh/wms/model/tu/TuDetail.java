@@ -61,6 +61,9 @@ public class TuDetail implements Serializable {
      */
     private Long boardNum = 1L;
 
+    /** tu_detail的业务id */
+    private Long tuDetailId;
+
     public Long getId() {
         return this.id;
     }
@@ -171,5 +174,13 @@ public class TuDetail implements Serializable {
 
     public void setBoardNum(Long boardNum) {
         this.boardNum = boardNum;
+    }
+
+    public Long getTuDetailId() {
+        return tuDetailId;
+    }
+
+    public void setTuDetailId(Long tuDetailId) {
+        this.tuDetailId = tuDetailId;
     }
 }

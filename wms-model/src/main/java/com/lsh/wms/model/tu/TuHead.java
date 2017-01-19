@@ -82,15 +82,23 @@ public class TuHead implements Serializable {
     /**
      * 仓库ID传输
      */
-    private String warehouseId="TJ";
+    private String warehouseId = "TJ";
     /**
      * 承运商名称
      */
-    private String companyName="";
+    private String companyName = "";
     /**
      * 运单类型1-门店2-优供
      */
     private Integer type;
+    /**
+     * 线路编号
+     */
+    private String transPlan;
+    /**
+     * 集货位置集合
+     */
+    private String collectionCodes="";
 
     public Long getId() {
         return this.id;
@@ -274,5 +282,21 @@ public class TuHead implements Serializable {
 
     public void setType(Integer type) {
         this.type = type;
+    }
+
+    public String getTransPlan() {
+        return transPlan;
+    }
+
+    public String getCollectionCodes() {
+        return collectionCodes;
+    }
+
+    public void setTransPlan(String transPlan) {
+        this.transPlan = transPlan;
+    }
+
+    public void setCollectionCodes(String collectionCodes) {
+        this.collectionCodes = collectionCodes;
     }
 }

@@ -8,10 +8,12 @@ import com.lsh.wms.api.service.task.ITaskRestService;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.staff.StaffService;
 import com.lsh.wms.core.service.stock.StockQuantService;
+import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.core.service.task.MessageService;
 import com.lsh.wms.model.baseinfo.BaseinfoStaffInfo;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.task.TaskEntry;
+import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.task.TaskMsg;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -41,6 +43,8 @@ public class TaskRestService implements ITaskRestService {
 
     @Autowired
     private StockQuantService quantService;
+    @Autowired
+    private BaseTaskService baseTaskService;
 
     @POST
     @Path("getTaskList")
@@ -80,6 +84,15 @@ public class TaskRestService implements ITaskRestService {
     public String getTask(@QueryParam("taskId") long taskId) throws BizCheckedException{
         TaskEntry entry = taskRpcService.getTaskEntryById(taskId);
         return JsonUtils.SUCCESS(entry);
+    }
+    @GET
+    @Path("getTaskType")
+    public String getTaskType(@QueryParam("taskId") long taskId) throws BizCheckedException{
+        TaskInfo info = baseTaskService.getTaskInfoById(taskId);
+        if(info == null){
+            return JsonUtils.SUCCESS(0);
+        }
+        return JsonUtils.SUCCESS(info.getType());
     }
     @GET
     @Path("getOldTask")

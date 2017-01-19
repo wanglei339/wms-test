@@ -228,4 +228,10 @@ public class TuRestService implements ITuRestService {
         return JsonUtils.SUCCESS();
     }
 
+    @GET
+    @Path("getTudetailByTudetailId")
+    public String getTudetailByTudetailId(@QueryParam("tuDetailId") Long tuDetailId) throws BizCheckedException {
+        return JsonUtils.SUCCESS(tuService.getTuDeailListByTuDetailId(tuDetailId));
+    }
+
 }

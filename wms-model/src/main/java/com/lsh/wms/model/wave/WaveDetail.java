@@ -120,6 +120,9 @@ public class WaveDetail implements Serializable {
 	/** 追责数量 */
 	private BigDecimal qcFaultQty = new BigDecimal("0.0000");
 
+	/** tu_detail的业务id */
+	private Long tuDetailId;
+
 
 	public Long getId(){
 		return this.id;
@@ -561,4 +564,11 @@ public class WaveDetail implements Serializable {
 		return this.pickArea;
 	}
 
+	public Long getTuDetailId() {
+		return tuDetailId;
+	}
+
+	public void setTuDetailId(Long tuDetailId) {
+		this.tuDetailId = tuDetailId;
+	}
 }
