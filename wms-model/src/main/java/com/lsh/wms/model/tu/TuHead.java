@@ -94,7 +94,7 @@ public class TuHead implements Serializable {
     /**
      * 线路编号
      */
-    private String transPlan;
+    private String transPlan ="";
     /**
      * 集货位置集合
      */
