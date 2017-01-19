@@ -209,8 +209,8 @@ public class TmsTuRpc implements ITmsTuRpcService {
         Map<String, Object> request = new HashMap<String, Object>();
         request.put("transPlan", transPlan);
 
-        // String url = PropertyUtils.getString("tms_trans_request_url");
-        String url = "http://qa2.market-tms.wmdev.lsh123.com/order/wave/getroutetransinfo";
+         String url = PropertyUtils.getString("tms_trans_request_url");
+//        String url = "http://qa2.market-tms.wmdev.lsh123.com/order/wave/getroutetransinfo";
 //        int tms_timeout = PropertyUtils.getInt("tms_timeout");
 //        String tms_charset = PropertyUtils.getString("tms_charset");
 //        Map<String, String> headerMap = new HashMap<String, String>();
@@ -265,8 +265,8 @@ public class TmsTuRpc implements ITmsTuRpcService {
         Map<String, Object> request = new HashMap<String, Object>();
         request.put("transPlan", transPlan);
 
-       // String url = PropertyUtils.getString("tms_trans_request_url");
-        String url = "http://qa2.market-tms.wmdev.lsh123.com/order/wave/getroutetransinfo";
+        String url = PropertyUtils.getString("tms_trans_request_url");
+//        String url = "http://qa2.market-tms.wmdev.lsh123.com/order/wave/getroutetransinfo";
         logger.info("request tms json : " + JSON.toJSONString(request));
         String responseBody = HttpUtils.doPostByForm(url, request);
 
@@ -303,4 +303,5 @@ public class TmsTuRpc implements ITmsTuRpcService {
         }
         return tuHead;
     }
+
 }
