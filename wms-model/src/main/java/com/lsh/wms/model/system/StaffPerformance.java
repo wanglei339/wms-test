@@ -1,14 +1,13 @@
 package com.lsh.wms.model.system;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Date;
 
 public class StaffPerformance implements Serializable {
 
 	/**  */
     private Long id;
-	/** 任务名称 */
-    private String typeName;
 	/** 操作人员id */
     private Long operator;
 	/** 任务类型 */
@@ -37,6 +36,8 @@ public class StaffPerformance implements Serializable {
     private Long createdAt;
 	/**  */
     private Long updatedAt;
+
+	private String taskIds ;//add 表中没有该字段
 	
 	public Long getId(){
 		return this.id;
@@ -45,15 +46,7 @@ public class StaffPerformance implements Serializable {
 	public void setId(Long id){
 		this.id = id;
 	}
-	
-	public String getTypeName(){
-		return this.typeName;
-	}
-	
-	public void setTypeName(String typeName){
-		this.typeName = typeName;
-	}
-	
+
 	public Long getOperator(){
 		return this.operator;
 	}
@@ -165,6 +158,13 @@ public class StaffPerformance implements Serializable {
 	public void setUpdatedAt(Long updatedAt){
 		this.updatedAt = updatedAt;
 	}
-	
-	
+
+
+	public String getTaskIds() {
+		return taskIds;
+	}
+
+	public void setTaskIds(String taskIds) {
+		this.taskIds = taskIds;
+	}
 }
