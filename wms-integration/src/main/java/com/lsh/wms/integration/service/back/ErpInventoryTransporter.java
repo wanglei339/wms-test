@@ -36,6 +36,5 @@ public class ErpInventoryTransporter implements ITransporter{
         if(overLossReport.getOwnerId().compareTo(2L)==0){
             dataBackService.erpOvLosserBack(overLossReport,sysLog);
         }
-
     }
 }
