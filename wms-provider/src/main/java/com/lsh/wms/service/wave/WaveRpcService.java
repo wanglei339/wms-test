@@ -88,7 +88,9 @@ public class WaveRpcService implements IWaveRpcService {
                 throw new BizCheckedException("2041005",orderId,"");
             }
             if(so.getWaveId() > 0){
-                throw new BizCheckedException("2041001", orderId,"");
+                //返回waveId
+                return so.getWaveId();
+                //throw new BizCheckedException("2041001", orderId,"");
             }
             /*if(order.get("transPlan") == null
                     || order.get("waveIndex") == null
