@@ -12,6 +12,7 @@ import com.lsh.wms.api.service.pick.IShipRestService;
 import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.stock.IStockQuantRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
+import com.lsh.wms.api.service.tmstu.ITmsTuRpcService;
 import com.lsh.wms.api.service.tu.ITuRpcService;
 import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.constant.TaskConstant;
@@ -74,6 +75,8 @@ public class ShipRestService implements IShipRestService {
     private TuService tuService;
     @Autowired
     private SoOrderService soOrderService;
+    @Reference
+    private ITmsTuRpcService iTmsTuRpcService;
 
     @Path("releaseCollectionRoad")
     @POST
@@ -107,7 +110,7 @@ public class ShipRestService implements IShipRestService {
     }
 
     /**
-     * 一键装车,创建tu,装车
+     * todo 修改一键装车,创建tu,装车
      *
      * @return
      * @throws BizCheckedException
@@ -125,6 +128,8 @@ public class ShipRestService implements IShipRestService {
         if (collection == null || collection.getType() != LocationConstant.COLLECTION_ROAD) {
             throw new BizCheckedException("2180026");
         }
+        //封装所有订单
+        Set<Long> orderIds = new HashSet<Long>();
         Long collectionId = collection.getLocationId();
         //获取库存
         List<StockQuant> stockQuants = stockQuantService.getQuantsByLocationId(collectionId);
@@ -141,6 +146,7 @@ public class ShipRestService implements IShipRestService {
         Set<Long> qcTaskIdDup = new HashSet<Long>();
         //通过合盘的托盘码聚合
         Map<Long, List<TaskInfo>> mergedQcListMap = new HashMap<Long, List<TaskInfo>>();
+        //封装托盘码和
         //同一个mergeContainerId的qc的list
         List<TaskInfo> qcInfoList = null;
         for (Long containerId : containterIds) {
@@ -149,6 +155,7 @@ public class ShipRestService implements IShipRestService {
             if (null == waveDetails || waveDetails.size() < 1) {
                 throw new BizCheckedException("2880012");
             }
+            //以qc维度聚类
             for (WaveDetail detail : waveDetails) {
                 if (detail.getQcTaskId() == 0) {
                     throw new BizCheckedException("2870034");
@@ -166,7 +173,7 @@ public class ShipRestService implements IShipRestService {
                     if (null != tuDetails && tuDetails.size() > 0) {
                         for (TuDetail tuDetail : tuDetails) {
                             TuHead tuHead = tuService.getHeadByTuId(tuDetail.getTuId());
-                            if (!TuConstant.SHIP_OVER.equals(tuHead.getStatus())){
+                            if (!TuConstant.SHIP_OVER.equals(tuHead.getStatus())) {
                                 throw new BizCheckedException("2130014");
                             }
                         }
@@ -184,82 +191,31 @@ public class ShipRestService implements IShipRestService {
                     qcInfoList.add(qcInfo);
                     mergedQcListMap.put(qcInfo.getMergedContainerId(), qcInfoList);
                 }
+                orderIds.add(detail.getOrderId());
             }
         }
-
-
-        //创建TU运单的head
-        TuHead tuHead = new TuHead();
-        String idKey = "tuId";
-        Long tuIdStr = idGenerator.genId(idKey, true, true);
-        tuHead.setTuId(tuIdStr.toString());
-        tuHead.setType(TuConstant.TYPE_YOUGONG);
-        tuHead.setScale(0);
-        tuHead.setStatus(TuConstant.LOAD_OVER);
-        tuHead.setCarNumber("");
-        tuHead.setCellphone("");
-        tuHead.setTransUid(loadUid);
-        tuHead.setName("");
-        tuHead.setPreBoard(0L);
-        tuHead.setStoreIds("");
-        tuHead.setCommitedAt(DateUtils.getCurrentSeconds());
-        tuHead.setLoadUid(loadUid);
-        tuHead.setLoadedAt(DateUtils.getCurrentSeconds());
-
-        //装车数据插入
-        //一键装车物资的trick操作,如果连个托盘合起来,托盘上的周转箱物资按照最大的操作    //FIXME 以后会有合盘的操作
-        List<TuDetail> tuDetails = new ArrayList<TuDetail>();
-        for (Long mergedContainerId : mergedQcListMap.keySet()) {
-            List<TaskInfo> Infos = mergedQcListMap.get(mergedContainerId);
-            long boxNum = 0L;
-            long turnoverBoxNum = 0l;
-            TuDetail tuDetail = new TuDetail();
-
-            //统计箱数,周转箱按照两个托盘中最大的周转箱中的来 FIXME
-            for (TaskInfo qcInfo : Infos) {
-                boxNum += qcInfo.getExt4();    //箱数
-                if (turnoverBoxNum < qcInfo.getExt3()) {
-                    turnoverBoxNum = qcInfo.getExt3();
-                }
-            }
-
-            tuDetail.setTuId(tuHead.getTuId());
-            tuDetail.setMergedContainerId(mergedContainerId);
-            tuDetail.setBoxNum(new BigDecimal(boxNum)); //箱数
-            tuDetail.setContainerNum(1);     //托盘数
-            tuDetail.setTurnoverBoxNum(turnoverBoxNum); //周转箱数
-            tuDetail.setBoardNum(1L); //一板多托数量
-            tuDetail.setStoreId(0L);
-            tuDetail.setLoadAt(DateUtils.getCurrentSeconds());
-            tuDetail.setIsValid(1);
-            tuDetails.add(tuDetail);
+        //根据订单获取线路号
+        if (null == orderIds || orderIds.isEmpty()) {
+            throw new BizCheckedException("2990053");
         }
-//        for (TaskInfo qcInfo : qcInfos) {
-//            TuDetail tuDetail = new TuDetail();
-//            tuDetail.setTuId(tuHead.getTuId());
-//            tuDetail.setMergedContainerId(qcInfo.getContainerId());
-//            tuDetail.setBoxNum(qcInfo.getTaskPackQty()); //总箱数
-//            tuDetail.setContainerNum(1);     //托盘数
-//            tuDetail.setTurnoverBoxNum(qcInfo.getExt3()); //周转箱数
-//            tuDetail.setBoardNum(1L); //一板多托数量
-//            tuDetail.setStoreId(0L);
-//            tuDetail.setLoadAt(DateUtils.getCurrentSeconds());
-//            tuDetail.setIsValid(1);
-//            tuDetails.add(tuDetail);
-//        }
+        //取第一线路号
+        ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderId(orderIds.iterator().next());
+        //线路号
+        String transPlan = obdHeader.getTransPlan();
+        //请求tms获取数据
+        TuHead driverInfo = iTmsTuRpcService.requestTMSGetDriverInfo(transPlan);
 
-        TuEntry tuEntry = new TuEntry();
-        tuEntry.setTuHead(tuHead);
-        tuEntry.setTuDetails(tuDetails);
-        tuService.createTuEntry(tuEntry);
+        //创建TuEntry并且回写tuDetailId到waveDetail中
+        tuService.createTuEntryByQcListAndDriverInfo(loadUid, locationCode, mergedQcListMap, driverInfo);
 
         Map<String, Object> result = new HashMap<String, Object>();
         result.put("response", true);
         return JsonUtils.SUCCESS(result);
     }
 
+
     /**
-     * 获取集货道的所有东西
+     * todo 修改获取集货道的所有东西
      *
      * @return
      * @throws BizCheckedException
@@ -270,6 +226,8 @@ public class ShipRestService implements IShipRestService {
         Map<String, Object> mapRequest = RequestUtils.getRequest();
         String locationCode = mapRequest.get("locationCode").toString();
         Long loadUid = Long.valueOf(RequestUtils.getHeader("uid").toString());
+        //结果集分装
+        Map<String, Object> result = new HashMap<String, Object>();
         if (null == locationCode || locationCode.equals("")) {
             throw new BizCheckedException("2180008");
         }
@@ -288,9 +246,11 @@ public class ShipRestService implements IShipRestService {
         for (StockQuant quant : stockQuants) {
             containterIds.add(quant.getContainerId());
         }
-
+        //封装所有的qc任务做箱数加和
         List<TaskInfo> qcInfos = new ArrayList<TaskInfo>();
         Set<Long> qcTaskIdDup = new HashSet<Long>();
+        //封装containId|mergedContainerId 的detail
+        Map<Long, List<WaveDetail>> containerId2WaveDetails = new HashMap<Long, List<WaveDetail>>();
         //qc 维度去找客户
         //一个托盘一个客户? 如果多客户一托盘,qc也不知道每个具体的箱数,用detail里的orderId是合理的
         Set<Long> orderIds = new HashSet<Long>();
@@ -319,7 +279,7 @@ public class ShipRestService implements IShipRestService {
                     if (null != tuDetails && tuDetails.size() > 0) {
                         for (TuDetail tuDetail : tuDetails) {
                             TuHead tuHead = tuService.getHeadByTuId(tuDetail.getTuId());
-                            if (!TuConstant.SHIP_OVER.equals(tuHead.getStatus())){
+                            if (!TuConstant.SHIP_OVER.equals(tuHead.getStatus())) {
                                 throw new BizCheckedException("2130014");
                             }
                         }
@@ -349,21 +309,43 @@ public class ShipRestService implements IShipRestService {
                 transPlanSet.add(obdHeader.getTransPlan());
             }
         }
-
-        //拼接线路编号
-//        String transPlan = "";
-        StringBuilder transPlan = new StringBuilder();
-        int count = 0;
-        for (String one : transPlanSet) {
-            if (count == transPlanSet.size() - 1) {
-                transPlan.append(one);
-            } else {
-                transPlan.append(one);
-                transPlan.append(",");
-            }
-            count++;
+        if (transPlanSet.isEmpty()) {
+            throw new BizCheckedException("2990052");
         }
+        //获取第一个线路号
+        String transCode = transPlanSet.iterator().next();
+        TuHead tuHead = iTmsTuRpcService.requestTMSGetDriverInfo(transCode);
+        //显示
 
+
+//        //拼接线路编号线路号只能有一个,因为线路号只能是一车
+////        String transPlan = "";
+//        StringBuilder transPlan = new StringBuilder();
+//        int count = 0;
+//        for (String one : transPlanSet) {
+//            if (count == transPlanSet.size() - 1) {
+//                transPlan.append(one);
+//            } else {
+//                transPlan.append(one);
+//                transPlan.append(",");
+//            }
+//            count++;
+//        }
+        //关于司机信息
+
+        result.put("transPlan", transCode);
+        result.put("driverName", "");
+        result.put("carNumber", "");
+        result.put("cellphone", "");
+        if (null != tuHead.getCarNumber()
+                || null != tuHead.getTransUid()
+                || null != tuHead.getCellphone()
+                || null != tuHead.getName()
+                ) {
+            result.put("driverName", tuHead.getName());
+            result.put("carNumber", tuHead.getCarNumber());
+            result.put("cellphone", tuHead.getCellphone());
+        }
 
         //箱数和周转箱的统计
         Long packCount = 0L;
@@ -374,9 +356,6 @@ public class ShipRestService implements IShipRestService {
         }
         //客户数
         int customerCount = customerInfos.size();
-
-        Map<String, Object> result = new HashMap<String, Object>();
-        result.put("transPlan", transPlan.toString());
         result.put("packCount", packCount);
         result.put("turnoverBoxNum", turnoverBoxNum);
         result.put("customerCount", customerCount);

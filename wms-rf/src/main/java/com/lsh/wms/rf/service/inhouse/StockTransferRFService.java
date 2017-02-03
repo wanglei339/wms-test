@@ -20,6 +20,7 @@ import com.lsh.wms.core.constant.CsiConstan;
 import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.dao.task.TaskInfoDao;
+import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.utils.PackUtil;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
@@ -62,6 +63,8 @@ public class StockTransferRFService implements IStockTransferRFService{
 
     @Reference
     private IItemRpcService itemRpcService;
+    @Autowired
+    private ItemService itemService;
 
     @Reference
     private ILocationRpcService locationRpcService;
@@ -100,12 +103,19 @@ public class StockTransferRFService implements IStockTransferRFService{
             condition.setLocationId(location.getLocationId());
             String barcode = null;
             if(params.get("barcode")!=null && params.get("barcode").toString().trim().length()>0){
-                CsiSku csiSku = itemRpcService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, params.get("barcode").toString().trim());
+               String  code = params.get("barcode").toString().trim();
+                CsiSku csiSku = itemRpcService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, code);
                 if (csiSku == null) {
-                    throw new BizCheckedException("2550032");
+                    List<BaseinfoItem> items = itemService.getItemByPackCode(code);
+                    if (items == null || items.size() == 0) {
+                        throw new BizCheckedException("2550068",code,"");
+                    }
+                    condition.setItemId(items.get(0).getItemId());
+                    barcode = items.get(0).getCode();
+                }else {
+                    barcode = csiSku.getCode();
+                    condition.setSkuId(csiSku.getSkuId());
                 }
-                condition.setSkuId(csiSku.getSkuId());
-                barcode = csiSku.getCode();
             }
             if(params.get("ownerId")!=null && StringUtils.isNumeric(params.get("ownerId").toString().trim())){
                 condition.setOwnerId(Long.valueOf(params.get("ownerId").toString().trim()));

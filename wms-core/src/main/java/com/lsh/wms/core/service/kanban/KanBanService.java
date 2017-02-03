@@ -76,7 +76,9 @@ public class KanBanService {
         //统计箱数与商品数
         BigDecimal sumQty = BigDecimal.ZERO;
         BigDecimal packSum = BigDecimal.ZERO;
-        Set<Long> skuCode = new HashSet<Long>();
+        //改为拣次
+        List<Long> skuCode = new ArrayList<Long>();
+//        Set<Long> skuCode = new HashSet<Long>();
         for (WaveDetail waveDetail : waveDetails) {
             if(taskIds != null && taskIds.contains(waveDetail.getPickTaskId())){
                 skuCode.add(waveDetail.getItemId());

@@ -190,6 +190,15 @@ public class ItemLocationService {
     public void updateByItemIdAndPicId(BaseinfoItemLocation baseinfoItemLocation){
         itemLocationDao.updateByItemIdAndPicId(baseinfoItemLocation);
     }
+    public List<BaseinfoItemLocation> getItemLocationByLocationId(Long locationId){
+        Map<String,Object> map = new HashMap<String, Object>();
+        map.put("pickLocationid", locationId);
+        List<BaseinfoItemLocation> itemLocations  = itemLocationDao.getBaseinfoItemLocationList(map);
+        if(itemLocations ==null || itemLocations.size()==0){
+            return null;
+        }
+        return itemLocations;
+    }
 
     public List<Map<String, String>> getPickLocationsByItemId (Long itemId) {
         List<BaseinfoItemLocation> itemLocations = this.getItemLocationList(itemId);
