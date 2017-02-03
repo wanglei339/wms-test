@@ -42,6 +42,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by wuhao on 2016/10/21.
@@ -111,6 +113,7 @@ public class InStorageRfRestService  implements IInStorageRfRestService {
         List<BaseinfoLocation> shelfLocation = new ArrayList<BaseinfoLocation>();
         List<BaseinfoLocation> loftLocation = new ArrayList<BaseinfoLocation>();
         Map<Long,Map> locationMap = new HashMap<Long, Map>();
+        Map<Long,Integer> itemMap = new HashMap<Long, Integer>();
         if(barcodeList == null || barcodeList.size()==0){
             return JsonUtils.TOKEN_ERROR("请扫国条或箱码");
         }
@@ -130,6 +133,10 @@ public class InStorageRfRestService  implements IInStorageRfRestService {
                 //货主默认为链商
                 itemId  = itemService.getItemIdBySkuAndOwner(CsiConstan.OWNER_LSH,csiSku.getSkuId());
             }
+            if(itemMap.containsKey(itemId)){
+                continue;
+            }
+            itemMap.put(itemId,1);
             //check itemID 在反仓区有没有库存
             Map<String,Object> locationOne = new HashMap<String, Object>();
             List<BaseinfoItemLocation> itemLocationList = itemLocationService.getItemLocationList(itemId);
@@ -190,15 +197,26 @@ public class InStorageRfRestService  implements IInStorageRfRestService {
     @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
     public String scanLocation() throws BizCheckedException {
         Map<String, Object> params = RequestUtils.getRequest();
+        Pattern pattern = Pattern.compile("[0-9]*");
         String locationCode = params.get("locationCode").toString().trim();
         BigDecimal umoQty = BigDecimal.ZERO;
         BigDecimal scatterQty = BigDecimal.ZERO;
         Long uId =  Long.valueOf(RequestUtils.getHeader("uid"));
         if(params.get("umoQty")!=null && !params.get("umoQty").toString().trim().equals("")){
-            umoQty = new BigDecimal(params.get("umoQty").toString().trim());
+            String umoQtyStr = params.get("umoQty").toString().trim();
+            Matcher isNum = pattern.matcher(umoQtyStr);
+            if( !isNum.matches() ){
+                return JsonUtils.TOKEN_ERROR("箱数非法");
+            }
+            umoQty = new BigDecimal(umoQtyStr);
         }
         if(params.get("scatterQty")!=null && !params.get("scatterQty").toString().trim().equals("")){
-            scatterQty = new BigDecimal(params.get("scatterQty").toString().trim());
+            String scatterQtyStr = params.get("scatterQty").toString().trim();
+            Matcher isNum = pattern.matcher(scatterQtyStr);
+            if( !isNum.matches() ){
+                return JsonUtils.TOKEN_ERROR("ea数非法");
+            }
+            scatterQty = new BigDecimal(scatterQtyStr);
         }
         BaseinfoLocation location = locationRpcService.getLocationByCode(locationCode);
         if(location == null){
