@@ -20,6 +20,7 @@ import com.lsh.wms.core.constant.TuConstant;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.stock.StockQuantService;
+import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.core.service.tu.TuService;
 import com.lsh.wms.core.service.utils.IdGenerator;
 import com.lsh.wms.core.service.wave.WaveService;
@@ -77,6 +78,8 @@ public class ShipRestService implements IShipRestService {
     private SoOrderService soOrderService;
     @Reference
     private ITmsTuRpcService iTmsTuRpcService;
+    @Autowired
+    private BaseTaskService baseTaskService;
 
     @Path("releaseCollectionRoad")
     @POST
@@ -241,6 +244,10 @@ public class ShipRestService implements IShipRestService {
         if (null == stockQuants || stockQuants.size() < 1) {
             throw new BizCheckedException("2130013");
         }
+
+        //封装waveId
+        Set<Long> waveIds = new HashSet<Long>();
+
         //找到所有的托盘
         Set<Long> containterIds = new HashSet<Long>();
         for (StockQuant quant : stockQuants) {
@@ -288,7 +295,36 @@ public class ShipRestService implements IShipRestService {
                     qcInfos.add(qcInfo);
                     qcTaskIdDup.add(detail.getQcTaskId());
                 }
+
+                if (!detail.getWaveId().equals(0L)) {
+                    waveIds.add(detail.getWaveId());
+                }
             }
+        }
+        //封装pickTaskId
+        Set<Long> pickTaskIds = new HashSet<Long>();
+        Long waveId = null;
+        if (!waveIds.isEmpty()) {
+            waveId = waveIds.iterator().next();
+        }
+        if (null == waveId) {
+            throw new BizCheckedException("2990056");
+        }
+        List<WaveDetail> allWaveDetails = waveService.getDetailsByWaveId(waveId);
+        for (WaveDetail detail : allWaveDetails) {
+            if (!detail.getPickTaskId().equals(0L)) {
+                pickTaskIds.add(detail.getPickTaskId());
+            }
+        }
+        //pickTaskinfo
+        int allPickCount = 0;
+        int donePickCount = 0;
+        for (Long taskId : pickTaskIds) {
+            TaskInfo pickTask = baseTaskService.getTaskByTaskId(taskId);
+            if (TaskConstant.Done.equals(pickTask.getStatus())) {
+                donePickCount++;
+            }
+            allPickCount++;
         }
 
         //客户id
@@ -315,22 +351,7 @@ public class ShipRestService implements IShipRestService {
         //获取第一个线路号
         String transCode = transPlanSet.iterator().next();
         TuHead tuHead = iTmsTuRpcService.requestTMSGetDriverInfo(transCode);
-        //显示
 
-
-//        //拼接线路编号线路号只能有一个,因为线路号只能是一车
-////        String transPlan = "";
-//        StringBuilder transPlan = new StringBuilder();
-//        int count = 0;
-//        for (String one : transPlanSet) {
-//            if (count == transPlanSet.size() - 1) {
-//                transPlan.append(one);
-//            } else {
-//                transPlan.append(one);
-//                transPlan.append(",");
-//            }
-//            count++;
-//        }
         //关于司机信息
 
         result.put("transPlan", transCode);
@@ -360,6 +381,9 @@ public class ShipRestService implements IShipRestService {
         result.put("turnoverBoxNum", turnoverBoxNum);
         result.put("customerCount", customerCount);
         result.put("customerList", customerInfos);
+        //已完成拣货任务的数量
+        result.put("allPickCount", allPickCount);
+        result.put("donePickCount", donePickCount);
         return JsonUtils.SUCCESS(result);
     }
 
