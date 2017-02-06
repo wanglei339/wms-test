@@ -455,11 +455,13 @@ public class QCRpcService implements IQCRpcService {
                     detail.setQcFaultQty(detail.getQcExceptionQty().abs());
                 }
                 detail.setQcQty(qty.subtract(normalQty));   //前面的都是正常的,有异常那条记录异常的数量
-                detail.setQcExceptionDone(PickConstant.QC_EXCEPTION_DONE_SKIP);
+                detail.setQcExceptionDone(PickConstant.QC_EXCEPTION_DONE_DONE);
 //                waveService.updateDetail(detail);
             } else {
                 detail.setQcExceptionDone(PickConstant.QC_EXCEPTION_DONE_NORMAL);
             }
+            //异常数量置为0
+            detail.setQcExceptionQty(BigDecimal.ZERO);
             waveService.updateDetail(detail);
         }
 
@@ -554,6 +556,8 @@ public class QCRpcService implements IQCRpcService {
             } else {
                 d.setQcExceptionDone(PickConstant.QC_EXCEPTION_DONE_NORMAL);
             }
+            //异常数量置为0
+            d.setQcExceptionQty(BigDecimal.ZERO);
             waveService.updateDetail(d);
         }
         //检验修复完毕
@@ -654,14 +658,17 @@ public class QCRpcService implements IQCRpcService {
                 }
                 detail.setQcQty(qty.subtract(normalQty));   //前面的都是正常的,有异常那条记录异常的数量
                 detail.setQcExceptionDone(PickConstant.QC_EXCEPTION_DONE_SKIP);
+                //设置异常的数量
+                detail.setQcExceptionQty(pickQty.subtract(qty));
             } else {
                 detail.setQcExceptionDone(PickConstant.QC_EXCEPTION_DONE_NORMAL);
+                detail.setQcExceptionQty(BigDecimal.ZERO);
             }
 
-            //如果qc真正缺交且数量为0,waveDetail该品is_alive置为0
-            if (qtyUom.compareTo(BigDecimal.ZERO) == 0) {
-                detail.setIsAlive(0L);
-            }
+//            //如果qc真正缺交且数量为0,waveDetail该品is_alive置为0
+//            if (qtyUom.compareTo(BigDecimal.ZERO) == 0) {
+//                detail.setIsAlive(0L);
+//            }
             waveService.updateDetail(detail);
         }
 
