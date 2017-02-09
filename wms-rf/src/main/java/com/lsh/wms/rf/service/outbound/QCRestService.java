@@ -551,6 +551,9 @@ public class QCRestService implements IRFQCRestService {
         //校验qc任务是否完全完成;
         boolean bSucc = true;
         BigDecimal sumEAQty = new BigDecimal("0.0000");
+
+        //如果商品的数量确实缺交,就不应该有该商品的出库记录了,is_alive置为0
+        List<WaveDetail> deathDetails = new ArrayList<WaveDetail>();
         //不能组盘的时候,PC忽略异常
         for (WaveDetail d : details) {
             if (d.getQcExceptionDone().equals(WaveConstant.QC_EXCEPTION_STATUS_UNDO)) {
@@ -560,6 +563,10 @@ public class QCRestService implements IRFQCRestService {
             sumEAQty = sumEAQty.add(d.getPickQty());
             //计算QC的任务量
             //TODO QC TaSK qTY
+            if (d.getQcQty().compareTo(BigDecimal.ZERO)==0){
+                d.setIsAlive(0L);
+                deathDetails.add(d);
+            }
         }
         if (!bSucc) {
             throw new BizCheckedException("2120004");
@@ -579,8 +586,12 @@ public class QCRestService implements IRFQCRestService {
             entry.setTaskDetailList((List<Object>) (List<?>) details);
             iTaskRpcService.update(TaskConstant.TYPE_QC, entry);
             iTaskRpcService.done(qcTaskId, qcTaskInfo.getLocationId());
-        }
 
+            //将出库为0的商品记录消掉
+            if (!deathDetails.isEmpty()){
+                waveService.updateDetails(deathDetails);
+            }
+        }
         return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
             {
                 put("response", true);
