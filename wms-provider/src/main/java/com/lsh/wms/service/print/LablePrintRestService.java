@@ -57,8 +57,6 @@ public class LablePrintRestService implements ILablePrintRestService {
 
             }
                 return JsonUtils.TOKEN_ERROR("参数错误");
-
-
     }
 
     //批量生成合板标识码
