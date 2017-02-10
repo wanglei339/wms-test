@@ -25,5 +25,5 @@ public interface ITaskRestService {
     String processTaskMsg(Long id) throws BizCheckedException;
     String countTaskMsg(Map<String, Object> mapQuery) throws BizCheckedException;
     String getTaskMsgList(Map<String, Object> mapQuery) throws BizCheckedException;
-
+    String getDoneTasksByIds(Map<String, Object> mapQuery) throws BizCheckedException;
 }
