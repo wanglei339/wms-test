@@ -34,5 +34,7 @@ public interface TaskInfoDao {
 
     TaskInfo lockById(Long taskId);
 
+    List<TaskInfo> getDoneTasksByIds(Map<String, Object> params);
+
 
 }
