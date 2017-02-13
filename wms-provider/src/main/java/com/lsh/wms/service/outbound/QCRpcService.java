@@ -406,14 +406,11 @@ public class QCRpcService implements IQCRpcService {
         if (null == obdHeader) {
             throw new BizCheckedException("2870006");
         }
-        BaseinfoItem item = itemService.getItem(obdHeader.getOwnerUid(), skuId);
-        if (null == item) {
-            throw new BizCheckedException("2120001");
-        }
+        BaseinfoItem item = getItem(obdHeader.getOwnerUid(),code);
 
-        Map<String,Object> detailQuery = new HashMap<String, Object>();
-        detailQuery.put("containerId",containerId);
-        detailQuery.put("itemId",item.getItemId());
+        Map<String, Object> detailQuery = new HashMap<String, Object>();
+        detailQuery.put("containerId", containerId);
+        detailQuery.put("itemId", item.getItemId());
         detailQuery.put("isValid", 1);
         detailQuery.put("isAlive", 1);
         List<WaveDetail> waveDetails = waveService.getWaveDetails(detailQuery);
@@ -458,11 +455,13 @@ public class QCRpcService implements IQCRpcService {
                     detail.setQcFaultQty(detail.getQcExceptionQty().abs());
                 }
                 detail.setQcQty(qty.subtract(normalQty));   //前面的都是正常的,有异常那条记录异常的数量
-                detail.setQcExceptionDone(PickConstant.QC_EXCEPTION_DONE_SKIP);
+                detail.setQcExceptionDone(PickConstant.QC_EXCEPTION_DONE_DONE);
 //                waveService.updateDetail(detail);
             } else {
                 detail.setQcExceptionDone(PickConstant.QC_EXCEPTION_DONE_NORMAL);
             }
+            //异常数量置为0
+            detail.setQcExceptionQty(BigDecimal.ZERO);
             waveService.updateDetail(detail);
         }
 
@@ -509,14 +508,11 @@ public class QCRpcService implements IQCRpcService {
         if (null == obdHeader) {
             throw new BizCheckedException("2870006");
         }
-        BaseinfoItem item = itemService.getItem(obdHeader.getOwnerUid(), skuId);
-        if (null == item) {
-            throw new BizCheckedException("2120001");
-        }
+       BaseinfoItem item = getItem(obdHeader.getOwnerUid(),code);
 
-        Map<String,Object> detailQuery = new HashMap<String, Object>();
-        detailQuery.put("containerId",containerId);
-        detailQuery.put("itemId",item.getItemId());
+        Map<String, Object> detailQuery = new HashMap<String, Object>();
+        detailQuery.put("containerId", containerId);
+        detailQuery.put("itemId", item.getItemId());
         detailQuery.put("isValid", 1);
         detailQuery.put("isAlive", 1);
         List<WaveDetail> waveDetails = waveService.getWaveDetails(detailQuery);
@@ -560,6 +556,8 @@ public class QCRpcService implements IQCRpcService {
             } else {
                 d.setQcExceptionDone(PickConstant.QC_EXCEPTION_DONE_NORMAL);
             }
+            //异常数量置为0
+            d.setQcExceptionQty(BigDecimal.ZERO);
             waveService.updateDetail(d);
         }
         //检验修复完毕
@@ -573,7 +571,7 @@ public class QCRpcService implements IQCRpcService {
     }
 
     /**
-     * 丢掉的库存放在盘亏盘盈区
+     * 丢掉的库存放在差异区
      *
      * @param request
      * @return
@@ -612,14 +610,11 @@ public class QCRpcService implements IQCRpcService {
         if (null == obdHeader) {
             throw new BizCheckedException("2870006");
         }
-        BaseinfoItem item = itemService.getItem(obdHeader.getOwnerUid(), skuId);
-        if (null == item) {
-            throw new BizCheckedException("2120001");
-        }
+        BaseinfoItem item = getItem(obdHeader.getOwnerUid(),code);
 
-        Map<String,Object> detailQuery = new HashMap<String, Object>();
-        detailQuery.put("containerId",containerId);
-        detailQuery.put("itemId",item.getItemId());
+        Map<String, Object> detailQuery = new HashMap<String, Object>();
+        detailQuery.put("containerId", containerId);
+        detailQuery.put("itemId", item.getItemId());
         detailQuery.put("isValid", 1);
         detailQuery.put("isAlive", 1);
         List<WaveDetail> waveDetails = waveService.getWaveDetails(detailQuery);
@@ -663,9 +658,17 @@ public class QCRpcService implements IQCRpcService {
                 }
                 detail.setQcQty(qty.subtract(normalQty));   //前面的都是正常的,有异常那条记录异常的数量
                 detail.setQcExceptionDone(PickConstant.QC_EXCEPTION_DONE_SKIP);
+                //设置异常的数量
+                detail.setQcExceptionQty(pickQty.subtract(qty));
             } else {
                 detail.setQcExceptionDone(PickConstant.QC_EXCEPTION_DONE_NORMAL);
+                detail.setQcExceptionQty(BigDecimal.ZERO);
             }
+
+//            //如果qc真正缺交且数量为0,waveDetail该品is_alive置为0
+//            if (qtyUom.compareTo(BigDecimal.ZERO) == 0) {
+//                detail.setIsAlive(0L);
+//            }
             waveService.updateDetail(detail);
         }
 
@@ -681,12 +684,7 @@ public class QCRpcService implements IQCRpcService {
         if (null == toLocation) {
             throw new BizCheckedException("2180002");
         }
-        //拣货缺交真的没有没有stockQuant
 
-//        List<StockQuant> stockQuants = stockQuantService.getQuantsByContainerId(containerId);
-//        if (null == stockQuants || stockQuants.size() < 1) {
-//            throw new BizCheckedException("2990043");
-//        }
         BaseinfoLocation location = locationService.getLocation(waveDetails.get(0).getAllocCollectLocation());
         Long locationId = location.getLocationId();
 
@@ -809,5 +807,36 @@ public class QCRpcService implements IQCRpcService {
             }
         }
         return dateMap;
+    }
+
+
+    /**
+     * 先国条后箱子码
+     *
+     * @param ownerId
+     * @param code
+     * @return
+     * @throws BizCheckedException
+     */
+    private BaseinfoItem getItem(Long ownerId, String code) throws BizCheckedException {
+        BaseinfoItem baseinfoItem = null;
+        //国条码
+        CsiSku skuInfo = csiRpcService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, code);
+        if (null != skuInfo && skuInfo.getSkuId() != null) {
+            baseinfoItem = itemService.getItem(ownerId, skuInfo.getSkuId());
+        }
+
+        if (baseinfoItem != null) {
+            return baseinfoItem;
+        }
+        //箱码
+        baseinfoItem = itemService.getItemByPackCode(ownerId, code);
+        if (baseinfoItem != null) {
+            return baseinfoItem;
+        }
+        if (baseinfoItem == null) {
+            throw new BizCheckedException("2900001");
+        }
+        return baseinfoItem;
     }
 }
