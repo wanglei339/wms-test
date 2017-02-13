@@ -7,7 +7,11 @@ import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.wave.IWaveRpcService;
 import com.lsh.wms.api.service.wave.IWaveService;
+import com.lsh.wms.core.constant.WaveConstant;
+import com.lsh.wms.core.service.wave.WaveService;
+import com.lsh.wms.model.wave.WaveHead;
 import com.lsh.wms.model.wave.WaveRequest;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -28,6 +32,9 @@ public class IntegrationWaveService implements IWaveService {
     @Reference
     private IWaveRpcService iWaveRpcService;
 
+    @Autowired
+    private WaveService waveService;
+
     @POST
     @Path("createAndReleaseWave")
     public String createAndReleaseWave(WaveRequest request) throws BizCheckedException{
@@ -41,7 +48,10 @@ public class IntegrationWaveService implements IWaveService {
             msg = "创建失败;"+e.getMessage();
             ret = -1;
         }
-        if(ret == 0) {
+        //查询wave_head
+        WaveHead head = waveService.getWave(waveId);
+        //如果波次为新建状态的再执行释放波次
+        if(ret == 0 && head.getStatus() == WaveConstant.STATUS_NEW) {
             try {
                 iWaveRpcService.releaseWave(waveId, 0L);
             } catch (BizCheckedException e) {

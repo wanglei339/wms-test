@@ -615,6 +615,19 @@ public class LocationService {
             return null;
         }
     }
+    /**
+     * 获取可用反仓区节点
+     *
+     * @return
+     */
+    public BaseinfoLocation getAntiLocation() {
+        List<BaseinfoLocation> locations = this.getLocationsByType(LocationConstant.MARKET_RETURN_AREA);
+        if (locations != null && locations.size() > 0) {
+            return locations.get(0);
+        } else {
+            return null;
+        }
+    }
 
     /**
      * 获取差异区,一个仓库就一个

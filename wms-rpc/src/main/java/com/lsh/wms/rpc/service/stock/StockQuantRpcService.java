@@ -172,9 +172,10 @@ public class StockQuantRpcService implements IStockQuantRpcService {
 
         return JsonUtils.SUCCESS();
     }
-    public void writeOffQuant(Long quantId, BigDecimal realQty)throws BizCheckedException{
+    public void writeOffQuant(Long quantId, BigDecimal realQty,Long operator)throws BizCheckedException{
         StockQuant quant = quantService.getQuantById(quantId);
         StockMove move = new StockMove();
+        move.setOperator(operator);
         StockLot lot = lotService.getStockLotByLotId(quant.getLotId());
         BigDecimal qty = quantService.getQuantQtyByContainerId(quant.getContainerId());
         if(realQty.compareTo(BigDecimal.ZERO)<0){
