@@ -245,9 +245,6 @@ public class ShipRestService implements IShipRestService {
             throw new BizCheckedException("2130013");
         }
 
-        //封装waveId
-        Set<Long> waveIds = new HashSet<Long>();
-
         //找到所有的托盘
         Set<Long> containterIds = new HashSet<Long>();
         for (StockQuant quant : stockQuants) {
@@ -295,22 +292,14 @@ public class ShipRestService implements IShipRestService {
                     qcInfos.add(qcInfo);
                     qcTaskIdDup.add(detail.getQcTaskId());
                 }
-
-                if (!detail.getWaveId().equals(0L)) {
-                    waveIds.add(detail.getWaveId());
-                }
             }
         }
-        //封装pickTaskId
+        //获取该集货道的taskId
         Set<Long> pickTaskIds = new HashSet<Long>();
-        Long waveId = null;
-        if (!waveIds.isEmpty()) {
-            waveId = waveIds.iterator().next();
+        List<WaveDetail> allWaveDetails = waveService.getDetailsByCollectionLocation(collection);
+        if (null == allWaveDetails || allWaveDetails.isEmpty()) {
+            throw new BizCheckedException("2990057");
         }
-        if (null == waveId) {
-            throw new BizCheckedException("2990056");
-        }
-        List<WaveDetail> allWaveDetails = waveService.getDetailsByWaveId(waveId);
         for (WaveDetail detail : allWaveDetails) {
             if (!detail.getPickTaskId().equals(0L)) {
                 pickTaskIds.add(detail.getPickTaskId());
@@ -319,12 +308,14 @@ public class ShipRestService implements IShipRestService {
         //pickTaskinfo
         int allPickCount = 0;
         int donePickCount = 0;
-        for (Long taskId : pickTaskIds) {
-            TaskInfo pickTask = baseTaskService.getTaskByTaskId(taskId);
-            if (TaskConstant.Done.equals(pickTask.getStatus())) {
-                donePickCount++;
-            }
-            allPickCount++;
+        //使用完成的查询
+        Map<String, Object> pickQuery = new HashMap<String, Object>();
+        pickQuery.put("taskIds", pickTaskIds);
+        List<TaskInfo> pickInfos = baseTaskService.getDoneTasksByIds(pickQuery);
+        allPickCount = pickTaskIds.size();
+        donePickCount = pickInfos.size();
+        if (allPickCount != donePickCount) {
+            throw new BizCheckedException("2990058");
         }
 
         //客户id
