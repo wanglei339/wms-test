@@ -15,4 +15,5 @@ public interface IPerformanceRestService {
 
     String getPerformaceDetaile(Map<String,Object> mapQuery);
     String getPerformanceCount(Map<String, Object> mapQuery) throws BizCheckedException;
+    String createPerformance(Map<String, Object> mapQuery);
 }
