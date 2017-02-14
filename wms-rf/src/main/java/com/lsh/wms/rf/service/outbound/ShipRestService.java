@@ -134,6 +134,31 @@ public class ShipRestService implements IShipRestService {
         //封装所有订单
         Set<Long> orderIds = new HashSet<Long>();
         Long collectionId = collection.getLocationId();
+
+        //获取该集货道的taskId
+        Set<Long> pickTaskIds = new HashSet<Long>();
+        List<WaveDetail> allWaveDetails = waveService.getDetailsByCollectionLocation(collection);
+        if (null == allWaveDetails || allWaveDetails.isEmpty()) {
+            throw new BizCheckedException("2990057");
+        }
+        for (WaveDetail detail : allWaveDetails) {
+            if (!detail.getPickTaskId().equals(0L)) {
+                pickTaskIds.add(detail.getPickTaskId());
+            }
+        }
+        //pickTaskinfo
+        int allPickCount = 0;
+        int donePickCount = 0;
+        //使用完成的查询
+        Map<String, Object> pickQuery = new HashMap<String, Object>();
+        pickQuery.put("taskIds", pickTaskIds);
+        List<TaskInfo> pickInfos = baseTaskService.getDoneTasksByIds(pickQuery);
+        allPickCount = pickTaskIds.size();
+        donePickCount = pickInfos.size();
+        if (allPickCount != donePickCount) {
+            throw new BizCheckedException("2990058");
+        }
+
         //获取库存
         List<StockQuant> stockQuants = stockQuantService.getQuantsByLocationId(collectionId);
         if (null == stockQuants || stockQuants.size() < 1) {

@@ -241,6 +241,9 @@ public class TuRestService implements ITuRestService {
         if (null == tuHead) {
             throw new BizCheckedException("2990022");
         }
+        if (TuConstant.SHIP_OVER.equals(tuHead.getStatus())){
+            throw new BizCheckedException("2990059");
+        }
         List<TuDetail> tuDetailList = tuService.getTuDeailListByTuId(tuHead.getTuId());
         if (null == tuDetailList || tuDetailList.isEmpty()) {
             throw new BizCheckedException("2990026");
