@@ -1066,11 +1066,15 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
     /**
      * 根据需求数量调整补货数量
      */
-    public boolean adjustTaskQty(BigDecimal requiredQty,Long locationId,Long itemId){
+    public boolean adjustTaskQty(BigDecimal requiredQty,BaseinfoLocation pickLocation,Long itemId){
         BaseinfoItem item = itemService.getItem(itemId);
+        BigDecimal pickLocationQty = quantService.getQuantQtyByLocationIdAndItemId(pickLocation.getLocationId(),itemId);
+        if(pickLocationQty.compareTo(requiredQty) >= 0){
+            return true;
+        }
 
         Map<String,Object> queryMap = new HashMap<String, Object>();
-        queryMap.put("toLocationId",locationId);
+        queryMap.put("toLocationId",pickLocation.getLocationId());
         queryMap.put("valid", TaskConstant.Draft);
         //可调整的任务id list
         List<Long> canAdjustTaskList = new ArrayList<Long>();
@@ -1095,7 +1099,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
                     needQty = needQty.subtract(info.getQty());
                 }
                 //当前任务数量比所需数量少
-                if (needQty.compareTo(BigDecimal.ZERO) > 0) {
+                if (needQty.compareTo(BigDecimal.ZERO) <= 0) {
                     isFulfill = true;
                 }
             }
@@ -1105,7 +1109,6 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
                 //先取消可调整的task,再创建
                 taskRpcService.batchCancel(TaskConstant.TYPE_PROCUREMENT, canAdjustTaskList);
             }
-            BaseinfoLocation pickLocation = locationService.getLocation(locationId);
             //获取所有货架的存储位
             List<BaseinfoLocation> shelfList = locationService.getBinsByFatherTypeAndUsage(LocationConstant.SHELF, BinUsageConstant.BIN_UASGE_STORE);
 
