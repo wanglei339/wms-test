@@ -1,5 +1,6 @@
 package com.lsh.wms.core.service.performance;
 
+import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.dao.task.TaskInfoDao;
 import com.lsh.wms.core.service.item.ItemService;
@@ -134,7 +135,12 @@ public class PerformanceService {
             //每个任务中的总箱数
             BigDecimal packUnit = BigDecimal.ONE;
             if(baseinfoItems.get(waveDetail.getItemId()) == null){
-                packUnit = itemService.getItem(waveDetail.getItemId()).getPackUnit();
+                BaseinfoItem item = itemService.getItem(waveDetail.getItemId());
+                if(item == null){
+                    throw new BizCheckedException("2020022");
+                }
+                packUnit = item.getPackUnit();
+                baseinfoItems.put(waveDetail.getItemId(),item);
             }else{
                 packUnit = baseinfoItems.get(waveDetail.getItemId()).getPackUnit();
             }
