@@ -1,11 +1,14 @@
 package com.lsh.wms.core.service.performance;
 
-import com.lsh.base.common.exception.BizCheckedException;
+import com.lsh.base.common.utils.BeanMapTransUtils;
+import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.core.constant.TaskConstant;
+import com.lsh.wms.core.dao.system.StaffPerformanceDao;
 import com.lsh.wms.core.dao.task.TaskInfoDao;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
+import com.lsh.wms.model.system.StaffPerformance;
 import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.wave.WaveDetail;
 import org.slf4j.Logger;
@@ -32,6 +35,8 @@ public class PerformanceService {
     private WaveService waveService;
     @Autowired
     private ItemService itemService;
+    @Autowired
+    private StaffPerformanceDao staffPerformanceDao;
 
 
     /*public List<Map<String, Object>> getPerformance(Map<String, Object> condition) {
@@ -76,9 +81,73 @@ public class PerformanceService {
         //return taskInfoList;
         return newTaskInfoList;
     }*/
+    //写入绩效统计结果
+    @Transactional(readOnly = false)
+    public void createPerformance(Map<String, Object> condition){
+        List<StaffPerformance> oldPerformanceList = staffPerformanceDao.getStaffPerformanceList(condition);
+        if(oldPerformanceList != null && oldPerformanceList.size() > 0){
+            //已生成绩效统计结果
+            logger.info("已生成历史绩效统计结果");
+            return;
+        }
+        List<Map<String, Object>> getPerformanceList = this.getPerformance(condition);
+        if(getPerformanceList == null || getPerformanceList.size() == 0) {
+            //绩效统计结果为空
+            logger.info("历史绩效统计结果为空");
+            return;
+        }
+        List<StaffPerformance> performanceList = new ArrayList<StaffPerformance>();
+        for(Map<String, Object> map : getPerformanceList){
+            StaffPerformance staffPerformance = BeanMapTransUtils.map2Bean(map,StaffPerformance.class);
+            staffPerformance.setSubType(Long.parseLong(map.get("sub_type").toString()));
+            staffPerformance.setBusinessMode(Integer.parseInt(map.get("business_mode").toString()));
+            staffPerformance.setOperator(Long.parseLong(map.get("uid").toString()));
+            staffPerformance.setCreatedAt(DateUtils.getCurrentSeconds());
+            staffPerformance.setUpdatedAt(DateUtils.getCurrentSeconds());
+            performanceList.add(staffPerformance);
+        }
+        staffPerformanceDao.batchinsert(performanceList);
+    }
+    //获取绩效,历史绩效从绩效统计表里查
+    public List<StaffPerformance> getStaffPerformance(Map<String, Object> condition){
+        List<StaffPerformance> performanceList = new ArrayList<StaffPerformance>();
+        Long todayBeginSeconds = DateUtils.getTodayBeginSeconds();
+        boolean isSearchCurrentDay = true;//是否只查询当天实时绩效
 
+        Long startDate = Long.parseLong(condition.get("startDate").toString());
+        Long endDate = Long.parseLong(condition.get("startDate").toString());
 
+        if(startDate <  todayBeginSeconds){
+            isSearchCurrentDay = false;
+        }
 
+        //获取当天绩效
+        if(isSearchCurrentDay) {
+            condition.put("startDate", DateUtils.getTodayBeginSeconds());
+            condition.put("endDate", DateUtils.getTodayBeginSeconds());
+            List<Map<String, Object>> currentDayperformanceList = this.getPerformance(condition);
+            if (currentDayperformanceList != null && currentDayperformanceList.size() > 0) {
+                for (Map<String, Object> map1 : currentDayperformanceList) {
+                    StaffPerformance staffPerformance = BeanMapTransUtils.map2Bean(map1, StaffPerformance.class);
+                    staffPerformance.setSubType(Long.parseLong(map1.get("sub_type").toString()));
+                    staffPerformance.setBusinessMode(Integer.parseInt(map1.get("business_mode").toString()));
+                    performanceList.add(staffPerformance);
+                }
+            }
+        }else{
+            //获取历史绩效
+            List<StaffPerformance> oldPerformanceList = staffPerformanceDao.getStaffPerformanceList(condition);
+            if(oldPerformanceList != null && oldPerformanceList.size() > 0){
+                performanceList.addAll(oldPerformanceList);
+            }
+        }
+
+        return performanceList;
+    }
+
+    /*
+    获取绩效,直接统计
+     */
     public List<Map<String, Object>> getPerformance(Map<String, Object> condition) {
         List<Map<String, Object>> taskInfoList = taskInfoDao.getPerformance(condition);
         List<Map<String, Object>> newTaskInfoList = new ArrayList<Map<String, Object>>();
@@ -111,11 +180,11 @@ public class PerformanceService {
             pickWaveDetailList = waveService.getWaveDetails(waveMap);
         }
         List<WaveDetail> qcWaveDetailList = new ArrayList<WaveDetail>();
-       if(qcTaskIdList != null && qcTaskIdList.size() >0){
-           Map<String,Object> waveMap = new HashMap<String, Object>();
-           waveMap.put("qcTaskIds",qcTaskIdList);
-           qcWaveDetailList = waveService.getWaveDetails(waveMap);
-       }
+        if(qcTaskIdList != null && qcTaskIdList.size() >0){
+            Map<String,Object> waveMap = new HashMap<String, Object>();
+            waveMap.put("qcTaskIds",qcTaskIdList);
+            qcWaveDetailList = waveService.getWaveDetails(waveMap);
+        }
         //改为list
         //Map<Long,Set<Long>> itemSetByTaskId = new HashMap<Long, Set<Long>>();
         Map<Long,List<Long>> itemListByTaskId = new HashMap<Long, List<Long>>();
@@ -135,12 +204,7 @@ public class PerformanceService {
             //每个任务中的总箱数
             BigDecimal packUnit = BigDecimal.ONE;
             if(baseinfoItems.get(waveDetail.getItemId()) == null){
-                BaseinfoItem item = itemService.getItem(waveDetail.getItemId());
-                if(item == null){
-                    throw new BizCheckedException("2020022");
-                }
-                packUnit = item.getPackUnit();
-                baseinfoItems.put(waveDetail.getItemId(),item);
+                packUnit = itemService.getItem(waveDetail.getItemId()).getPackUnit();
             }else{
                 packUnit = baseinfoItems.get(waveDetail.getItemId()).getPackUnit();
             }
@@ -172,12 +236,14 @@ public class PerformanceService {
                 if(type != TaskConstant.TYPE_QC && type != TaskConstant.TYPE_PICK) {
                     continue;
                 }
-                List<Long> itemSet = new ArrayList<Long>();//统计每条绩效的商品sku数
+
+                List<Long> itemList = new ArrayList<Long>();//统计每条绩效的商品sku数
                 BigDecimal packTotal = BigDecimal.ZERO;
                 for(String taskIds : taskInfoArr){
                     Long taskId = Long.parseLong(taskIds);
                     if(itemListByTaskId.get(taskId) != null){
-                        itemSet.addAll(itemListByTaskId.get(taskId));
+                        itemList.addAll(itemListByTaskId.get(taskId));
+
                     }
                     if(packTotalByTaskId.get(taskId) != null){
                         packTotal = packTotal.add(packTotalByTaskId.get(taskId));
@@ -186,7 +252,7 @@ public class PerformanceService {
                 if(type == TaskConstant.TYPE_PICK){
                     map.put("taskPackQty",packTotal);
                 }
-                map.put("skuCount",itemSet.size());
+                map.put("skuCount",itemList.size());
             }
         }
         return newTaskInfoList;
@@ -194,8 +260,20 @@ public class PerformanceService {
 
     //获取总数
     public Integer getPerformanceCount(Map<String, Object> condition){
+        Long startDate = Long.parseLong(condition.get("startDate").toString());
+        Long endDate = Long.parseLong(condition.get("startDate").toString());
+        Long todayBeginSeconds = DateUtils.getTodayBeginSeconds();
+        boolean isSearchCurrentDay = true;//是否只查询当天实时绩效
+        if(startDate <  todayBeginSeconds){
+            isSearchCurrentDay = false;
+        }
+        if(isSearchCurrentDay){
+            return taskInfoDao.getPerformanceCount(condition);
+        }else{
+            //查询历史绩效
+            return staffPerformanceDao.getStaffPerformanceCount(condition);
+        }
 
-        return taskInfoDao.getPerformanceCount(condition);
     }
 
     public List<TaskInfo> getPerformaceDetaile(Map<String,Object> mapQuery){

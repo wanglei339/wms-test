@@ -25,7 +25,11 @@ public class TuConstant {
     //类型 1-门店 2-优供
     public static final Integer TYPE_STORE = 1;
     public static final Integer TYPE_YOUGONG = 2;
-    //仓库名字
+    //is_valid
+    public static final Integer IS_VALID = 1;
+    public static final Integer NOT_VALID = 0;
+
+
 
 
 

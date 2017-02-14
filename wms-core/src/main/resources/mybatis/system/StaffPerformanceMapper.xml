@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lsh.wms.core.dao.system.StaffPerformanceDao" >
+
+	<resultMap id="staffPerformanceResultMap" type="StaffPerformance">
+		<id property="id" column="id"/>
+		<result property="operator" column="operator"/>
+		<result property="type" column="type"/>
+		<result property="subType" column="sub_type"/>
+		<result property="businessMode" column="business_mode"/>
+		<result property="taskEaQty" column="task_ea_qty"/>
+		<result property="taskPackQty" column="task_pack_qty"/>
+		<result property="taskBoardQty" column="task_board_qty"/>
+		<result property="containerQty" column="container_qty"/>
+		<result property="skuCount" column="sku_count"/>
+		<result property="taskQty" column="task_qty"/>
+		<result property="taskAmount" column="task_amount"/>
+		<result property="date" column="date"/>
+		<result property="createdAt" column="created_at"/>
+		<result property="updatedAt" column="updated_at"/>
+	</resultMap>
+  
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="StaffPerformance">
+		insert into staff_performance (
+			operator,type,sub_type,business_mode,task_ea_qty,
+			task_pack_qty,task_board_qty,container_qty,sku_count,task_qty,task_amount,
+			date,created_at,updated_at
+    	) values (
+			#{operator},#{type},#{subType},#{businessMode},#{taskEaQty},
+			#{taskPackQty},#{taskBoardQty},#{containerQty},#{skuCount},#{taskQty},#{taskAmount},
+			#{date},#{createdAt},#{updatedAt}
+    	)
+	</insert>
+
+	<insert id="batchinsert"  parameterType="java.util.List">
+		insert into staff_performance (
+		operator,type,sub_type,business_mode,task_ea_qty,
+		task_pack_qty,task_board_qty,container_qty,sku_count,task_qty,task_amount,
+		date,created_at,updated_at
+		) values
+		<foreach collection="list" item="item" index="index" separator="," >
+			(#{item.operator},#{item.type},#{item.subType},#{item.businessMode},#{item.taskEaQty},
+			#{item.taskPackQty},#{item.taskBoardQty},#{item.containerQty},#{item.skuCount},#{item.taskQty},#{item.taskAmount},
+			#{item.date},#{item.createdAt},#{item.updatedAt}
+			)
+		</foreach>
+	</insert>
+
+	<update id="update" parameterType="StaffPerformance">
+		update staff_performance
+    	<set>
+  			<if test="operator != null">operator=#{operator},</if>
+  			<if test="type != null">type=#{type},</if>
+  			<if test="subType != null">sub_type=#{subType},</if>
+  			<if test="businessMode != null">business_mode=#{businessMode},</if>
+  			<if test="taskEaQty != null">task_ea_qty=#{taskEaQty},</if>
+  			<if test="taskPackQty != null">task_pack_qty=#{taskPackQty},</if>
+  			<if test="taskBoardQty != null">task_board_qty=#{taskBoardQty},</if>
+  			<if test="containerQty != null">container_qty=#{containerQty},</if>
+  			<if test="skuCount != null">sku_count=#{skuCount},</if>
+  			<if test="taskQty != null">task_qty=#{taskQty},</if>
+  			<if test="taskAmount != null">task_amount=#{taskAmount},</if>
+  			<if test="date != null">date=#{date},</if>
+  			<if test="createdAt != null">created_at=#{createdAt},</if>
+  			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
+		</set>
+		where id=#{id}
+	</update>
+  
+	<select id="getStaffPerformanceById" parameterType="int" resultMap="staffPerformanceResultMap">
+		select * from staff_performance
+		where ID=#{id} 
+	</select>
+  
+	<select id="countStaffPerformance" parameterType="map" resultType="int">
+		select count(*) from staff_performance
+		<include refid="queryCondition"/>
+	</select>
+  
+	<select id="getStaffPerformanceList" parameterType="map" resultMap="staffPerformanceResultMap">
+		select * from staff_performance
+		<include refid="queryCondition"/>
+		order by date desc
+		<if test="start != null and limit != null">
+		limit #{start},#{limit}
+		</if>
+	</select>
+
+	<select id="getStaffPerformanceCount" parameterType="map" resultType="int">
+		select count(*) from staff_performance
+		<include refid="queryCondition"/>
+	</select>
+
+	<sql id="queryCondition">
+		<where>
+			<if test="id != null">id=#{id}</if>
+			<if test="operator != null">and operator=#{uid}</if>
+			<if test="type != null">and type=#{type}</if>
+			<if test="subType != null">and sub_type=#{subType}</if>
+			<if test="businessMode != null">and business_mode=#{businessMode}</if>
+			<if test="taskEaQty != null">and task_ea_qty=#{taskEaQty}</if>
+			<if test="taskPackQty != null">and task_pack_qty=#{taskPackQty}</if>
+			<if test="taskBoardQty != null">and task_board_qty=#{taskBoardQty}</if>
+			<if test="containerQty != null">and container_qty=#{containerQty}</if>
+			<if test="skuCount != null">and sku_count=#{skuCount}</if>
+			<if test="taskQty != null">and task_qty=#{taskQty}</if>
+			<if test="taskAmount != null">and task_amount=#{taskAmount}</if>
+			<if test="date != null">and date=#{date}</if>
+			<if test="startDate != null">and #{startDate} &lt;= date</if>
+			<if test="endDate != null">and date &lt;= #{endDate}</if>
+			<if test="createdAt != null">and created_at=#{createdAt}</if>
+			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
+		</where>
+	</sql>
+   
+</mapper>

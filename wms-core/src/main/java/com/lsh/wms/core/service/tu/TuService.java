@@ -158,9 +158,9 @@ public class TuService {
 
 
     @Transactional(readOnly = false)
-    public void update(TuDetail head) {
-        head.setUpdatedAt(DateUtils.getCurrentSeconds());
-        tuDetailDao.update(head);
+    public void update(TuDetail detail) {
+        detail.setUpdatedAt(DateUtils.getCurrentSeconds());
+        tuDetailDao.update(detail);
     }
 
     public TuDetail getDetailById(Long id) {
@@ -861,5 +861,13 @@ public class TuService {
         waveService.updateDetails(reWriteWaveDetails);
     }
 
-
+    @Transactional(readOnly = false)
+    public void removeTuEntry(TuEntry tuEntry) {
+        TuHead tuHead = tuEntry.getTuHead();
+        this.removeTuHead(tuHead);
+        List<TuDetail> tuDetails = tuEntry.getTuDetails();
+        for (TuDetail detail : tuDetails) {
+            this.removeTuDetail(detail);
+        }
+    }
 }
