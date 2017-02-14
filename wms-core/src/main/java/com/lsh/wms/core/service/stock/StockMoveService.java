@@ -188,9 +188,8 @@ public class StockMoveService {
 
         decorateMove(move);
 
-        this.create(move);
-
         if (move.getLot() == null) {
+            this.create(move);
             quantService.move(move);
         } else {
             this.moveWithLot(move, move.getLot());

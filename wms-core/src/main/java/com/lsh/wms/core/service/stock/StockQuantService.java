@@ -2,6 +2,7 @@ package com.lsh.wms.core.service.stock;
 
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.DateUtils;
+import com.lsh.base.common.utils.StrUtils;
 import com.lsh.wms.api.model.so.ObdDetail;
 import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.constant.TaskConstant;
@@ -161,8 +162,12 @@ public class StockQuantService {
             packName = String.format("H%02d", quant.getPackUnit().toBigInteger());
         }
         quant.setPackName(packName);
-        quant.setCreatedAt(DateUtils.getCurrentSeconds());
-        quant.setUpdatedAt(DateUtils.getCurrentSeconds());
+        if(quant.getCreatedAt().equals(0L)) {
+            quant.setCreatedAt(DateUtils.getCurrentSeconds());
+        }
+        if(quant.getUpdatedAt().equals(0L)) {
+            quant.setUpdatedAt(DateUtils.getCurrentSeconds());
+        }
         stockQuantDao.insert(quant);
     }
 
@@ -170,6 +175,30 @@ public class StockQuantService {
     public void update(StockQuant quant) {
         quant.setUpdatedAt(DateUtils.getCurrentSeconds());
         stockQuantDao.update(quant);
+    }
+
+    @Transactional(readOnly = false)
+    public void moveQuant(StockQuant quant) {
+        quant.setUpdatedAt(DateUtils.getCurrentSeconds());
+        stockQuantDao.moveQuant(quant);
+    }
+
+    @Transactional(readOnly = false)
+    public void cleanZeroQuant(StockQuant quant) {
+        if (1 == stockQuantDao.cleanZeroQuant(quant)) {
+            logger.info(StrUtils.formatString("clean zero quant from id:{0}, location:{1}, item:{2}, container:{3}", quant.getId(), quant.getLocationId(), quant.getItemId(), quant.getContainerId()));
+        }
+    }
+
+    @Transactional(readOnly = false)
+    public void changeQty(StockQuant quant, BigDecimal delta) throws BizCheckedException {
+        quant.setUpdatedAt(DateUtils.getCurrentSeconds());
+        quant.setDelta(delta);
+        int ret = stockQuantDao.changeQty(quant);
+        if (ret != 1) {
+            throw new BizCheckedException("商品数量不足");
+        }
+        cleanZeroQuant(quant);
     }
 
     public int getContainerQty(Long locationId) {
@@ -204,11 +233,11 @@ public class StockQuantService {
             if (quant.getReserveTaskId() != 0 && quant.getReserveTaskId().compareTo(move.getTaskId()) != 0) {
                 continue;
             }
-            this.split(quant, qtyDone);
+            quant = this.split(quant, qtyDone);
             quant.setLocationId(move.getToLocationId());
             quant.setContainerId(move.getToContainerId());
+            this.moveQuant(quant);
 
-            this.update(quant);
             // 新建 quant move历史记录
             if(move.getId() ==null){
                 // 创建move
@@ -240,23 +269,30 @@ public class StockQuantService {
     }
 
     @Transactional(readOnly = false)
-    public void split(StockQuant quant, BigDecimal requiredQty) {
+    public StockQuant split(StockQuant quant, BigDecimal requiredQty) throws BizCheckedException{
         if (quant.getQty().compareTo(requiredQty) <= 0 && quant.getQty().compareTo(BigDecimal.ZERO) > 0) {
-            return;
+            return quant;
         }
+        // 修改源库位上的库存数量，减去要分裂的值出来
+        this.changeQty(quant, requiredQty);
 
+        // 创建要移动的库存出来
         StockQuant newQuant = (StockQuant) quant.clone();
-        newQuant.setQty(quant.getQty().subtract(requiredQty));
+        Long sourceQuantId = quant.getId();
+        newQuant.setQty(requiredQty);
         newQuant.setReserveTaskId(0L);
         this.create(newQuant);
+
         Map<String, Object> queryMap = new HashMap<String, Object>();
-        queryMap.put("quantId", quant.getId());
+        queryMap.put("quantId", sourceQuantId);
         List<StockQuantMoveRel> relList = relDao.getStockQuantMoveRelList(queryMap);
         for (StockQuantMoveRel rel : relList) {
             rel.setQuantId(newQuant.getId());
             relDao.insert(rel);
         }
-        quant.setQty(requiredQty);
+
+        quant = newQuant;
+        return newQuant;
     }
 
     @Transactional(readOnly = false)
@@ -267,7 +303,7 @@ public class StockQuantService {
             if (!quant.isAvailable()) {
                 continue;
             }
-            this.split(quant, requiredQty);
+            quant = this.split(quant, requiredQty);
             quant.setReserveTaskId(taskId);
             resultList.add(quant);
             stockQuantDao.update(quant);

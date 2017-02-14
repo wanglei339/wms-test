@@ -57,6 +57,20 @@
 		delete from stock_quant where id = #{id}
 	</delete>
 
+	<delete id="cleanZeroQuant" parameterType="StockQuant">
+		delete from stock_quant where id=#{id} and qty = 0
+	</delete>
+
+	<update id="moveQuant" parameterType="StockQuant">
+		update stock_quant
+		<set>
+			location_id = #{locationId},
+			container_id = #{containerId},
+			updated_at = #{updatedAt}
+		</set>
+		where id = #{id}
+	</update>
+
 	<update id="update" parameterType="StockQuant">
 		update stock_quant
     	<set>
@@ -85,6 +99,14 @@
 			<if test="lotCode != null">lot_code=#{lotCode}</if>
 		</set>
 		where id=#{id}
+	</update>
+	<update id="changeQty" parameterType="StockQuant">
+		update stock_quant
+		<set>
+			qty=qty - #{delta},
+			updated_at=#{updatedAt}
+		</set>
+		where id=#{id} and qty - #{delta} &gt;= 0
 	</update>
   
 	<select id="getStockQuantById" parameterType="long" resultMap="stockQuantResultMap">
@@ -124,7 +146,7 @@
 		<include refid="queryCondition"/>
 	</select>
 
-	<select id="getQuants" parameterType="map" resultMap="stockQuantResultMap">
+	<select id="getQuants" parameterType="map" resultMap="stockQuantResultMap" flushCache="true"   useCache="false">
 		select * from stock_quant
 		<include refid="queryCondition"/>
 		<choose>

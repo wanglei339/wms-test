@@ -59,7 +59,7 @@
 		<result property="qcSkip" column="qc_skip"/>
 		<result property="taskAmount" column="task_amount"/>
 	</resultMap>
-  
+
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="TaskInfo">
 		insert into task_info (
 			task_id,task_name,plan_id,wave_id,order_id,location_id,
@@ -144,7 +144,7 @@
 		</set>
 		where id=#{id}
 	</update>
-  
+
 	<select id="getTaskInfoById" parameterType="Long" resultMap="taskInfoResultMap">
 		select * from task_info
 		where task_id=#{taskId}
@@ -153,12 +153,12 @@
 	<select id="lockById" parameterType="Long" resultMap="taskInfoResultMap">
 		select * from task_info where task_id=#{taskId} for update
 	</select>
-  
+
 	<select id="countTaskInfo" parameterType="map" resultType="int">
 		select count(*) from task_info
 		<include refid="queryCondition"/>
 	</select>
-  
+
 	<select id="getTaskInfoList" parameterType="map" resultMap="taskInfoResultMap">
 		select * from task_info
 		<include refid="queryCondition"/>
@@ -267,7 +267,20 @@
 		select sum(qty) from task_info
 		<include refid="queryCondition"/>
 	</select>
-  
+
+	<select id="getDoneTasksByIds" parameterType="map" resultMap="taskInfoResultMap">
+		select * from task_info
+ 		<where>
+            <if test="taskIds != null">
+                and task_id in
+                <foreach collection="taskIds"  item="item" index="index" open="(" separator=","  close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="status != null">and status=#{status}</if>
+        </where>
+	</select>
+
 	<sql id="queryCondition">
 		<where>
 			<if test="id != null">id=#{id}</if>
@@ -366,5 +379,5 @@
 			<if test="valid !=null"> and status in (1,2)</if>
 		</where>
 	</sql>
-   
+
 </mapper>

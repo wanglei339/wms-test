@@ -48,7 +48,6 @@ import com.lsh.wms.model.so.ObdDetail;
 import com.lsh.wms.model.so.ObdHeader;
 import com.lsh.wms.model.stock.StockLot;
 import com.lsh.wms.model.stock.StockMove;
-import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.system.ModifyLog;
 import com.lsh.wms.model.system.SysUser;
 import com.lsh.wms.model.task.TaskEntry;

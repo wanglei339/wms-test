@@ -125,8 +125,8 @@ public class StockQuantRestService implements IStockQuantRestService {
     }
     @GET
     @Path("writeOffQuant")
-    public String writeOffQuant(@QueryParam("quantId") Long quantId,@QueryParam("realQty") BigDecimal realQty) throws BizCheckedException{
-        stockQuantRpcService.writeOffQuant(quantId,realQty);
+    public String writeOffQuant(@QueryParam("quantId") Long quantId,@QueryParam("realQty") BigDecimal realQty,@QueryParam("operator") Long operator) throws BizCheckedException{
+        stockQuantRpcService.writeOffQuant(quantId,realQty,operator);
         return JsonUtils.SUCCESS();
     }
 

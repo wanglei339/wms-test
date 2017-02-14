@@ -26,6 +26,8 @@
         <result property="warehouseId" column="warehouse_id"/>
         <result property="companyName" column="company_name"/>
         <result property="type" column="type"/>
+        <result property="transPlan" column="trans_plan"/>
+        <result property="collectionCodes" column="collection_codes"/>
     </resultMap>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="TuHead">
@@ -33,12 +35,12 @@
 			tu_id,trans_uid,cellphone,name,car_number,status,
 			store_ids,pre_board,real_board,commited_at,created_at,updated_at,
 			loaded_at,delivery_uid,delivery_at,is_valid,load_uid,scale,
-			rf_switch,warehouse_id,company_name,type
+			rf_switch,warehouse_id,company_name,type,trans_plan,collection_codes
     	) values (
 			#{tuId},#{transUid},#{cellphone},#{name},#{carNumber},#{status},
 			#{storeIds},#{preBoard},#{realBoard},#{commitedAt},#{createdAt},#{updatedAt},
 			#{loadedAt},#{deliveryUid},#{deliveryAt},#{isValid},#{loadUid},#{scale},
-			#{rfSwitch},#{warehouseId},#{companyName},#{type}
+			#{rfSwitch},#{warehouseId},#{companyName},#{type},#{transPlan},#{collectionCodes}
     	)
 	</insert>
 
@@ -66,7 +68,9 @@
             <if test="rfSwitch != null">rf_switch=#{rfSwitch},</if>
             <if test="warehouseId != null">warehouse_id=#{warehouseId},</if>
             <if test="companyName != null">company_name=#{companyName},</if>
-            <if test="type != null">type=#{type}</if>
+            <if test="type != null">type=#{type},</if>
+            <if test="transPlan != null">trans_plan=#{transPlan},</if>
+            <if test="collectionCodes != null">collection_codes=#{collectionCodes}</if>
         </set>
         where tu_id=#{tuId}
     </update>
@@ -120,6 +124,8 @@
             <if test="warehouseId != null">and warehouse_id=#{warehouseId}</if>
             <if test="companyName != null">and company_name=#{companyName}</if>
             <if test="type != null">and type=#{type}</if>
+            <if test="transPlan != null">and trans_plan=#{transPlan}</if>
+            <if test="collectionCodes != null">and collection_codes=#{collectionCodes}</if>
         </where>
     </sql>
 
@@ -165,6 +171,8 @@
             <if test="warehouseId != null">and warehouse_id=#{warehouseId}</if>
             <if test="companyName != null">and company_name=#{companyName}</if>
             <if test="type != null">and type=#{type}</if>
+            <if test="transPlan != null">and trans_plan=#{transPlan}</if>
+            <if test="collectionCodes != null">and collection_codes=#{collectionCodes}</if>
         </where>
     </sql>
 
