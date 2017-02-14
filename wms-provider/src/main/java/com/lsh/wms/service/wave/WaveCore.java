@@ -19,6 +19,7 @@ import com.lsh.wms.core.service.wave.WaveAllocService;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.core.service.wave.WaveTemplateService;
 import com.lsh.wms.core.service.zone.WorkZoneService;
+import com.lsh.wms.model.ProcurementInfo;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
@@ -35,6 +36,7 @@ import com.lsh.wms.model.wave.WaveDetail;
 import com.lsh.wms.model.wave.WaveHead;
 import com.lsh.wms.model.wave.WaveTemplate;
 import com.lsh.wms.model.zone.WorkZone;
+import com.lsh.wms.service.sync.AsyncEventService;
 import com.lsh.wms.service.wave.split.SplitModel;
 import com.lsh.wms.service.wave.split.SplitNode;
 import org.apache.tools.ant.taskdefs.Pack;
@@ -430,6 +432,9 @@ public class WaveCore {
                         pickTaskDetails.add(detail);
                         head.setDeliveryId(detail.getOrderId());
                         info.setOrderId(detail.getOrderId());
+                        //通知补货任务，调整补货数量
+                        AsyncEventService.post(new ProcurementInfo(detail.getAllocPickLocation(),detail.getItemId()));
+
                         info.setTransPlan(mapOrder2Head.get(detail.getOrderId()).getTransPlan());
                         head.setAllocCollectLocation(detail.getAllocCollectLocation());
                         if(node.iPickType == PickConstant.SHELF_PALLET_TASK_TYPE) {

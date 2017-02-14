@@ -406,7 +406,7 @@ public class WaveService {
     @Transactional(readOnly = true)
     public BigDecimal getUnPickedQty(long itemId)
     {
-        //获取带捡货商品
+        //获取待捡货商品
         Map<String, Object> mapSumQuery = new HashMap<String, Object>();
         mapSumQuery.put("itemId", itemId);
         mapSumQuery.put("isAlive", 1);

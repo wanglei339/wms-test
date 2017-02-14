@@ -79,6 +79,14 @@ public class ItemRpcService implements IItemRpcService {
     public List<BaseinfoItemLocation> getItemLocationByLocationID(long iLocationId) {
         return itemLocationService.getItemLocationByLocationID(iLocationId);
     }
+    public BaseinfoItemLocation getItemLocationByLocationIdAndItemId(long iLocationId,long itemId) {
+        List<BaseinfoItemLocation> itemLocations = itemLocationService.getItemLocationByLocationIdAndItemId(iLocationId,itemId);
+        if(itemLocations==null || itemLocations.size()==0){
+            return null;
+        }else {
+            return itemLocations.get(0);
+        }
+    }
 
     public BaseinfoItemLocation insertItemLocation(BaseinfoItemLocation itemLocation) {
         return itemLocationService.insertItemLocation(itemLocation);
