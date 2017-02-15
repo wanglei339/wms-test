@@ -132,6 +132,7 @@ public class PerformanceService {
                     StaffPerformance staffPerformance = BeanMapTransUtils.map2Bean(map1, StaffPerformance.class);
                     staffPerformance.setSubType(Long.parseLong(map1.get("sub_type").toString()));
                     staffPerformance.setBusinessMode(Integer.parseInt(map1.get("business_mode").toString()));
+                    staffPerformance.setOperator(Long.parseLong(map1.get("uid").toString()));
                     performanceList.add(staffPerformance);
                 }
             }
