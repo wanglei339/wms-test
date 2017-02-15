@@ -36,10 +36,9 @@ public class PerformanceRpcService implements IPerformanceRpcService {
             Calendar cal   =   Calendar.getInstance();
             cal.add(Calendar.DATE,   -1);
             DateUtils.getCurrentSeconds();
-            String yesterday = DateUtils.FORMAT_DATE_WITH_BAR.format(cal.getTime());
-            Date yesterDay = null;
+            String yesterdayStr = DateUtils.FORMAT_DATE_WITH_BAR.format(cal.getTime());
             try {
-                yesterDay = DateUtils.FORMAT_DATE_WITH_BAR.parse(yesterday);
+                Date yesterDay = DateUtils.FORMAT_DATE_WITH_BAR.parse(yesterdayStr);
                 condition.put("startDate",yesterDay.getTime()/1000);
                 condition.put("endDate",yesterDay.getTime()/1000);
             } catch (ParseException e) {
