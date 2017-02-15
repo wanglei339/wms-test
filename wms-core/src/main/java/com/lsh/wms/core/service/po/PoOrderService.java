@@ -428,4 +428,11 @@ public class PoOrderService {
         return ibdHeaders;
     }
 
+    @Transactional(readOnly = false)
+    public void batchUpdateIbdHeaderByOrderId(List<IbdHeader> ibdHeaders){
+        if(ibdHeaders != null && ibdHeaders.size() > 0){
+            ibdHeaderDao.batchUpdateIbdHeaderByOrderId(ibdHeaders);
+        }
+    }
+
 }

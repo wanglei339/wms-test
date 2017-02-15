@@ -82,6 +82,16 @@
 		where order_other_id=#{orderOtherId} or order_id=#{orderId}
 	</update>
 
+	<update id="batchUpdateIbdHeaderByOrderId" parameterType="java.util.List">
+		<foreach collection="list" item="item" index="index"  open="" close=""  separator=";">
+			update ibd_header
+			<set>
+				order_status = #{item.orderStatus}
+			</set>
+			where order_id=#{item.orderId}
+		</foreach>
+	</update>
+
 	<select id="getIbdHeaderById" parameterType="int" resultMap="ibdHeaderResultMap">
 		select * from ibd_header
 		where ID=#{id}
