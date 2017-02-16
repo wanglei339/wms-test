@@ -5,6 +5,7 @@ import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.wms.api.model.base.BaseResponse;
 import com.lsh.wms.api.model.po.PoRequest;
 
+
 /**
  * Project Name: lsh-wms
  * Created by fuhao
@@ -31,4 +32,5 @@ public interface IPoRestService {
     String canReceipt();
     String getStoreInfo(Long orderId, String detailOtherId);
     public String throwOrders() throws BizCheckedException;
+    String closeIbdHeader();
 }

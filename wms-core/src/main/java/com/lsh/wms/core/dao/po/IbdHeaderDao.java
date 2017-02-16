@@ -15,6 +15,8 @@ public interface IbdHeaderDao {
 
 	void updateByOrderOtherIdOrOrderId(IbdHeader ibdHeader);
 
+	void batchUpdateIbdHeaderByOrderId(List<IbdHeader> ibdHeaders);
+
 	IbdHeader getIbdHeaderById(Long id);
 
 	Integer countIbdHeader(Map<String, Object> params);
