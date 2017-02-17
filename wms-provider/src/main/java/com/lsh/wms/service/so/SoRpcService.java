@@ -305,7 +305,9 @@ public class SoRpcService implements ISoRpcService {
 
     public void confirmBack(Long orderId ,Long uid) throws BizCheckedException {
 
-        ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderId(orderId);
+        //锁订单
+        //ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderId(orderId);
+        ObdHeader obdHeader = soOrderService.lockObdHeaderByOrderId(orderId);
         if (obdHeader.getOrderStatus() == SoConstant.ORDER_STATUS_FINISH){
             throw new BizCheckedException("2991112");
         }

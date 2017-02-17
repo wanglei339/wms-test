@@ -334,6 +334,18 @@ public class SoOrderService {
         params.put("itemId", itemId);
         return getOutbSoDetailList(params);
     }
+
+
+    /**
+     * Lock obd header by order id obd header.
+     *
+     * @param orderId the order id
+     * @return the obd header
+     */
+    public ObdHeader lockObdHeaderByOrderId(Long orderId){
+        return obdHeaderDao.lockObdHeaderByOrderId(orderId);
+    }
+
     /**
      * 根据orderOtherId获取OutbSoHeader
      *

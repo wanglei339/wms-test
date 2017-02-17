@@ -233,10 +233,10 @@ public class InStorageRfRestService  implements IInStorageRfRestService {
         BigDecimal moveQty = umoQty.multiply(item.getPackUnit()).add(scatterQty);
         BaseinfoLocation backLocation = locationService.getAntiLocation();
         //拿到捡货位的托盘码，如果没有，则为0
-        Long containerId = null;
+        Long pickContainerId = null;
         List<Long> containerIdList = quantService.getContainerIdByLocationId(location.getLocationId());
         if(containerIdList !=null && containerIdList.size()!=0){
-            containerId = containerIdList.get(0);
+            pickContainerId = containerIdList.get(0);
         }
         //move,可能有多个托盘移动
         List<StockQuant> quants = quantService.getQuantByLocationIdAndItemId(backLocation.getLocationId(),item.getItemId());
@@ -256,11 +256,10 @@ public class InStorageRfRestService  implements IInStorageRfRestService {
             move.setFromLocationId(backLocation.getLocationId());
             move.setToLocationId(location.getLocationId());
             move.setOperator(uId);
-            if(containerId!=null) {
-                move.setToContainerId(containerId);
-            }else {
-                move.setToContainerId(quant.getContainerId());
+            if(pickContainerId==null) {
+                pickContainerId = quant.getContainerId();
             }
+            move.setToContainerId(pickContainerId);
             if(containerQty.compareTo(moveQty)<0){
                 move.setQty(containerQty);
             }else {

@@ -25,6 +25,7 @@ public interface IItemRpcService {
 
     List<BaseinfoItemLocation> getItemLocationList(long iItemId);
     List<BaseinfoItemLocation> getItemLocationByLocationID(long iLocationId);
+    BaseinfoItemLocation getItemLocationByLocationIdAndItemId(long iLocationId,long itemId);
     List<BaseinfoItemLocation> getItemLocation(Map<String,Object> queryMap);
 
     BaseinfoItemLocation insertItemLocation(BaseinfoItemLocation itemLocation);

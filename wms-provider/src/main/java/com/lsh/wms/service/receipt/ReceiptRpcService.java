@@ -858,9 +858,14 @@ public class ReceiptRpcService implements IReceiptRpcService {
     }
 
     public void insertReceipt(Long orderId , Long staffId) throws BizCheckedException, ParseException {
-        IbdHeader ibdHeader = poOrderService.getInbPoHeaderByOrderId(orderId);
+        //锁记录
+        //IbdHeader ibdHeader = poOrderService.getInbPoHeaderByOrderId(orderId);
+        IbdHeader ibdHeader = poOrderService.lockIbdHeaderByOrderId(orderId);
         if (ibdHeader == null) {
             throw new BizCheckedException("2020001");
+        }
+        if(ibdHeader.getOrderStatus() == PoConstant.ORDER_RECTIPT_ALL){
+            throw new BizCheckedException("2028892");
         }
         List<IbdDetail> ibdDetails = poOrderService.getInbPoDetailListByOrderId(orderId);
         ReceiptRequest request = new ReceiptRequest();

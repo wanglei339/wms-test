@@ -186,6 +186,18 @@ public class PoOrderService {
         return getInbPoHeaderByParams(params);
     }
 
+
+    /**
+     * Lock ibd header by order id ibd header.
+     *
+     * @param orderId the order id
+     * @return the ibd header
+     */
+    @Transactional(readOnly = false)
+    public IbdHeader lockIbdHeaderByOrderId(Long orderId) {
+        return ibdHeaderDao.lockIbdHeaderByOrderId(orderId);
+    }
+
     /**
      * 根据OrderOtherId获取InbPoHeader
      * @param orderOtherId
@@ -426,6 +438,13 @@ public class PoOrderService {
         }
 
         return ibdHeaders;
+    }
+
+    @Transactional(readOnly = false)
+    public void batchUpdateIbdHeaderByOrderId(List<IbdHeader> ibdHeaders){
+        if(ibdHeaders != null && ibdHeaders.size() > 0){
+            ibdHeaderDao.batchUpdateIbdHeaderByOrderId(ibdHeaders);
+        }
     }
 
 }
