@@ -359,7 +359,9 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 move.setQty(inboundUnitQty);
                 move.setItemId(inbReceiptDetail.getItemId());
                 move.setOperator(Long.valueOf(inbReceiptHeader.getReceiptUser()));
-                move.setTaskId(taskId);
+                //move.setTaskId(taskId);
+                move.setTaskId(ibdHeader.getOrderId());// TODO: 17/2/16  返仓没有生成任务,此处记录taskId无意义,改成orderId
+
 
                 Map<String, Object> moveInfo = new HashMap<String, Object>();
                 moveInfo.put("lot", newStockLot);
