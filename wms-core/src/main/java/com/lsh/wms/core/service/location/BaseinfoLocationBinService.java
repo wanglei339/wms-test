@@ -1,6 +1,7 @@
 package com.lsh.wms.core.service.location;
 
 import com.lsh.base.common.exception.BizCheckedException;
+import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.dao.baseinfo.BaseinfoLocationBinDao;
 import com.lsh.wms.model.baseinfo.*;
@@ -26,6 +27,7 @@ public class BaseinfoLocationBinService implements IStrategy {
 
     @Autowired
     private BaseinfoLocationBinDao baseinfoLocationBinDao;
+
     /**
      * 插入货位表baseinfo_location_bin
      *
@@ -34,11 +36,15 @@ public class BaseinfoLocationBinService implements IStrategy {
     @Transactional(readOnly = false)
     public void insert(IBaseinfoLocaltionModel iBaseinfoLocaltionModel) {
         iBaseinfoLocaltionModel.setClassification(LocationConstant.CLASSIFICATION_BINS);
+        Long time = DateUtils.getCurrentSeconds();
+        iBaseinfoLocaltionModel.setUpdatedAt(time);
+        iBaseinfoLocaltionModel.setCreatedAt(time);
         baseinfoLocationBinDao.insert((BaseinfoLocationBin) iBaseinfoLocaltionModel);
     }
 
     @Transactional(readOnly = false)
     public void update(IBaseinfoLocaltionModel iBaseinfoLocaltionModel) {
+        iBaseinfoLocaltionModel.setUpdatedAt(DateUtils.getCurrentSeconds());
         baseinfoLocationBinDao.update((BaseinfoLocationBin) iBaseinfoLocaltionModel);
     }
 
@@ -58,6 +64,7 @@ public class BaseinfoLocationBinService implements IStrategy {
 
     /**
      * 货位计数
+     *
      * @param params
      * @return 货位个数
      */
@@ -68,8 +75,9 @@ public class BaseinfoLocationBinService implements IStrategy {
 
     /**
      * 获取货位的list
+     *
      * @param params
-     * @return  货位的list
+     * @return 货位的list
      */
     public List<BaseinfoLocation> getBaseinfoLocaltionModelList(Map<String, Object> params) {
         params.put("isValid", LocationConstant.IS_VALID);
@@ -78,6 +86,7 @@ public class BaseinfoLocationBinService implements IStrategy {
 
     /**
      * 删除货位
+     *
      * @param locationId
      * @return 货位bin
      */
@@ -91,6 +100,16 @@ public class BaseinfoLocationBinService implements IStrategy {
         temp.setIsValid(LocationConstant.NOT_VALID);
         this.update(temp);
         return temp;
+    }
+
+    /**
+     * 获取bins
+     * @param params
+     * @return
+     */
+    public List<BaseinfoLocationBin> getBins(Map<String, Object> params) {
+        params.put("isValid", LocationConstant.IS_VALID);
+        return baseinfoLocationBinDao.getBaseinfoLocationBinList(params);
     }
 
 

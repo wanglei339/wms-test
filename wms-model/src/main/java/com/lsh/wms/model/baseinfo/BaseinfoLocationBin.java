@@ -9,7 +9,7 @@ public class BaseinfoLocationBin extends BaseinfoLocation implements Serializabl
 	/**  */
     private Long id;
 	/** 位置id */
-    private Long locationId;
+    protected Long locationId;
 	/** 仓位体积 */
     private BigDecimal volume;
 	/** 承重，默认单位kg，默认0，能承受东西很轻 */
@@ -26,6 +26,10 @@ public class BaseinfoLocationBin extends BaseinfoLocation implements Serializabl
     private Integer zoneType;
 	/** 是否可用1可用，0删除 */
 	private Integer isValid;
+	/** 原库位体积，用于拆分库位还原体积使用 */
+	private BigDecimal oldVolume;
+	/** 合并后关联库位的locationId */
+	private Long relLocationId;
 
 
 	public Long getId(){
@@ -112,5 +116,21 @@ public class BaseinfoLocationBin extends BaseinfoLocation implements Serializabl
 
 	public void setDefaultClassification() {
 		this.classification = 2;
+	}
+
+	public BigDecimal getOldVolume() {
+		return oldVolume;
+	}
+
+	public Long getRelLocationId() {
+		return relLocationId;
+	}
+
+	public void setOldVolume(BigDecimal oldVolume) {
+		this.oldVolume = oldVolume;
+	}
+
+	public void setRelLocationId(Long relLocationId) {
+		this.relLocationId = relLocationId;
 	}
 }
