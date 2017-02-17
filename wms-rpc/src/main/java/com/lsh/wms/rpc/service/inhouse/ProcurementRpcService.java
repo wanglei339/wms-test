@@ -55,8 +55,6 @@ public class ProcurementRpcService implements IProcurementRpcService{
     @Autowired
     private ItemRpcService itemRpcService;
     @Autowired
-    private LocationService locationService;
-    @Autowired
     private ItemService itemService;
     @Autowired
     private ItemLocationService itemLocationService;

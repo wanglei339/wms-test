@@ -11,6 +11,10 @@ public class ProcurementInfo {
 
     private int taskType;
 
+    private Long locationId = 0L;
+
+    private Long itemId = 0L;
+
     public Long getLocationType() {
         return locationType;
     }
@@ -35,12 +39,38 @@ public class ProcurementInfo {
         this.canMax = canMax;
     }
 
+    public Long getLocationId() {
+        return locationId;
+    }
+
+    public void setLocationId(Long locationId) {
+        this.locationId = locationId;
+    }
+
+    public Long getItemId() {
+        return itemId;
+    }
+
+    public void setItemId(Long itemId) {
+        this.itemId = itemId;
+    }
+
+    public ProcurementInfo(Long locationId, Long itemId) {
+        this.locationId = locationId;
+        this.itemId = itemId;
+    }
+
+    public ProcurementInfo() {
+    }
+
     @Override
     public String toString() {
         return "ProcurementInfo{" +
                 "locationType=" + locationType +
                 ", canMax=" + canMax +
                 ", taskType=" + taskType +
+                ", locationId=" + locationId +
+                ", itemId=" + itemId +
                 '}';
     }
 }

@@ -1,6 +1,5 @@
 package com.lsh.wms.integration.service.back;
 
-import com.alibaba.fastjson.JSON;
 import com.lsh.wms.api.model.wumart.CreateIbdDetail;
 import com.lsh.wms.api.model.wumart.CreateIbdHeader;
 import com.lsh.wms.core.service.po.ReceiveService;

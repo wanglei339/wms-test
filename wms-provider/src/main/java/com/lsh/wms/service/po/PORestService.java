@@ -220,6 +220,13 @@ public class PORestService implements IPoRestService {
         return JsonUtils.SUCCESS(poRpcService.getPoDetailList(params));
     }
 
+    @GET
+    @Path("closeIbdHeader")
+    public String closeIbdHeader(){
+        poRpcService.closeIbdOrder();
+        return JsonUtils.SUCCESS();
+    }
+
 
 
 }

@@ -69,6 +69,17 @@ public class ItemLocationService {
             return list;
         }
     }
+    public List<BaseinfoItemLocation> getItemLocationByLocationIdAndItemId(long iLocationId,long itemId){
+        Map<String,Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("pickLocationid",iLocationId);
+        mapQuery.put("itemId",itemId);
+        List<BaseinfoItemLocation> list  = itemLocationDao.getBaseinfoItemLocationList(mapQuery);
+        if (list == null) {
+            return new ArrayList<BaseinfoItemLocation>();
+        } else {
+            return list;
+        }
+    }
     public List<BaseinfoItemLocation> getItemLocation(Map<String,Object> mapQuery){
         List<BaseinfoItemLocation> list  = itemLocationDao.getBaseinfoItemLocationList(mapQuery);
         if (list == null) {

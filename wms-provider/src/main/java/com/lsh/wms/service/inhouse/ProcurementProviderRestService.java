@@ -174,4 +174,20 @@ public class ProcurementProviderRestService implements IProcurementProviderRestS
         }
         return JsonUtils.SUCCESS();
     }
+    @GET
+    @Path("test")
+    public String test()  throws BizCheckedException {
+        try{
+            ProcurementInfo shelfInfo = new ProcurementInfo();
+            shelfInfo.setItemId(282l);
+            shelfInfo.setLocationId(4467624135839l);
+            AsyncEventService.post(shelfInfo);
+        } catch (BizCheckedException e) {
+            throw e;
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            return JsonUtils.TOKEN_ERROR(e.getMessage());
+        }
+        return JsonUtils.SUCCESS();
+    }
 }

@@ -22,5 +22,7 @@ public interface ObdHeaderDao {
 	List<ObdHeader> getObdHeaderList(Map<String, Object> params);
 
 	List<Map<String, Object>> getSoKanBanCount(Long orderType);
+
+	ObdHeader lockObdHeaderByOrderId(Long orderId);
 	
 }

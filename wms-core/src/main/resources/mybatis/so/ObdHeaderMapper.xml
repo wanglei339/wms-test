@@ -100,6 +100,11 @@
 		where id=#{id}
 	</select>
 
+	<select id="lockObdHeaderByOrderId" parameterType="long" resultMap="obdHeaderResultMap">
+		select * from obd_header
+		where order_id=#{orderId} for update
+	</select>
+
 	<select id="countObdHeader" parameterType="map" resultType="int">
 		select count(*) from obd_header
 		<include refid="queryCondition"/>
