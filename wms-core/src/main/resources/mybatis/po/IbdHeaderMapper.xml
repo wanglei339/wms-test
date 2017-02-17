@@ -97,6 +97,11 @@
 		where ID=#{id}
 	</select>
 
+	<select id="lockIbdHeaderByOrderId" parameterType="long" resultMap="ibdHeaderResultMap">
+		select * from ibd_header
+		where order_id=#{orderId} for update
+	</select>
+
 	<select id="countIbdHeader" parameterType="map" resultType="int">
 		select count(*) from ibd_header
 		<include refid="queryCondition"/>
