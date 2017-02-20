@@ -45,18 +45,18 @@ public interface ILocationDetailRpc {
 
     /**
      * 合并库位
-     * @param fromLocationIds       需要合并的库位,不包含合并后使用的库位
-     * @param targetLocationId      合并后的目标库位
+     * @param binCodes    待合并库位
      * @throws BizCheckedException
+     * @return  返回一个map 分别 "msg":xx , "arr":问题locationId
      */
-    public void mergeBinsByLocationIds(List<String> fromLocationCodes, String targetLocationCode) throws BizCheckedException;
+    public Map<String,Object> mergeBinsByLocationIds(List<String> binCodes) throws BizCheckedException;
 
     /**
      * 合并库位
-     * @param targetLocationCode    需要拆分的库位码
+     * @param locationCode    库位码
      * @throws BizCheckedException
      */
-    public void splitBins(String targetLocationCode) throws BizCheckedException;
+    public void splitBins(String locationCode) throws BizCheckedException;
 
 
 

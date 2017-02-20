@@ -47,22 +47,28 @@ public class MergeLocationRfService implements IMergeLocationRfService {
     public String mergeBins() throws BizCheckedException {
         Map<String, Object> mapQuery = RequestUtils.getRequest();
         List<String> binCodes = null;
-        String targetBinCode = null;
         try {
             binCodes = (List<String>) mapQuery.get("binCodes");
-            targetBinCode = mapQuery.get("targetBinCode").toString();
         } catch (Exception e) {
             logger.error(e.getMessage());
             return JsonUtils.TOKEN_ERROR("传递格式参数有误");
         }
-        iLocationDetailRpc.mergeBinsByLocationIds(binCodes, targetBinCode);
-        Map<String,Object> resultMap = new HashMap<String,Object>();
-        resultMap.put("Done",true);
+        //做target的校验
+        Map<String, Object> msg2ArrMap = iLocationDetailRpc.mergeBinsByLocationIds(binCodes);
+        Map<String, Object> resultMap = new HashMap<String, Object>();
+        if (msg2ArrMap.isEmpty()) {
+            resultMap.put("response", true);
+        } else {
+            resultMap.put("response", false);
+            resultMap.put("msg",msg2ArrMap.get("msg"));
+            resultMap.put("arr",msg2ArrMap.get("arr"));
+        }
         return JsonUtils.SUCCESS(resultMap);
     }
 
     /**
      * 拆分库位
+     *
      * @return
      * @throws BizCheckedException
      */
@@ -73,13 +79,13 @@ public class MergeLocationRfService implements IMergeLocationRfService {
         String locationCode = null;
         try {
             locationCode = mapQuery.get("locationCode").toString();
-        }catch (Exception e){
+        } catch (Exception e) {
             logger.error(e.getMessage());
             return JsonUtils.TOKEN_ERROR("传递格式参数有误");
         }
         iLocationDetailRpc.splitBins(locationCode);
-        Map<String,Object> resultMap = new HashMap<String,Object>();
-        resultMap.put("Done",true);
+        Map<String, Object> resultMap = new HashMap<String, Object>();
+        resultMap.put("Done", true);
         return JsonUtils.SUCCESS(resultMap);
     }
 }

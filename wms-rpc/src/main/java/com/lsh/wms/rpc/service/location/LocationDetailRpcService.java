@@ -163,101 +163,118 @@ public class LocationDetailRpcService implements ILocationDetailRpc {
         return locationRpcService.getNextLevelLocations(locationId);
     }
 
+
     /**
      * 合并库位
      *
-     * @param fromLocationCodes     等待合并的库位码
-     * @param targetLocationCode     目标库位码
+     * @param binCodes 待合并库位
+     * @return 返回一个map 分别 "msg":xx , "arr":问题locationId
      * @throws BizCheckedException
      */
-    public void mergeBinsByLocationIds(List<String> fromLocationCodes, String targetLocationCode) throws BizCheckedException {
-        //校验是否是货位,是否位于同一货架,层坐标相同
-        boolean sameShelf = true;
-        boolean sameLevel = true;
-        Long targetLocationId = locationRpcService.getLocationIdByCode(targetLocationCode);
-        BaseinfoLocation targetBin = locationService.getLocation(targetLocationId);
-        if (null == targetBin) {
-            throw new BizCheckedException("2180001");
-        }
-        if (null == fromLocationCodes || fromLocationCodes.isEmpty()) {
+    public Map<String, Object> mergeBinsByLocationIds(List<String> binCodes) throws BizCheckedException {
+        //结果集
+        Map<String, Object> result = new HashMap<String, Object>();
+        //有库存的
+        List<String> quantBinCodes = new ArrayList<String>();
+        //合过的
+        List<String> mergedBinCodes = new ArrayList<String>();
+        //被锁定的
+        List<String> lockBinCodes = new ArrayList<String>();
+        if (null == binCodes || binCodes.size() < 2) {
             throw new BizCheckedException("2180036");
         }
-        if (!LocationConstant.BIN.equals(targetBin.getType())) {
-            throw new BizCheckedException("2180034");
-        }
-        //无库存||因为有移库必然有托盘数量的变更
-        if (0L != targetBin.getCurContainerVol()) {
-            throw new BizCheckedException("2180035");
-        }
-        //锁定不能合并
-        if (LocationConstant.IS_LOCKED.equals(targetBin.getIsLocked())){
-            throw new BizCheckedException("2180045");
-        }
-
-        BaseinfoLocation targetShelf = locationService.getShelfByLocationId(targetBin.getLocationId());
         List<Long> binIds = new ArrayList<Long>();
-        for (String locationCode : fromLocationCodes) {
+        //code=>locationId
+        Map<String, Long> code2Ids = new HashMap<String, Long>();
+        //判断货架的Id
+        long shelfId = 0L;
+        //判断货架的层数
+        long shelfLevelNo = 0L;
+        for (String locationCode : binCodes) {
             Long locationId = locationRpcService.getLocationIdByCode(locationCode);
             BaseinfoLocation location = locationService.getLocation(locationId);
-            if (targetLocationId.equals(locationId)) {
-                throw new BizCheckedException("2180041");
-            }
             if (null == location) {
                 throw new BizCheckedException("2180001");
+            }
+            if (null == code2Ids.get(locationCode)) {
+                code2Ids.put(locationCode, location.getLocationId());
+            } else {
+                throw new BizCheckedException("2180041");
             }
             if (!LocationConstant.BIN.equals(location.getType())) {
                 throw new BizCheckedException("2180034");
             }
             //锁定不能合并
-            if (LocationConstant.IS_LOCKED.equals(location.getIsLocked())){
-                throw new BizCheckedException("2180045");
+            if (LocationConstant.IS_LOCKED.equals(location.getIsLocked())) {
+                lockBinCodes.add(locationCode);
             }
             //无库存
             if (0L != location.getCurContainerVol()) {
-                throw new BizCheckedException("2180035");
+                quantBinCodes.add(locationCode);
             }
-            if (!location.getShelfLevelNo().equals(targetBin.getShelfLevelNo())) {
-                sameLevel = false;
-                break;
+            //同一层判断
+            if (0L == shelfLevelNo) {
+                shelfLevelNo = location.getShelfLevelNo();
+            } else if (shelfLevelNo != location.getShelfLevelNo()) {
+                throw new BizCheckedException("2180042");
             }
-            BaseinfoLocation oneShelf = locationService.getShelfByLocationId(targetBin.getLocationId());
-            if (!targetShelf.getLocationId().equals(oneShelf.getLocationId())) {
-                sameShelf = false;
-                break;
+
+            //同一货架判断
+            BaseinfoLocation oneShelf = locationService.getShelfByLocationId(location.getLocationId());
+            if (0L == shelfId) {
+                shelfId = oneShelf.getLocationId();
+            } else if (shelfId != oneShelf.getLocationId()) {
+                throw new BizCheckedException("2180043");
             }
             binIds.add(locationId);
         }
-        if (!sameLevel) {
-            throw new BizCheckedException("2180042");
-        }
-        if (!sameShelf) {
-            throw new BizCheckedException("2180043");
-        }
         //转成bin
-        BaseinfoLocationBin toBin = (BaseinfoLocationBin) locationDetailService.getIBaseinfoLocaltionModelById(targetBin.getLocationId());
-        if (0L!=toBin.getRelLocationId()){
-            throw new BizCheckedException("2180044");
-        }
         List<BaseinfoLocationBin> bins = new ArrayList<BaseinfoLocationBin>();
-        for (Long locationId : binIds) {
-            BaseinfoLocationBin bin = (BaseinfoLocationBin) locationDetailService.getIBaseinfoLocaltionModelById(locationId);
-            if (0L!=toBin.getRelLocationId()){
-                throw new BizCheckedException("2180044");
+        BaseinfoLocationBin toBin = null;
+        if (binIds.size() > 1) {
+            //目标库位
+            toBin = (BaseinfoLocationBin) locationDetailService.getIBaseinfoLocaltionModelById(binIds.get(0));
+            if (0L != toBin.getRelLocationId()) {
+                mergedBinCodes.add(toBin.getLocationCode());
             }
-            bins.add(bin);
+            //合并库位
+            for (int i = 1; i < binIds.size(); i++) {
+                BaseinfoLocationBin bin = (BaseinfoLocationBin) locationDetailService.getIBaseinfoLocaltionModelById(binIds.get(i));
+                if (0L != toBin.getRelLocationId()) {
+                    mergedBinCodes.add(bin.getLocationCode());
+                }
+                bins.add(bin);
+            }
+        }
+        //有库存的
+        if (quantBinCodes.size() > 0) {
+            result.put("msg", "位置有库存,不能合并");
+            result.put("arr", quantBinCodes);
+            return result;
+        }
+        //合并过的
+        if (mergedBinCodes.size() > 0) {
+            result.put("msg", "库位已合并过,不能再次合并");
+            result.put("arr", mergedBinCodes);
+            return result;
+        }
+        //锁定的
+        if (lockBinCodes.size() > 0) {
+            result.put("msg", "库位已被锁定,不能合并");
+            result.put("arr", lockBinCodes);
+            return result;
         }
         locationDetailService.mergeBins(bins, toBin);
+        return result;
     }
 
-
     /**
-     * 需要拆分库位
-     * @param targetLocationCode 需要拆分的库位码
+     * @param locationCode 库位码
      * @throws BizCheckedException
      */
-    public void splitBins(String targetLocationCode) throws BizCheckedException {
-        Long targetLocationId = locationRpcService.getLocationIdByCode(targetLocationCode);
-        BaseinfoLocation location = locationService.getLocation(targetLocationId);
+    public void splitBins(String locationCode) throws BizCheckedException {
+        Long oneLocationId = locationRpcService.getLocationIdByCode(locationCode);
+        BaseinfoLocation location = locationService.getLocation(oneLocationId);
         //库存,锁
         if (null == location) {
             throw new BizCheckedException("2180001");
@@ -265,16 +282,19 @@ public class LocationDetailRpcService implements ILocationDetailRpc {
         if (!LocationConstant.BIN.equals(location.getType())) {
             throw new BizCheckedException("2180037");
         }
-        if (LocationConstant.IS_LOCKED.equals(location.getIsLocked())) {
+        BaseinfoLocationBin oneBin = (BaseinfoLocationBin) locationDetailService.getIBaseinfoLocaltionModelById(location.getLocationId());
+        Long targetLocationId = oneBin.getRelLocationId();
+        if (0L == targetLocationId) {
+            throw new BizCheckedException("2180038");
+        }
+        //关联的在使用的bin,区别其他被锁定的bin
+        BaseinfoLocationBin targetBin = (BaseinfoLocationBin) locationDetailService.getIBaseinfoLocaltionModelById(targetLocationId);
+        if (LocationConstant.IS_LOCKED.equals(targetBin.getIsLocked())) {
             throw new BizCheckedException("2180031");
         }
         //库存和这个息息相关,有库存就一定有这个数
-        if (0L != location.getCurContainerVol()) {
+        if (0L != targetBin.getCurContainerVol()) {
             throw new BizCheckedException("2180032");
-        }
-        BaseinfoLocationBin targetBin = (BaseinfoLocationBin) locationDetailService.getIBaseinfoLocaltionModelById(location.getLocationId());
-        if (0L == targetBin.getRelLocationId()) {
-            throw new BizCheckedException("2180038");
         }
         Map<String, Object> queryMap = new HashMap<String, Object>();
         queryMap.put("relLocationId", targetBin.getRelLocationId());
@@ -282,11 +302,11 @@ public class LocationDetailRpcService implements ILocationDetailRpc {
         List<BaseinfoLocationBin> toSplitbins = new ArrayList<BaseinfoLocationBin>();
         //解锁,拆分关联关系,包含需要拆分库位的本身
         if (null != allRelBins && allRelBins.size() > 1) {
-            for (BaseinfoLocationBin oneBin : allRelBins){
-                if (targetBin.getRelLocationId().equals(oneBin.getLocationId())){
+            for (BaseinfoLocationBin tempBin : allRelBins) {
+                if (targetBin.getRelLocationId().equals(tempBin.getLocationId())) {
                     continue;
                 }
-                toSplitbins.add(oneBin);
+                toSplitbins.add(tempBin);
             }
             locationDetailService.splitBins(toSplitbins, targetBin);
         }
