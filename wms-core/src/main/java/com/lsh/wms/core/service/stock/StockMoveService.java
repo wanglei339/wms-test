@@ -182,11 +182,11 @@ public class StockMoveService {
     @Transactional(readOnly = false)
     public void move(StockMove move) throws BizCheckedException {
 
-        checkMove(move);
+        this.checkMove(move);
 
         locationService.lockLocationById(move.getFromLocationId());
 
-        decorateMove(move);
+        this.decorateMove(move);
 
         if (move.getLot() == null) {
             this.create(move);
@@ -260,7 +260,7 @@ public class StockMoveService {
         for (StockQuant quant : stockQuants) {
             total = total.add(quant.getQty());
         }
-        if (total.subtract(qty).floatValue() < 0) {
+        if (total.subtract(qty).compareTo(BigDecimal.ZERO) < 0) {
             throw new BizCheckedException("2550008");
         }
         StockQuant quant = stockQuants.get(0);
