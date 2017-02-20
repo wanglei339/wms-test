@@ -8,13 +8,15 @@ import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.base.common.utils.RandomUtils;
-import com.lsh.base.common.utils.StrUtils;
-import com.lsh.wms.api.service.inhouse.IStockTakingRestService;
 import com.lsh.wms.api.service.inhouse.IStockTakingProviderRpcService;
+import com.lsh.wms.api.service.inhouse.IStockTakingRestService;
 import com.lsh.wms.api.service.location.ILocationRpcService;
 import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.task.ITaskRpcService;
-import com.lsh.wms.core.constant.*;
+import com.lsh.wms.core.constant.BinUsageConstant;
+import com.lsh.wms.core.constant.LocationConstant;
+import com.lsh.wms.core.constant.StockTakingConstant;
+import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.dao.redis.RedisStringDao;
 import com.lsh.wms.core.service.csi.CsiSkuService;
 import com.lsh.wms.core.service.location.LocationService;
@@ -26,7 +28,6 @@ import com.lsh.wms.core.service.task.StockTakingTaskService;
 import com.lsh.wms.core.service.utils.IdGenerator;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.csi.CsiSku;
-import com.lsh.wms.model.so.ObdDetail;
 import com.lsh.wms.model.stock.ItemAndSupplierRelation;
 import com.lsh.wms.model.stock.StockLot;
 import com.lsh.wms.model.stock.StockQuant;
@@ -37,17 +38,14 @@ import com.lsh.wms.model.taking.StockTakingRequest;
 import com.lsh.wms.model.task.StockTakingTask;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
-import com.lsh.wms.service.sync.AsyncEventService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.orm.jpa.vendor.OpenJpaDialect;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.text.DecimalFormat;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created by mali on 16/7/14.

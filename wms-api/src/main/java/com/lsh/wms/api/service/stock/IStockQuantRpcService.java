@@ -1,9 +1,7 @@
 package com.lsh.wms.api.service.stock;
 
 import com.lsh.base.common.exception.BizCheckedException;
-import com.lsh.wms.model.stock.StockMove;
-import com.lsh.wms.model.stock.StockQuant;
-import com.lsh.wms.model.stock.StockQuantCondition;
+import com.lsh.wms.model.stock.*;
 import com.lsh.wms.model.task.TaskInfo;
 
 import java.math.BigDecimal;
@@ -29,6 +27,12 @@ public interface IStockQuantRpcService {
     int getLocationStockCount(Map<String, Object> mapQuery);
     List<StockQuant> getLocationStockList(Map<String, Object> mapQuery);
     List<StockMove> traceQuant(Long quantId);
+    void updateStockInfoList();
+    void updateStockLocationInfoList();
+    List<StockQuantInfo> getStockInfo(Map<String, Object> mapQuery);
+    Integer countStockInfo(Map<String, Object> mapQuery);
+    List<StockQuantLocationInfo> getStockLocationInfo(Map<String, Object> mapQuery);
+    Integer countStockLocationInfo(Map<String, Object> mapQuery);
     List<StockQuant> getItemLocationList(Map<String, Object> mapQuery);
     List<StockQuant> getBackItemLocationList(Map<String, Object> mapQuery);
 }

@@ -153,6 +153,26 @@ public class StockQuantRestService implements IStockQuantRestService {
     public String getLocationStockList(Map<String, Object> mapQuery) {
         return JsonUtils.SUCCESS(stockQuantRpcService.getLocationStockList(mapQuery));
     }
+    @POST
+    @Path("getStockInfoList")
+    public String getStockInfoList(Map<String, Object> mapQuery) {
+        return JsonUtils.SUCCESS(stockQuantRpcService.getStockInfo(mapQuery));
+    }
+    @POST
+    @Path("countStockInfoList")
+    public String countStockInfoList(Map<String, Object> mapQuery) {
+        return JsonUtils.SUCCESS(stockQuantRpcService.countStockInfo(mapQuery));
+    }
+    @POST
+    @Path("getStockLocationInfoList")
+    public String getStockLocationInfoList(Map<String, Object> mapQuery) {
+        return JsonUtils.SUCCESS(stockQuantRpcService.getStockLocationInfo(mapQuery));
+    }
+    @POST
+    @Path("countStockLocationInfoList")
+    public String countStockLocationInfoList(Map<String, Object> mapQuery) {
+        return JsonUtils.SUCCESS(stockQuantRpcService.countStockLocationInfo(mapQuery));
+    }
 
     @GET
     @Path("traceQuant")
