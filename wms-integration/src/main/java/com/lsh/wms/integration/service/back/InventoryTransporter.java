@@ -2,6 +2,7 @@ package com.lsh.wms.integration.service.back;
 
 import com.alibaba.fastjson.JSON;
 import com.lsh.base.common.config.PropertyUtils;
+import com.lsh.base.q.Module.Base;
 import com.lsh.wms.api.model.stock.StockItem;
 import com.lsh.wms.api.model.stock.StockRequest;
 import com.lsh.wms.core.constant.IntegrationConstan;
@@ -48,7 +49,10 @@ public class InventoryTransporter implements ITransporter{
         if(overLossReport.getOwnerId().compareTo(1L)==0){
             //item.setEntryUom(overLossReport.getPackName());
             //修改为EA
-            item.setEntryUom("EA");
+            //查询基础数据中的基本单位
+            BaseinfoItem baseinfoItem = itemService.getItem(overLossReport.getItemId());
+            item.setEntryUom(baseinfoItem.getUnitName());
+            //item.setEntryUom("EA");
             item.setEntryQnt(overLossReport.getQty().toString());
             item.setMaterialNo(SkuUtil.getSkuCode(overLossReport.getSkuCode()));
             list.add(item);

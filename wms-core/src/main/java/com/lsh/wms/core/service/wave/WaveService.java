@@ -507,6 +507,8 @@ public class WaveService {
     @Transactional(readOnly = false)
     public void split(WaveDetail detail, BigDecimal splitQty , Long containerId,Long soOrderId,BigDecimal packUnit,String storeNo) {
         CsiCustomer customer = csiCustomerService.getCustomerByCustomerCode(storeNo); // 门店对应的集货道
+        //查询商品 基本单位都从商品表中获取
+        BaseinfoItem baseinfoItem = itemService.getItem(detail.getItemId());
 
         if(detail.getPickQty().compareTo(splitQty)<=0)
         {
@@ -524,17 +526,22 @@ public class WaveService {
             newDetail.setAllocQty(splitQty);
 
             if(decimals[1].compareTo(BigDecimal.ZERO)!=0){
-                newDetail.setAllocUnitName("EA");
+                //改为商品基本单位
+                newDetail.setAllocUnitName(baseinfoItem.getUnitName());
+                //newDetail.setAllocUnitName("EA");
                 newDetail.setAllocUnitQty(splitQty);
 
                 detail.setAllocUnitQty(detail.getPickQty().subtract(splitQty));
-                detail.setAllocUnitName("EA");
+                detail.setAllocUnitName(baseinfoItem.getUnitName());
+                //detail.setAllocUnitName("EA");
             }else {
                 newDetail.setAllocUnitQty(decimals[1]);
-                if(detail.getAllocUnitName().equals("EA")){
+                //if(detail.getAllocUnitName().equals("EA")){
+                if(detail.getAllocUnitName().equals(baseinfoItem.getUnitName())){
                     detail.setAllocUnitQty(detail.getAllocQty().subtract(splitQty));
                 }else {
-                    newDetail.setAllocUnitName(PackUtil.PackUnit2Uom(packUnit,"EA"));
+                    //newDetail.setAllocUnitName(PackUtil.PackUnit2Uom(packUnit,"EA"));
+                    newDetail.setAllocUnitName(baseinfoItem.getPackName());
                     detail.setAllocUnitQty(detail.getAllocQty().subtract(decimals[0]));
                 }
             }

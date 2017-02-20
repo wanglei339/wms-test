@@ -58,11 +58,13 @@ public class MovingTransporter implements ITransporter{
         }else{
             detail.setToLocation("0001");
         }
-        detail.setPackName("EA");
+
         //detail.setToLocation("");
         detail.setQty(move.getQty());
         BaseinfoItem item = itemService.getItem(move.getItemId());
         detail.setSkuCode(SkuUtil.getSkuCode(item.getSkuCode()));
+        //detail.setPackName("EA");
+        detail.setPackName(item.getUnitName());
         list.add(detail);
         header.setDetails(list);
         wuMart.stockMoving2Sap(header,sysLog);
