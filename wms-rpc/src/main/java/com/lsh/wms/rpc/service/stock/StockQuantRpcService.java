@@ -317,9 +317,11 @@ public class StockQuantRpcService implements IStockQuantRpcService {
         Long beginDate = DateUtils.getCurrentSeconds();
         logger.info("stock_location_begin_time"+beginDate);
         Map<String,Object> mapQuery = new HashMap<String, Object>();
+
+        //目标表已存在的数据
         Map<String,StockQuantLocationInfo> stockLocationMap = new HashMap<String, StockQuantLocationInfo>();
 
-
+        //需要倒入的数据
         Map<String,StockQuantLocationInfo> stockQuantInfos = new LinkedHashMap<String, StockQuantLocationInfo>();
 
         List<StockQuantLocationInfo> insertStockQuantInfos = new ArrayList<StockQuantLocationInfo>();
@@ -327,7 +329,6 @@ public class StockQuantRpcService implements IStockQuantRpcService {
         List<StockQuantLocationInfo> delStockQuantInfos = new ArrayList<StockQuantLocationInfo>();
 
 
-        Map<String,StockQuantLocationInfo> quantLocationInfoMap = new HashMap<String, StockQuantLocationInfo>();
 
         List<StockQuantLocationInfo> stockQuantLocationInfos = quantService.getStockLocationInfoList(mapQuery);
         //初始化map
@@ -346,15 +347,15 @@ public class StockQuantRpcService implements IStockQuantRpcService {
             for(StockQuant quant: quants){
                 StockQuantLocationInfo locationInfo = null;
                 String key = String.format(" locationId:[%d],itemId:[%d],supplierId:[%d]",quant.getLocationId(),quant.getItemId(),quant.getSupplierId());
-                if(stockLocationMap.containsKey(key)){
-                    locationInfo = quantLocationInfoMap.get(key);
+                if(stockQuantInfos.containsKey(key)){
+                    locationInfo = stockQuantInfos.get(key);
                     locationInfo.setQty(locationInfo.getQty().add(quant.getQty()));
                     if(quant.getExpireDate().compareTo(locationInfo.getMinLife()) <0) {
-
                         Long now = DateUtils.getCurrentSeconds();
                         int remainDate = (int)((quant.getExpireDate() - now) / (24 * 60 * 60)) ;
                         locationInfo.setMinLifeRet(locationInfo.getShelfLife().compareTo(BigDecimal.ZERO) == 0 ? 1 : ((double) remainDate) / locationInfo.getShelfLife().doubleValue());
                         locationInfo.setMinLife(quant.getExpireDate());
+                        stockQuantInfos.put(key,locationInfo);
                     }
                 }else {
                     locationInfo = new StockQuantLocationInfo();
@@ -373,7 +374,7 @@ public class StockQuantRpcService implements IStockQuantRpcService {
 
                     Long now = DateUtils.getCurrentSeconds();
                     int remainDate = (int)((quant.getExpireDate() - now) / (24 * 60 * 60)) ;
-                    locationInfo.setMinLifeRet(item.getShelfLife().compareTo(BigDecimal.ZERO) == 0 ? 1 : ((double)remainDate) / locationInfo.getShelfLife().doubleValue());
+                    locationInfo.setMinLifeRet(item.getShelfLife().compareTo(BigDecimal.ZERO) == 0 ? 1 : ((double) remainDate) / locationInfo.getShelfLife().doubleValue());
                     locationInfo.setMinLife(quant.getExpireDate());
                 }
                 if(stockLocationMap.containsKey(key)){
