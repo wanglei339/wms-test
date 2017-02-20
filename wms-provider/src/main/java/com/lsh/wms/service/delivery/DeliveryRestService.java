@@ -2,7 +2,6 @@ package com.lsh.wms.service.delivery;
 
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
-import com.alibaba.fastjson.JSON;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.model.base.BaseResponse;
@@ -13,15 +12,13 @@ import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.so.IDeliveryRestService;
 import com.lsh.wms.core.service.so.SoDeliveryService;
 import com.lsh.wms.model.so.OutBoundTime;
-import com.lsh.wms.model.so.OutbDeliveryDetail;
-import com.lsh.wms.model.so.OutbDeliveryHeader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import java.util.*;
+import java.util.Map;
 
 /**
  * Project Name: lsh-wms

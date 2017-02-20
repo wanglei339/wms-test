@@ -2,14 +2,9 @@ package com.lsh.wms.service.outbound;
 
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
-import com.alibaba.fastjson.JSON;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.DateUtils;
-import com.lsh.wms.api.model.so.ObdOfcBackRequest;
-import com.lsh.wms.api.model.so.ObdOfcItem;
-import com.lsh.wms.api.model.wumart.CreateObdDetail;
-import com.lsh.wms.api.model.wumart.CreateObdHeader;
 import com.lsh.wms.api.service.back.IDataBackService;
 import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.stock.IStockQuantRpcService;
@@ -17,7 +12,6 @@ import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.api.service.tu.ITuRpcService;
 import com.lsh.wms.api.service.wave.IShipRestService;
 import com.lsh.wms.api.service.wumart.IWuMart;
-import com.lsh.wms.core.constant.IntegrationConstan;
 import com.lsh.wms.core.constant.KeyLockConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.constant.TuConstant;
@@ -29,25 +23,14 @@ import com.lsh.wms.core.service.tu.TuService;
 import com.lsh.wms.core.service.utils.IdGenerator;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.key.KeyLock;
-import com.lsh.wms.model.so.ObdDetail;
-import com.lsh.wms.model.so.ObdHeader;
-import com.lsh.wms.model.so.OutbDeliveryDetail;
-import com.lsh.wms.model.so.OutbDeliveryHeader;
-import com.lsh.wms.model.stock.StockQuantCondition;
-import com.lsh.wms.model.task.TaskEntry;
-import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.tu.TuDetail;
 import com.lsh.wms.model.tu.TuHead;
-import com.lsh.wms.model.wave.WaveDetail;
-import com.lsh.wms.service.tu.TuRpcService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
