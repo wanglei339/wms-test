@@ -347,7 +347,7 @@ public class StockQuantRpcService implements IStockQuantRpcService {
             for(StockQuant quant: quants){
                 StockQuantLocationInfo locationInfo = null;
                 String key = String.format(" locationId:[%d],itemId:[%d],supplierId:[%d]",quant.getLocationId(),quant.getItemId(),quant.getSupplierId());
-                if(stockQuantInfos.containsKey(key)){
+                if(stockQuantInfos.get(key)!=null){
                     locationInfo = stockQuantInfos.get(key);
                     locationInfo.setQty(locationInfo.getQty().add(quant.getQty()));
                     if(quant.getExpireDate().compareTo(locationInfo.getMinLife()) <0) {

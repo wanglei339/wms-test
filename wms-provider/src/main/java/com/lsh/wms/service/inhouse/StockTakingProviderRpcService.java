@@ -108,7 +108,7 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
     }
     public void calcelTask(Long taskId) throws BizCheckedException {
         TaskInfo info = baseTaskService.getTaskInfoById(taskId);
-        if(info!=null && info.getStatus().equals(TaskConstant.Draft)) {
+        if(info!=null && (info.getStatus().equals(TaskConstant.Draft) || info.getStatus().compareTo(TaskConstant.Assigned) ==0)) {
             StockTakingHead head = stockTakingService.getHeadById(info.getPlanId());
             iTaskRpcService.cancel(info.getTaskId(), head);
         }
