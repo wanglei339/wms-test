@@ -32,6 +32,8 @@ public class IdGeneratorContant {
 
             //tuId运单号
             put("tuId", 30);
+            //tu_detail的id生成
+            put("tuDetailId", 31);
 
             //托盘码
             put("containerCode",1);//前缀1

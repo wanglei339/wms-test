@@ -331,6 +331,24 @@ public class LocationService {
         List<BaseinfoLocation> locations = locationDao.getChildrenLocationList(params);
         return null != locations && !locations.isEmpty() ? locations : new ArrayList<BaseinfoLocation>();
     }
+    /**
+     * 根据type获取子节点
+     *
+     * @param locationId
+     * @param sonType
+     * @return
+     */
+    public List<BaseinfoLocation> getChildrenLocationsByCanStoreType(Long locationId, Long sonType,Integer canStore) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        BaseinfoLocation location = this.getLocation(locationId);
+        params.put("leftRange", location.getLeftRange());
+        params.put("rightRange", location.getRightRange());
+        params.put("canStore", canStore);
+        params.put("type", sonType);
+        params.put("isValid", LocationConstant.IS_VALID);
+        List<BaseinfoLocation> locations = locationDao.getChildrenLocationList(params);
+        return null != locations && !locations.isEmpty() ? locations : new ArrayList<BaseinfoLocation>();
+    }
 
 
     /**
@@ -591,6 +609,19 @@ public class LocationService {
      */
     public BaseinfoLocation getBackLocation() {
         List<BaseinfoLocation> locations = this.getLocationsByType(LocationConstant.BACK_AREA);
+        if (locations != null && locations.size() > 0) {
+            return locations.get(0);
+        } else {
+            return null;
+        }
+    }
+    /**
+     * 获取可用反仓区节点
+     *
+     * @return
+     */
+    public BaseinfoLocation getAntiLocation() {
+        List<BaseinfoLocation> locations = this.getLocationsByType(LocationConstant.MARKET_RETURN_AREA);
         if (locations != null && locations.size() > 0) {
             return locations.get(0);
         } else {
@@ -1229,7 +1260,7 @@ public class LocationService {
         if (location == null) {
             throw new BizCheckedException("2180001");
         }
-        locationDao.lock(location.getId());
+        //容易死锁
         location.setCurContainerVol(containerVol);    //被占用
         //设置状态
         if (this.isOnThreshold(location, containerVol)) {

@@ -23,6 +23,4 @@ public interface TuHeadDao {
 
     Integer countTuHeadOnPc(Map<String, Object> params);
 
-    List<TuHead> lockTuHeadById(Long id);
-
 }

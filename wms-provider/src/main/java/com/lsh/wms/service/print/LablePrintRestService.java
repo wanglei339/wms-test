@@ -16,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created by zhanghongling on 16/11/8.
@@ -57,8 +56,6 @@ public class LablePrintRestService implements ILablePrintRestService {
 
             }
                 return JsonUtils.TOKEN_ERROR("参数错误");
-
-
     }
 
     //批量生成合板标识码

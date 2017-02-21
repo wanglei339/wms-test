@@ -27,6 +27,7 @@ public interface ITaskRpcService {
     void cancel(Long taskId) throws BizCheckedException;
     void hold(Long taskId) throws BizCheckedException;
     void batchHold(Long taskType, List<Long> taskIds) throws BizCheckedException;
+    void cancel(Long taskId,StockTakingHead head) throws BizCheckedException;
     List<TaskEntry> getTaskList(Long taskType, Map<String, Object> mapQuery);
     int getTaskCount(Long taskType, Map<String, Object> mapQuery);
     List<TaskEntry> getTaskHeadList(Long taskType, Map<String, Object> mapQuery);

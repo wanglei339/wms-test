@@ -69,6 +69,17 @@ public class ItemLocationService {
             return list;
         }
     }
+    public List<BaseinfoItemLocation> getItemLocationByLocationIdAndItemId(long iLocationId,long itemId){
+        Map<String,Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("pickLocationid",iLocationId);
+        mapQuery.put("itemId",itemId);
+        List<BaseinfoItemLocation> list  = itemLocationDao.getBaseinfoItemLocationList(mapQuery);
+        if (list == null) {
+            return new ArrayList<BaseinfoItemLocation>();
+        } else {
+            return list;
+        }
+    }
     public List<BaseinfoItemLocation> getItemLocation(Map<String,Object> mapQuery){
         List<BaseinfoItemLocation> list  = itemLocationDao.getBaseinfoItemLocationList(mapQuery);
         if (list == null) {
@@ -189,6 +200,15 @@ public class ItemLocationService {
     @Transactional(readOnly = false)
     public void updateByItemIdAndPicId(BaseinfoItemLocation baseinfoItemLocation){
         itemLocationDao.updateByItemIdAndPicId(baseinfoItemLocation);
+    }
+    public List<BaseinfoItemLocation> getItemLocationByLocationId(Long locationId){
+        Map<String,Object> map = new HashMap<String, Object>();
+        map.put("pickLocationid", locationId);
+        List<BaseinfoItemLocation> itemLocations  = itemLocationDao.getBaseinfoItemLocationList(map);
+        if(itemLocations ==null || itemLocations.size()==0){
+            return null;
+        }
+        return itemLocations;
     }
 
     public List<Map<String, String>> getPickLocationsByItemId (Long itemId) {

@@ -56,6 +56,7 @@
 		<result property="qcTimes" column="qc_times"/>
 		<result property="qcFault" column="qc_fault"/>
 		<result property="qcFaultQty" column="qc_fault_qty"/>
+		<result property="tuDetailId" column="tu_detail_id"/>
 	</resultMap>
 
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="WaveDetail">
@@ -68,7 +69,7 @@
 			pick_at,sow_task_id,sow_uid,sow_at,qc_task_id,qc_uid,
 			qc_at,merge_task_id,merge_uid,merge_at,qc_exception,qc_exception_qty,
 			qc_exception_done,ship_task_id,ship_uid,ship_at,delivery_id,created_at,
-			updated_at,qc_times,qc_fault,qc_fault_qty
+			updated_at,qc_times,qc_fault,qc_fault_qty,tu_detail_id
     	) values (
 			#{refDetailId},#{isAlive},#{isValid},#{waveId},#{orderId},#{itemId},
 			#{skuId},#{ownerId},#{locId},#{supplierId},#{status},#{reqQty},
@@ -78,9 +79,8 @@
 			#{pickAt},#{sowTaskId},#{sowUid},#{sowAt},#{qcTaskId},#{qcUid},
 			#{qcAt},#{mergeTaskId},#{mergeUid},#{mergeAt},#{qcException},#{qcExceptionQty},
 			#{qcExceptionDone},#{shipTaskId},#{shipUid},#{shipAt},#{deliveryId},#{createdAt},
-			#{updatedAt},#{qcTimes},#{qcFault},#{qcFaultQty}
+			#{updatedAt},#{qcTimes},#{qcFault},#{qcFaultQty},#{tuDetailId}
     	)
-
 	</insert>
 
 	<update id="update" parameterType="WaveDetail">
@@ -137,7 +137,8 @@
   			<if test="updatedAt != null">updated_at=#{updatedAt},</if>
 			<if test="qcTimes != null">qc_times=#{qcTimes},</if>
 			<if test="qcFault != null">qc_fault=#{qcFault},</if>
-			<if test="qcFaultQty != null">qc_fault_qty=#{qcFaultQty}</if>
+			<if test="qcFaultQty != null">qc_fault_qty=#{qcFaultQty},</if>
+			<if test="tuDetailId != null">tu_detail_id=#{tuDetailId}</if>
 		</set>
 		where id=#{id}
 	</update>
@@ -242,6 +243,7 @@
 			<if test="qcTimes != null">and qc_times=#{qcTimes}</if>
 			<if test="qcFault != null">and qc_fault=#{qcFault}</if>
 			<if test="qcFaultQty != null">and qc_fault_qty=#{qcFaultQty}</if>
+			<if test="tuDetailId != null">and tu_detail_id=#{tuDetailId}</if>
 			<if test="pickTaskIds != null">
 				and pick_task_id in
 				<foreach collection="pickTaskIds" item="pickTaskId" index="index" open="(" separator=","  close=")">

@@ -97,14 +97,15 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
         String locationCode = "";
         Long uid = 0l;
         String barcode = "";
-        BigDecimal realQty = BigDecimal.ZERO;
+        BigDecimal realEaQty = BigDecimal.ZERO;
+        BigDecimal realUmoQty = BigDecimal.ZERO;
         List<Map> resultList = null;
         logger.info("params:"+request);
         try {
             object = JSONObject.fromObject(request.get("result"));
             //库位编码
             locationCode = object.get("locationCode").toString();
-            
+
             uid =  Long.valueOf(RequestUtils.getHeader("uid"));
 
             if(object.get("taskId")!=null && !"".equals(object.get("taskId").toString())) {
@@ -117,6 +118,7 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
 
         BaseinfoLocation location = locationService.getLocationByCode(locationCode);
         CsiSku sku = null;
+        BaseinfoItem baseinfoItem = null;
         if(location == null){
             return JsonUtils.TOKEN_ERROR("位置不存在");
         }
@@ -127,19 +129,28 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
             //商品码
             barcode = beanMap.get("barcode").toString().trim();
             //盘点数量
-            realQty = new BigDecimal(beanMap.get("qty").toString().trim());
+            if(beanMap.get("scatterQty")!=null && !beanMap.get("scatterQty").toString().trim().equals("")) {
+                realEaQty = new BigDecimal(beanMap.get("scatterQty").toString().trim());
+            }
+            if(beanMap.get("qty")!=null && !beanMap.get("qty").toString().trim().equals("")) {
+                realUmoQty = new BigDecimal(beanMap.get("qty").toString().trim());
+            }
             if(barcode != null && !"".equals(barcode)) {
                 sku = skuService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, barcode);
             }
             if(sku==null){
-                throw new BizCheckedException("2550068",barcode,"");
+                List<BaseinfoItem> items = itemService.getItemByPackCode(barcode);
+
+                if (items == null || items.size() == 0) {
+                    throw new BizCheckedException("2550068",barcode,"");
+                }
             }
         }
 
 
         if(taskId.equals(0L)){
             //临时盘点
-            stockTakingProviderRpcService.createAndDoTmpTask(locationId,realQty,barcode,uid);
+            stockTakingProviderRpcService.createAndDoTmpTask(locationId,realEaQty,realUmoQty,barcode,uid);
 
             return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
                 {
@@ -159,8 +170,12 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
         }
         detail = stockTakingRpcService.fillDetail(detail);
         CsiSku csiSku = null;
+        BaseinfoItem item = null;
         if(!detail.getSkuId().equals(0L)) {
             csiSku = skuService.getSku(detail.getSkuId());
+        }
+        if(!detail.getItemId().equals(0L)) {
+            item =  itemService.getItem(detail.getItemId());
         }
         if(detail.getTheoreticalQty().compareTo(BigDecimal.ZERO)==0){
             //该盘点位置没有商品
@@ -169,13 +184,21 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
                 detail.setSkuId(sku.getSkuId());
                 detail.setBarcode(sku.getCode());
                 detail.setRealSkuId(sku.getSkuId());
-                detail.setRealQty(realQty);
+                detail.setUmoQty(realUmoQty);
+                detail.setRealQty(realEaQty);
+            }else {
+                //箱码
+                detail.setPackCode(barcode);
+                detail.setUmoQty(realUmoQty);
+                detail.setRealQty(realEaQty);
             }
-        }
-        if(!("").equals(barcode) && csiSku!=null && csiSku.getCode().equals(barcode)) {
-            //库位有商品
-            detail.setRealQty(realQty);
-            stockTakingService.updateDetail(detail);
+        }else if(!("").equals(barcode)){
+          if((csiSku!=null && csiSku.getCode().equals(barcode)) || (item!=null && item.getPackCode().equals(barcode))) {
+              //库位有商品
+              detail.setRealQty(realEaQty);
+              detail.setUmoQty(realUmoQty);
+              stockTakingService.updateDetail(detail);
+          }
         }
 
         stockTakingService.doneDetail(detail);
@@ -271,7 +294,6 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
             logger.info(e.getMessage());
             return JsonUtils.TOKEN_ERROR("违法的账户");
         }
-        logger.info("params:"+params);
         SysUser user =  iSysUserRpcService.getSysUserById(uId);
         if(user==null){
             return JsonUtils.TOKEN_ERROR("用户不存在");
@@ -508,7 +530,7 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
     public String view() throws BizCheckedException {
         Map<String, Object> params = RequestUtils.getRequest();
         Long taskId = 0L;
-        Long locationId = 0L;
+        BaseinfoLocation location = null;
         String locationCode = "";
         logger.info("params:"+params);
         try {
@@ -516,12 +538,18 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
                 taskId = Long.valueOf(params.get("taskId").toString().trim());
             }
             locationCode = params.get("locationCode").toString().trim();
-            locationId = locationRpcService.getLocationIdByCode(locationCode);
+            location = locationService.getLocationByCode(locationCode);
         } catch (Exception e) {
             return JsonUtils.TOKEN_ERROR("数据格式类型有误");
         }
+        if(location == null){
+            return JsonUtils.TOKEN_ERROR("该库位不存在");
+        }
+        if(location.getBinUsage().compareTo(0)==0){
+            return JsonUtils.TOKEN_ERROR("该库位不是存储库位，不能进行盘点");
+        }
         Map<String, Object> queryMap = new HashMap<String, Object>();
-        queryMap.put("locationId", locationId);
+        queryMap.put("locationId", location.getLocationId());
         List<StockQuant> quantList = quantService.getQuants(queryMap);
         StockQuant quant = null;
         if(quantList!=null && quantList.size()!=0){
@@ -541,7 +569,8 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
         result.put("itemName", item == null ? "" : item.getSkuName());
         result.put("barcode", sku == null ? "" : sku.getCode());
         result.put("skuCode", item == null ? "" : item.getSkuCode());
-        result.put("packName",quant==null ? "" : quantList.get(0).getPackName());
+        result.put("packCode", item == null ? "" : item.getPackCode());
+        result.put("packName",quant ==null ? "" : quantList.get(0).getPackName());
         return JsonUtils.SUCCESS(result);
 
     }

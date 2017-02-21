@@ -154,6 +154,11 @@ public class TaskRpcService implements ITaskRpcService {
         TaskHandler taskHandler = handlerFactory.getTaskHandler(taskType);
         taskHandler.cancel(taskId);
     }
+    public void cancel(Long taskId,StockTakingHead head) throws BizCheckedException{
+        TaskEntry entry = this.getTaskEntryById(taskId);
+        TaskHandler taskHandler = handlerFactory.getTaskHandler(entry.getTaskInfo().getType());
+        taskHandler.cancel(entry,head);
+    }
 
     public void hold(Long taskId) throws BizCheckedException{
         Long taskType = this.getTaskTypeById(taskId);

@@ -62,8 +62,8 @@ public class StockTakingRpcService implements IStockTakingRpcService {
                 detail.setSkuName(item.getSkuName());
                 detail.setRealSkuId(sku.getSkuId());
                 detail.setBarcode(sku.getCode());
+                detail.setPackCode(item.getPackCode());
                 detail.setLocationCode(location.getLocationCode());
-                logger.info("detail:"+detail);
             }
             stockTakingService.updateDetail(detail);
         }

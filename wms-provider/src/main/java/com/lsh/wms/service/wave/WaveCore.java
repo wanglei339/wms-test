@@ -19,6 +19,7 @@ import com.lsh.wms.core.service.wave.WaveAllocService;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.core.service.wave.WaveTemplateService;
 import com.lsh.wms.core.service.zone.WorkZoneService;
+import com.lsh.wms.model.ProcurementInfo;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
@@ -35,6 +36,7 @@ import com.lsh.wms.model.wave.WaveDetail;
 import com.lsh.wms.model.wave.WaveHead;
 import com.lsh.wms.model.wave.WaveTemplate;
 import com.lsh.wms.model.zone.WorkZone;
+import com.lsh.wms.service.sync.AsyncEventService;
 import com.lsh.wms.service.wave.split.SplitModel;
 import com.lsh.wms.service.wave.split.SplitNode;
 import org.apache.tools.ant.taskdefs.Pack;
@@ -119,7 +121,7 @@ public class WaveCore {
         this._alloc();
         logger.info("begin to run outbound model "+iWaveId);
         //执行捡货模型,输出最小捡货单元
-        this._executePickModel();
+        Map<Long,ProcurementInfo> needAdjustMap = this._executePickModel();
         //锁定集货区,记得发货的时候释放哟
         //虽然分配了,却未能占用,这就别锁了
         //固定集货道模式,这也别锁了,锁了也没用
@@ -135,6 +137,10 @@ public class WaveCore {
         //创建捡货任务
         if(entryList.size()>0) {
             taskRpcService.batchCreate(TaskConstant.TYPE_PICK, entryList);
+            //通知补货调整补货任务
+            for (Map.Entry<Long, ProcurementInfo> entry : needAdjustMap.entrySet()) {
+                AsyncEventService.post(entry.getValue());
+            }
             //发给调度创建纪录,调度器可能需要做些处理
             try {
                 Set<Long> items = new HashSet<Long>();
@@ -336,7 +342,8 @@ public class WaveCore {
 
     }
 
-    private void _executePickModel() throws BizCheckedException{
+    private Map<Long,ProcurementInfo> _executePickModel() throws BizCheckedException{
+        Map<Long,ProcurementInfo> needAdjustItemMap = new HashMap<Long, ProcurementInfo>();
         //List<PickTaskHead> taskHeads = new LinkedList<PickTaskHead>();
         //List<WaveDetail> taskDetails = new LinkedList<WaveDetail>();
         entryList = new LinkedList<TaskEntry>();
@@ -430,6 +437,11 @@ public class WaveCore {
                         pickTaskDetails.add(detail);
                         head.setDeliveryId(detail.getOrderId());
                         info.setOrderId(detail.getOrderId());
+                        //通知补货任务，调整补货数量
+                        if(!needAdjustItemMap.containsKey(detail.getItemId())) {
+                           needAdjustItemMap.put(detail.getItemId(),new ProcurementInfo(detail.getAllocPickLocation(), detail.getItemId()));
+                        }
+
                         info.setTransPlan(mapOrder2Head.get(detail.getOrderId()).getTransPlan());
                         head.setAllocCollectLocation(detail.getAllocCollectLocation());
                         if(node.iPickType == PickConstant.SHELF_PALLET_TASK_TYPE) {
@@ -470,6 +482,7 @@ public class WaveCore {
                 entryList.add(entry);
             }
         }
+        return needAdjustItemMap;
     }
 
     private BigDecimal _allocNormal(ObdDetail detail, PickModel model, BaseinfoItem item, BaseinfoLocation location, BigDecimal leftAllocQty) throws BizCheckedException{

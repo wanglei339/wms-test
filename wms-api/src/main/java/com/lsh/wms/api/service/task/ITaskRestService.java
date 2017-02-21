@@ -16,6 +16,7 @@ public interface ITaskRestService {
     String getTaskCount(Map<String, Object> mapQuery);
     String getTaskHeadList(Map<String, Object> mapQuery);
     String getTask(long taskId) throws BizCheckedException;
+    String getTaskType(long taskId) throws BizCheckedException;
     String getOldTask(long taskId) throws BizCheckedException;
     String getTaskMove(long taskId) throws BizCheckedException;
     String done(long taskId) throws BizCheckedException;
@@ -25,5 +26,5 @@ public interface ITaskRestService {
     String processTaskMsg(Long id) throws BizCheckedException;
     String countTaskMsg(Map<String, Object> mapQuery) throws BizCheckedException;
     String getTaskMsgList(Map<String, Object> mapQuery) throws BizCheckedException;
-
+    String getDoneTasksByIds(Map<String, Object> mapQuery) throws BizCheckedException;
 }

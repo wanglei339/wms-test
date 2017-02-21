@@ -18,18 +18,18 @@ import com.lsh.wms.core.service.csi.CsiSkuService;
 import com.lsh.wms.core.service.datareport.SkuMapService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.location.LocationService;
+import com.lsh.wms.core.service.stock.StockMoveService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.taking.StockTakingService;
 import com.lsh.wms.core.service.task.BaseTaskService;
-import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.core.service.zone.WorkZoneService;
-import com.lsh.wms.model.taking.FillTakingPlanParam;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.csi.CsiSku;
 import com.lsh.wms.model.datareport.SkuMap;
 import com.lsh.wms.model.stock.StockLot;
 import com.lsh.wms.model.stock.StockQuant;
+import com.lsh.wms.model.taking.FillTakingPlanParam;
 import com.lsh.wms.model.taking.StockTakingDetail;
 import com.lsh.wms.model.taking.StockTakingHead;
 import com.lsh.wms.model.taking.StockTakingRequest;
@@ -37,7 +37,6 @@ import com.lsh.wms.model.task.StockTakingTask;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.zone.WorkZone;
-import com.lsh.wms.service.sync.AsyncEventService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,13 +68,13 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
     @Autowired
     private WorkZoneService workZoneService;
     @Autowired
-    private WaveService waveService;
-    @Autowired
     private ItemService itemService;
     @Autowired
     private ContainerService containerService;
     @Autowired
     private CsiSkuService skuService;
+    @Autowired
+    private StockMoveService moveService;
     @Autowired
     private SkuMapService skuMapService;
 
@@ -109,8 +108,9 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
     }
     public void calcelTask(Long taskId) throws BizCheckedException {
         TaskInfo info = baseTaskService.getTaskInfoById(taskId);
-        if(info!=null && info.getStatus().equals(TaskConstant.Draft)) {
-            iTaskRpcService.cancel(taskId);
+        if(info!=null && (info.getStatus().equals(TaskConstant.Draft) || info.getStatus().compareTo(TaskConstant.Assigned) ==0)) {
+            StockTakingHead head = stockTakingService.getHeadById(info.getPlanId());
+            iTaskRpcService.cancel(info.getTaskId(), head);
         }
     }
 //    @Transactional(readOnly = false)
@@ -169,6 +169,8 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
         List<StockTakingDetail> details = stockTakingService.getDetails(queryMap);
         if(details!=null && details.size()!=0){
             stockTakingService.confirm(details);
+        }else {
+            throw new BizCheckedException("2550097");
         }
     }
     public void createTask(StockTakingHead head, List<StockTakingDetail> detailList,Long round,Long dueTime) throws BizCheckedException{
@@ -298,7 +300,7 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
         logger.info(JsonUtils.SUCCESS(detailList));
         return detailList;
     }
-    public List<Long> getTakingLocation(StockTakingRequest request){
+    public List<Long> getTakingLocation(StockTakingRequest request,boolean needSort){
         List<Long> locationList = new ArrayList<Long>();
         List<Long> locations = new ArrayList<Long>();
         int locationNum= Integer.MAX_VALUE;
@@ -316,7 +318,7 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
         } else if (!request.getAreaId().equals(0L)) {
             fatherLocationId = request.getAreaId();
         }
-        List<BaseinfoLocation> baseinfoLocations = locationService.getChildrenLocationsByType(fatherLocationId, LocationConstant.BIN);
+        List<BaseinfoLocation> baseinfoLocations = locationService.getChildrenLocationsByCanStoreType(fatherLocationId, LocationConstant.BIN, LocationConstant.CAN_STORE);
         for(BaseinfoLocation baseinfoLocation:baseinfoLocations) {
             locationList.add(baseinfoLocation.getLocationId());
         }
@@ -338,7 +340,7 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
             for (StockQuant quant : quantList) {
                 BaseinfoLocation location = locationService.getLocation(quant.getLocationId());
                 if(location.getRegionType().equals(LocationConstant.SHELFS) || location.getRegionType().equals(LocationConstant.LOFTS) || location.getRegionType().equals(LocationConstant.SPLIT_AREA)){
-                    if(!location.getBinUsage().equals(0)) {
+                    if(location.getCanStore().equals(LocationConstant.CAN_STORE)) {
                         longs.add(quant.getLocationId());
                     }
                 }
@@ -382,6 +384,18 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
                 i++;
             }
         }
+        //sort location
+        if(needSort) {
+            List<BaseinfoLocation> sortedLocationList = new ArrayList<BaseinfoLocation>();
+            for (Long locationId : locations) {
+                sortedLocationList.add(locationService.getLocation(locationId));
+            }
+            sortedLocationList = locationService.calcZwayOrder(sortedLocationList, true);
+            locations.removeAll(locations);
+            for (BaseinfoLocation location : sortedLocationList) {
+                locations.add(location.getLocationId());
+            }
+        }
         return locations;
     }
     public void  updateItem(Long itemId,Long detailId,Long proDate,Long round) throws BizCheckedException{
@@ -397,15 +411,15 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
         if("".equals(detail.getBarcode())){
             throw new BizCheckedException("2550091");
         }
-        CsiSku  sku = skuService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, detail.getBarcode());
-         if(!itemService.checkSkuItem(item.getItemId(),sku.getSkuId())){
-             throw new BizCheckedException("2550092");
-         }
+        CsiSku sku = null;
+        if(!item.getPackCode().equals(detail.getBarcode())) {
+            sku= skuService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, detail.getBarcode());
+            if (!itemService.checkSkuItem(item.getItemId(), sku.getSkuId())) {
+                throw new BizCheckedException("2550092");
+            }
+        }
         if(!detail.getStatus().equals(StockTakingConstant.PendingAudit)){
             throw new BizCheckedException("2550067");
-        }
-        if(!item.getCode().equals(detail.getBarcode())){
-            throw new BizCheckedException("2550090");
         }
         StockLot lot = new StockLot();
         Long containerId = containerService.createContainerByType(ContainerConstant.PALLET).getContainerId();
@@ -428,7 +442,11 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
         lot.setLotId(RandomUtils.genId());
         lot.setInDate(DateUtils.getCurrentSeconds());
         lot.setItemId(itemId);
-        lot.setSkuId(item.getSkuId());
+        if(sku!=null) {
+            lot.setSkuId(sku.getSkuId());
+        }else {
+            lot.setSkuId(item.getSkuId());
+        }
         lot.setPackName(item.getPackName());
         lot.setPackUnit(item.getPackUnit());
         lot.setCode(item.getCode());
@@ -443,14 +461,24 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
         detail.setPackName(item.getPackName());
         detail.setPackUnit(item.getPackUnit());
         detail.setSkuCode(item.getSkuCode());
+        detail.setSkuId(lot.getSkuId());
+        detail.setRealSkuId(lot.getSkuId());
 
-        SkuMap skuMap = skuMapService.getSkuMapBySkuCodeAndOwner(detail.getSkuCode(),item.getOwnerId());
-        if (skuMap == null) {
-            throw new BizCheckedException("2880022", detail.getSkuCode(), "");
+        if(sku==null) {
+            detail.setBarcode(item.getCode());
+        }else {
+            detail.setBarcode(sku.getCode());
         }
-        detail.setPrice(skuMap.getMovingAveragePrice());
-        detail.setDifferencePrice(detail.getRealQty().subtract(detail.getTheoreticalQty()).multiply(detail.getPrice()));
+        detail.setPackCode(detail.getPackCode());
 
+        if(detail.getOwnerId().compareTo(1L)==0 || detail.getOwnerId().compareTo(2L)==0) {
+            SkuMap skuMap = skuMapService.getSkuMapBySkuCodeAndOwner(detail.getSkuCode(), item.getOwnerId());
+            if (skuMap == null) {
+                throw new BizCheckedException("2880022", detail.getSkuCode(), "");
+            }
+            detail.setPrice(skuMap.getMovingAveragePrice());
+            detail.setDifferencePrice(detail.getRealQty().subtract(detail.getTheoreticalQty()).multiply(detail.getPrice()));
+        }
         stockTakingService.fillEmptyDetail(detail,lot);
 
     }
@@ -462,8 +490,8 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
             return;
         }
         List<Long> locationList = new ArrayList<Long>();
-        if( request.getLocationList().equals("")) {
-            locationList = this.getTakingLocation(request);
+        if( request.getLocationList() ==null || request.getLocationList().equals("") || request.getLocationList().equals("null")) {
+            locationList = this.getTakingLocation(request,false);
         }else {
             locationList = JSON.parseArray(request.getLocationList(), Long.class);
         }
@@ -560,9 +588,9 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
         List<WorkZone> zoneList = this.getSelectedZones(zoneIds);
 
         //拉取动销库位,从wavedetail里面去拿,通过picklocation
-        long begin_at = DateUtils.getTodayBeginSeconds();
-        long end_at = DateUtils.getCurrentSeconds();
-        List<Long> pickLocations = waveService.getPickLocationsByPickTimeRegion(begin_at, end_at);
+        long beginAt = DateUtils.getTodayBeginSeconds();
+        long endAt = DateUtils.getCurrentSeconds();
+        List<Long> saleLocations = moveService.getMovedLocationByDate(beginAt, endAt);
         Set<Long> setBinDup = new HashSet<Long>();
         Map<Long, List<Long>> mapZoneBinArrs = new HashMap<Long, List<Long>>();
         for (WorkZone zone : zoneList) {
@@ -576,7 +604,7 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
                         //抛异常也行
                         continue;
                     }
-                    for (Long bin : pickLocations) {
+                    for (Long bin : saleLocations) {
                         if (location.getLocationId() <= bin && bin <= location.getRightRange()) {
                             //hehe in the zone;
                             if (!setBinDup.contains(location.getLocationId())) {
@@ -609,7 +637,9 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
             }
         }
         locations.removeAll(taskLocation);
-
+        if(locations==null|| locations.size()==0){
+            throw new BizCheckedException("2550099");
+        }
         List<Object> details = new ArrayList<Object>();
         StockTakingHead head = new StockTakingHead();
         head.setPlanType(takingType);
@@ -682,6 +712,11 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
             }
             //移除已盘点的库位
             locations.removeAll(taskLocation);
+
+            if(locations==null|| locations.size()==0){
+                throw new BizCheckedException("2550099");
+            }
+
             List<Object> details = new ArrayList<Object>();
             TaskEntry taskEntry = new TaskEntry();
             TaskInfo info = new TaskInfo();
@@ -724,7 +759,7 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
             iTaskRpcService.batchCreate(head, taskEntries);
         }
     }
-    public void createAndDoTmpTask(Long locationId,BigDecimal qty,String barcode,Long planner) throws BizCheckedException{
+    public void createAndDoTmpTask(Long locationId,BigDecimal realEaQty,BigDecimal realUmoQty,String barcode,Long planner) throws BizCheckedException{
 
         List<Object> details = new ArrayList<Object>();
         BaseinfoLocation location = locationService.getLocation(locationId);
@@ -739,31 +774,36 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
         StockTakingDetail detail = new StockTakingDetail();
         detail.setLocationCode(location.getLocationCode());
         BaseinfoItem item = null;
+        CsiSku sku = null;
 
         //临时盘点，直接填充库位信息
         List<StockQuant> quants = quantService.getQuantsByLocationId(locationId);
         if(quants!=null && quants.size()!=0){
             StockQuant quant = quants.get(0);
             item = itemService.getItem(quant.getItemId());
-            CsiSku sku = skuService.getSku(quant.getSkuId());
+            sku = skuService.getSku(quant.getSkuId());
             detail.setSkuId(quant.getSkuId());
             detail.setTheoreticalQty(quantService.getQuantQtyByContainerId(quant.getContainerId()));
             detail.setContainerId(quant.getContainerId());
             detail.setItemId(quant.getItemId());
             detail.setRealItemId(quant.getItemId());
             detail.setPackName(quant.getPackName());
+            detail.setRealSkuId(sku.getSkuId());
             detail.setPackUnit(quant.getPackUnit());
             detail.setOwnerId(quant.getOwnerId());
             detail.setLotId(quant.getLotId());
+            detail.setOperator(planner);
             detail.setBarcode(sku.getCode());
             detail.setSkuCode(item.getSkuCode());
             detail.setSkuName(item.getSkuName());
+            detail.setPackCode(item.getPackCode());
         }
 
         if(item!=null){
             //判断国条是不是系统的国条,如国条为空，则是该库位无商品
-            if(item.getCode().equals(barcode)){
-                detail.setRealQty(qty);
+            if(sku.getCode().equals(barcode) || item.getPackCode().equals(barcode)){
+                detail.setRealQty(realEaQty);
+                detail.setUmoQty(realUmoQty);
                 SkuMap skuMap = skuMapService.getSkuMapBySkuCodeAndOwner(detail.getSkuCode(),item.getOwnerId());
                 if (skuMap == null) {
                     throw new BizCheckedException("2880022", detail.getSkuCode(), "");
@@ -775,15 +815,25 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
         }else {
           //系统库位无库存
             if(barcode!=null){
-                CsiSku sku = skuService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, barcode);
-                if(sku==null){
-                    throw new BizCheckedException("2550068",barcode,"");
+                CsiSku csiSku = skuService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, barcode);
+                if(sku!=null){
+                    detail.setRealQty(realEaQty);
+                    detail.setUmoQty(realUmoQty);
+                    detail.setSkuId(csiSku.getSkuId());
+                    detail.setRealSkuId(csiSku.getSkuId());
+                    detail.setBarcode(barcode);
+                    detail.setSkuName(sku.getSkuName());
+                }else {
+                    List<BaseinfoItem> items = itemService.getItemByPackCode(barcode);
+                    if (items != null && items.size() != 0) {
+                        detail.setPackCode(barcode);
+                        detail.setRealQty(realEaQty);
+                        detail.setUmoQty(realUmoQty);
+                    }else {
+                        throw new BizCheckedException("2550068",barcode,"");
+                    }
                 }
-                detail.setRealQty(qty);
-                detail.setSkuId(sku.getSkuId());
-                detail.setRealSkuId(sku.getSkuId());
-                detail.setBarcode(barcode);
-                detail.setSkuName(sku.getSkuName());
+
             }
         }
         detail.setStatus(StockTakingConstant.PendingAudit);

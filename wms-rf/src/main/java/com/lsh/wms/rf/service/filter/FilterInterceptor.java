@@ -75,7 +75,7 @@ public class FilterInterceptor{
                 String key = StrUtils.formatString(RedisKeyConstant.USER_UID_TOKEN,uid);
                 //redis中获取key
                 String value = redisStringDao.get(key);
-//                //取出流水号
+                //取出流水号
                 String serialNumber = request.getHeader("serialNumber");
                 if (value == null || !value.equals(utoken)) {
                     //return ResUtils.getResponse(ResponseConstant.RES_CODE_2660003, ResponseConstant.RES_MSG_ERROR, null);
@@ -103,7 +103,8 @@ public class FilterInterceptor{
                             logger.info("结束时间:"+sdf.format(new Date()));
                             return redisStringDao.get(serialNumber);
                         }
-                        //return pjp.proceed();
+
+//                        return pjp.proceed();
                     } catch (Throwable ex) {
                         throw ex;
 

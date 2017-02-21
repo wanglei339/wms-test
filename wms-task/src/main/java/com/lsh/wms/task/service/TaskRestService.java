@@ -1,24 +1,25 @@
 package com.lsh.wms.task.service;
 
+import com.alibaba.dubbo.common.logger.Logger;
+import com.alibaba.dubbo.common.logger.LoggerFactory;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.task.ITaskRestService;
-import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.staff.StaffService;
 import com.lsh.wms.core.service.stock.StockQuantService;
+import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.core.service.task.MessageService;
 import com.lsh.wms.model.baseinfo.BaseinfoStaffInfo;
-import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.task.TaskEntry;
+import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.task.TaskMsg;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -30,6 +31,7 @@ import java.util.Map;
 @Consumes({MediaType.APPLICATION_JSON, MediaType.TEXT_XML})
 @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
 public class TaskRestService implements ITaskRestService {
+    private static Logger logger = LoggerFactory.getLogger(TaskRestService.class);
     @Autowired
     private TaskRpcService taskRpcService;
 
@@ -41,11 +43,13 @@ public class TaskRestService implements ITaskRestService {
 
     @Autowired
     private StockQuantService quantService;
+    @Autowired
+    private BaseTaskService baseTaskService;
 
     @POST
     @Path("getTaskList")
     public String getTaskList(Map<String, Object> mapQuery) {
-        if(mapQuery.get("type")==null){
+        if (mapQuery.get("type") == null) {
             JsonUtils.EXCEPTION_ERROR();
         }
         Long taskType = Long.valueOf(mapQuery.get("type").toString());
@@ -56,10 +60,10 @@ public class TaskRestService implements ITaskRestService {
     @POST
     @Path("getTaskCount")
     public String getTaskCount(Map<String, Object> mapQuery) {
-        if(mapQuery.get("type")==null){
+        if (mapQuery.get("type") == null) {
             JsonUtils.EXCEPTION_ERROR();
         }
-        Long taskType =  Long.valueOf(mapQuery.get("type").toString());
+        Long taskType = Long.valueOf(mapQuery.get("type").toString());
         int num = taskRpcService.getTaskCount(taskType, mapQuery);
         return JsonUtils.SUCCESS(num);
     }
@@ -67,7 +71,7 @@ public class TaskRestService implements ITaskRestService {
     @POST
     @Path("getTaskHeadList")
     public String getTaskHeadList(Map<String, Object> mapQuery) {
-        if(mapQuery.get("type")==null){
+        if (mapQuery.get("type") == null) {
             JsonUtils.EXCEPTION_ERROR();
         }
         Long taskType = Long.valueOf(mapQuery.get("type").toString());
@@ -77,13 +81,23 @@ public class TaskRestService implements ITaskRestService {
 
     @GET
     @Path("getTask")
-    public String getTask(@QueryParam("taskId") long taskId) throws BizCheckedException{
+    public String getTask(@QueryParam("taskId") long taskId) throws BizCheckedException {
         TaskEntry entry = taskRpcService.getTaskEntryById(taskId);
         return JsonUtils.SUCCESS(entry);
     }
+
+    @GET
+    @Path("getTaskType")
+    public String getTaskType(@QueryParam("taskId") long taskId) throws BizCheckedException{
+        TaskInfo info = baseTaskService.getTaskInfoById(taskId);
+        if(info == null){
+            return JsonUtils.SUCCESS(0);
+        }
+        return JsonUtils.SUCCESS(info.getType());
+    }
     @GET
     @Path("getOldTask")
-    public String getOldTask(@QueryParam("taskId")long taskId) throws BizCheckedException {
+    public String getOldTask(@QueryParam("taskId") long taskId) throws BizCheckedException {
         TaskEntry entry = taskRpcService.getOldTaskEntryById(taskId);
         return JsonUtils.SUCCESS(entry);
     }
@@ -93,7 +107,7 @@ public class TaskRestService implements ITaskRestService {
     @Path("getTaskMove")
     public String getTaskMove(@QueryParam("taskId") long taskId) throws BizCheckedException {
         TaskEntry entry = taskRpcService.getTaskEntryById(taskId);
-        if(entry == null){
+        if (entry == null) {
             return JsonUtils.EXCEPTION_ERROR();
         }
         return JsonUtils.SUCCESS(entry.getStockMoveList());
@@ -109,9 +123,9 @@ public class TaskRestService implements ITaskRestService {
     @POST
     @Path("getPerformance")
     public String getPerformance(Map<String, Object> mapQuery) {
-        List<Map<String,Object>> result = new ArrayList<Map<String, Object>>();
-        List<BaseinfoStaffInfo> staffList =  staffService.getStaffList(mapQuery);
-        for(BaseinfoStaffInfo staff : staffList) {
+        List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
+        List<BaseinfoStaffInfo> staffList = staffService.getStaffList(mapQuery);
+        for (BaseinfoStaffInfo staff : staffList) {
             mapQuery.put("staffId", staff.getStaffId());
             List<Map<String, Object>> stat = taskRpcService.getPerformance(mapQuery);
             result.addAll(stat);
@@ -127,7 +141,7 @@ public class TaskRestService implements ITaskRestService {
 
     @GET
     @Path("getTaskInfo")
-    public String getTaskInfo(@QueryParam("taskId") long taskId) throws BizCheckedException{
+    public String getTaskInfo(@QueryParam("taskId") long taskId) throws BizCheckedException {
         return JsonUtils.SUCCESS(taskRpcService.getTaskInfo(taskId));
     }
 
@@ -136,6 +150,19 @@ public class TaskRestService implements ITaskRestService {
     public String getTaskMsgList(Map<String, Object> mapQuery) throws BizCheckedException {
         List<TaskMsg> taskMsgList = taskRpcService.getTaskMsgList(mapQuery);
         return JsonUtils.SUCCESS(taskMsgList);
+    }
+
+    @POST
+    @Path("getDoneTasksByIds")
+    public String getDoneTasksByIds(Map<String, Object> mapQuery) throws BizCheckedException {
+        logger.info(mapQuery.toString());
+        List<Long> ids = (List<Long>) mapQuery.get("taskIds");
+
+        if (null == ids || ids.isEmpty()) {
+            return JsonUtils.SUCCESS(new ArrayList<TaskInfo>());
+        }
+        List<TaskInfo> taskInfos = baseTaskService.getDoneTasksByIds(mapQuery);
+        return JsonUtils.SUCCESS(taskInfos);
     }
 
     @POST

@@ -29,6 +29,7 @@ import com.lsh.wms.model.wave.WaveDetail;
 import com.lsh.wms.model.wave.WaveHead;
 import com.lsh.wms.model.wave.WaveRequest;
 import com.lsh.wms.model.wave.WaveTemplate;
+import com.lsh.wms.model.zone.WorkZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -291,6 +292,7 @@ public class WaveRestService implements IWaveRestService {
         if(workZoneService.getWorkZone(zoneId) == null){
             throw new BizCheckedException("2040004");
         }
+        model = modelService.setPickType(model);
         try{
             modelService.createPickModel(model);
         }catch (Exception e ){
@@ -303,6 +305,7 @@ public class WaveRestService implements IWaveRestService {
     @POST
     @Path("updatePickModel")
     public String updatePickModel(PickModel model) {
+        model = modelService.setPickType(model);
         try{
             modelService.updatePickModel(model);
         }catch (Exception e){
@@ -332,6 +335,15 @@ public class WaveRestService implements IWaveRestService {
             return JsonUtils.TOKEN_ERROR("集货道不存在");
         }
         return JsonUtils.SUCCESS(waveService.getDetailsByCollectionLocation(location));
+    }
+
+    @GET
+    @Path("getWaveDetailByTuDetailId")
+    public String getWaveDetailByTuDetailId(@QueryParam("tuDetailId")Long tuDetailId) throws BizCheckedException{
+        if (null == tuDetailId){
+            throw new BizCheckedException("2990056");
+        }
+        return JsonUtils.SUCCESS(waveService.getWaveDetailByTuDetailId(tuDetailId));
     }
 
     @GET
@@ -438,4 +450,6 @@ public class WaveRestService implements IWaveRestService {
         }
         return JsonUtils.SUCCESS();
     }
+
+
 }

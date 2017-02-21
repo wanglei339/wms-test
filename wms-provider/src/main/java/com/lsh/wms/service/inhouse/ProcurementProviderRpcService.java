@@ -184,7 +184,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
         return true;
     }
     //创建货架补货任务
-    private void createShelfProcurementBak2(boolean canMax) throws BizCheckedException {
+    public void createShelfProcurementBak2(boolean canMax) throws BizCheckedException {
         Map<String,Object> mapQuery =new HashMap<String, Object>();
         //获取所有货架拣货位的位置信息
         List<BaseinfoLocation> shelfLocationList = locationService.getBinsByFatherTypeAndUsage(LocationConstant.SHELF, BinUsageConstant.BIN_UASGE_PICK);
@@ -203,132 +203,106 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
                     if (baseTaskService.checkTaskByToLocation(itemLocation.getPickLocationid(), TaskConstant.TYPE_PROCUREMENT)) {
                         continue;
                     }
-                    /*
-                    *找该商品的存储位
-                     */
-                    StockQuantCondition condition = new StockQuantCondition();
-                    condition.setLocationList(shelfList);
-                    condition.setItemId(itemLocation.getItemId());
-                    condition.setReserveTaskId(0L);
-                    //获取存该商品的存储位信息
-                    List<StockQuant> quantList = stockQuantService.getQuantList(condition);
-                    if (quantList.isEmpty()) {
-                        logger.warn("ItemId:" + itemLocation.getItemId() + "缺货异常");
-                        continue;
-                    }
-
                     BaseinfoItem item = itemService.getItem(itemLocation.getItemId());
-
-                    mapQuery.put("locationId", itemLocation.getPickLocationid());
-                    BigDecimal nowQuant = quantService.getQty(mapQuery);
-
-//                    //取库位中库存最小的
-//                    BigDecimal total = BigDecimal.ZERO;
-//                    StockQuant quant = null;
-//                    StockQuant beginQuant = null;
-//                    Map<Long,Long> locationMap = new HashMap<Long, Long>();
-//                    Map<String,Object> queryMap = new HashMap<String, Object>();
-//                    for(StockQuant stockQuant:quantList) {
-//                        if(locationMap.get(stockQuant.getLocationId())==null) {
-//                            if(beginQuant==null){
-//                                beginQuant = stockQuant;
-//                                quant = stockQuant;
-//                            }
-//                            if(beginQuant.getExpireDate().compareTo(stockQuant.getExpireDate())==0) {
-//                                //获取存储位该商品库存量
-//                                queryMap.put("locationId", stockQuant.getLocationId());
-//                                BigDecimal one = quantService.getQty(queryMap);
-//                                if (total.compareTo(one) > 0 || total.compareTo(BigDecimal.ZERO) == 0) {
-//                                    total = one;
-//                                    quant = stockQuant;
-//                                }
-//                                beginQuant = quant;
-//                            }else {
-//                                quant = beginQuant;
-//                                break;
-//                            }
-//                        }
-//                        locationMap.put(stockQuant.getLocationId(),stockQuant.getLocationId());
-//                    }
-                    //根据库存数量和过期时间排序
-                    List<StockQuant> sortQuants = this.sortQuant(quantList);
-                    String locationCategory  = this.checkContainerAndPickLocationVolBak(itemLocation.getPickLocationid(), item);
-                    for(StockQuant quant:sortQuants) {
-
-                        //判断存货位是否有捡货任务
-                        Map<String,Object> checkMap = new HashMap<String, Object>();
-                        checkMap.put("fromLocationId",quant.getLocationId());
-                        checkMap.put("type", TaskConstant.TYPE_PROCUREMENT);
-                        checkMap.put("valid",1);
-                        List<TaskInfo> checkTaskInfos = baseTaskService.getTaskInfoList(checkMap);
-                        if(checkTaskInfos!=null && checkTaskInfos.size()>0){
-                            continue;
-                        }
-
-                        mapQuery.put("locationId", quant.getLocationId());
-                        BigDecimal qty = quantService.getQty(mapQuery);
-                        //去除小数
-                        BigDecimal [] decimals = qty.divideAndRemainder(quant.getPackUnit());
-                        qty = qty.subtract(decimals[1]);
-                        //不够一箱，不能补货
-                        if(decimals[0].compareTo(BigDecimal.ZERO)==0){
-                            continue;
-                        }
-                        //判断补后库存数量 - 出库数量  是否大于等于min
-                        boolean needContinue = nowQuant.subtract(needAndOutQty.getOutQty()).compareTo(itemLocation.getMinQty()) < 0;
-
-                        if (needContinue){
-                            // 创建任务
-                            nowQuant = nowQuant.add(qty);
-
-                            StockTransferPlan plan = new StockTransferPlan();
-                            plan.setContainerId(quant.getContainerId());
-                            plan.setPackUnit(quant.getPackUnit());
-                            plan.setPackName(quant.getPackName());
-
-
-                            plan.setPriority(this.getPackPriority(itemLocation.getItemId()));
-                            plan.setContainerId(quant.getContainerId());
-                            plan.setItemId(itemLocation.getItemId());
-                            plan.setFromLocationId(quant.getLocationId());
-                            plan.setToLocationId(itemLocation.getPickLocationid());
-                            plan.setPackName(quant.getPackName());
-                            plan.setPackUnit(quant.getPackUnit());
-                            plan.setSubType(2L);
-
-                            BigDecimal needQty = BigDecimal.ZERO;
-                            if(locationCategory.equals("A")){
-                                plan.setSubType(1L);
-                                plan.setQty(qty);
-                            }else{
-                                // 补货后数量 - 出库数量+ min <0
-                                BigDecimal needMax = needAndOutQty.getOutQty().add(itemLocation.getMinQty());
-                                if (nowQuant.compareTo(needMax) > 0) {
-                                    needQty = needMax.subtract(nowQuant.subtract(qty));
-                                } else {
-                                    needQty = qty;
-                                }
-                                //去除小数
-                                BigDecimal [] needDecimals = needQty.divideAndRemainder(item.getPackUnit());
-                                needQty = needQty.subtract(needDecimals[1]);
-                                plan.setQty(needQty);
-
-                            }
-                            //所需库存数不够一箱了，直接退出
-                            if(plan.getQty().divide(quant.getPackUnit(),0,BigDecimal.ROUND_HALF_DOWN).compareTo(BigDecimal.ZERO)==0){
-                                break;
-                            }
-                            this.addProcurementPlan(plan);
-                        }else {
-                            break;
-                        }
-                    }
+                    BaseinfoLocation pickLocation = locationService.getLocation(itemLocation.getPickLocationid());
+                    this.createOneShelfProcurement(item,pickLocation,needAndOutQty.getOutQty(),shelfList);
                 }
             }
         }
     }
+
+    private void createOneShelfProcurement(BaseinfoItem item,BaseinfoLocation pickLocation,BigDecimal requiredQty,List<BaseinfoLocation> locationList){
+        //获取捡货位配置
+        BaseinfoItemLocation itemLocation = itemLocationService.getItemLocationByLocationIdAndItemId(pickLocation.getLocationId(),item.getItemId());
+        /*
+         *找该商品的存储位
+         */
+        Map<String,Object> mapQuery = new HashMap<String, Object>();
+        StockQuantCondition condition = new StockQuantCondition();
+        condition.setLocationList(locationList);
+        condition.setItemId(item.getItemId());
+        condition.setReserveTaskId(0L);
+        //获取存该商品的存储位信息
+        List<StockQuant> quantList = stockQuantService.getQuantList(condition);
+        if (quantList.isEmpty()) {
+            logger.warn("ItemId:" + item.getItemId() + "缺货异常");
+            return;
+        }
+        mapQuery.put("locationId", pickLocation.getLocationId());
+        BigDecimal nowQuant = quantService.getQty(mapQuery);
+
+        //根据库存数量和过期时间排序
+        List<StockQuant> sortQuants = this.sortQuant(quantList);
+        String locationCategory  = this.checkContainerAndPickLocationVolBak(pickLocation.getLocationId(), item);
+        for(StockQuant quant:sortQuants) {
+
+            //判断存货位是否有补货任务
+            boolean isDingTask = baseTaskService.checkValidProcurement(quant.getLocationId());
+            if(isDingTask){
+                continue;
+            }
+
+            mapQuery.put("locationId", quant.getLocationId());
+            BigDecimal qty = quantService.getQty(mapQuery);
+            //去除小数
+            BigDecimal [] decimals = qty.divideAndRemainder(quant.getPackUnit());
+            qty = qty.subtract(decimals[1]);
+            //不够一箱，不能补货
+            if(decimals[0].compareTo(BigDecimal.ZERO)==0){
+                continue;
+            }
+            //判断补后库存数量 - 出库数量  是否大于等于min
+            boolean needContinue = nowQuant.subtract(requiredQty).compareTo(itemLocation.getMinQty()) < 0;
+
+            if (needContinue){
+                // 创建任务
+                nowQuant = nowQuant.add(qty);
+
+                StockTransferPlan plan = new StockTransferPlan();
+                plan.setContainerId(quant.getContainerId());
+                plan.setPackUnit(quant.getPackUnit());
+                plan.setPackName(quant.getPackName());
+
+
+                plan.setPriority(this.getPackPriority(item.getItemId()));
+                plan.setContainerId(quant.getContainerId());
+                plan.setItemId(item.getItemId());
+                plan.setFromLocationId(quant.getLocationId());
+                plan.setToLocationId(pickLocation.getLocationId());
+                plan.setPackName(quant.getPackName());
+                plan.setPackUnit(quant.getPackUnit());
+                plan.setSubType(2L);
+
+                BigDecimal needQty = BigDecimal.ZERO;
+                if(locationCategory.equals("A")){
+                    plan.setSubType(1L);
+                    plan.setQty(qty);
+                }else{
+                    // 补货后数量 - 出库数量+ min <0
+                    BigDecimal needMax = requiredQty.add(itemLocation.getMinQty());
+                    if (nowQuant.compareTo(needMax) > 0) {
+                        needQty = needMax.subtract(nowQuant.subtract(qty));
+                    } else {
+                        needQty = qty;
+                    }
+                    //去除小数
+                    BigDecimal [] needDecimals = needQty.divideAndRemainder(item.getPackUnit());
+                    needQty = needQty.subtract(needDecimals[1]);
+                    plan.setQty(needQty);
+
+                }
+                //所需库存数不够一箱了，直接退出
+                if(plan.getQty().divide(quant.getPackUnit(),0,BigDecimal.ROUND_HALF_DOWN).compareTo(BigDecimal.ZERO)==0){
+                    break;
+                }
+                this.addProcurementPlan(plan);
+            }else {
+                break;
+            }
+        }
+    }
     //创建货架补货任务
-    private void createShelfProcurementBak(boolean canMax) throws BizCheckedException {
+    public void createShelfProcurementBak(boolean canMax) throws BizCheckedException {
         Map<String,Object> mapQuery =new HashMap<String, Object>();
         //获取所有货架拣货位的位置信息
         List<BaseinfoLocation> shelfLocationList = locationService.getBinsByFatherTypeAndUsage(LocationConstant.SHELF, BinUsageConstant.BIN_UASGE_PICK);
@@ -403,13 +377,9 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
                     String locationCategory  = this.checkContainerAndPickLocationVolBak(itemLocation.getPickLocationid(), item);
                     for(StockQuant quant:sortQuants) {
 
-                        //判断存货位是否有捡货任务
-                        Map<String,Object> checkMap = new HashMap<String, Object>();
-                        checkMap.put("fromLocationId",quant.getLocationId());
-                        checkMap.put("type", TaskConstant.TYPE_PROCUREMENT);
-                        checkMap.put("valid",1);
-                        List<TaskInfo> checkTaskInfos = baseTaskService.getTaskInfoList(checkMap);
-                        if(checkTaskInfos!=null && checkTaskInfos.size()>0){
+                        //判断存货位是否有补货任务
+                        boolean isDingTask = baseTaskService.checkValidProcurement(quant.getLocationId());
+                        if(isDingTask){
                             continue;
                         }
 
@@ -481,7 +451,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
         }
     }
     //创建货架补货任务
-    private void createShelfProcurement(boolean canMax) throws BizCheckedException {
+    public void createShelfProcurement(boolean canMax) throws BizCheckedException {
         Map<String,Object> mapQuery =new HashMap<String, Object>();
         //获取所有货架拣货位的位置信息
         List<BaseinfoLocation> shelfLocationList = locationService.getBinsByFatherTypeAndUsage(LocationConstant.SHELF, BinUsageConstant.BIN_UASGE_PICK);
@@ -554,13 +524,9 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
                     List<StockQuant> sortQuants = this.sortQuant(quantList);
                     for(StockQuant quant:sortQuants) {
 
-                        //判断存货位是否有捡货任务
-                        Map<String,Object> checkMap = new HashMap<String, Object>();
-                        checkMap.put("fromLocationId",quant.getLocationId());
-                        checkMap.put("type", TaskConstant.TYPE_PROCUREMENT);
-                        checkMap.put("valid",1);
-                        List<TaskInfo> checkTaskInfos = baseTaskService.getTaskInfoList(checkMap);
-                        if(checkTaskInfos!=null && checkTaskInfos.size()>0){
+                        //判断存货位是否有补货任务
+                        boolean isDingTask = baseTaskService.checkValidProcurement(quant.getLocationId());
+                        if(isDingTask){
                             continue;
                         }
 
@@ -700,7 +666,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
 
 
     //创建阁楼补货任务
-    private void createLoftProcurement(boolean canMax) throws BizCheckedException {
+    public void createLoftProcurement(boolean canMax) throws BizCheckedException {
         Map<String,Object> mapQuery =new HashMap<String, Object>();
 
         //获取所有阁楼拣货位的位置信息
@@ -741,12 +707,8 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
                     List<StockQuant> sortQuants = this.sortQuant(quantList);
                     for(StockQuant quant:sortQuants) {
                         //判断存货位是否有补货任务
-                        Map<String,Object> checkMap = new HashMap<String, Object>();
-                        checkMap.put("fromLocationId",quant.getLocationId());
-                        checkMap.put("type", TaskConstant.TYPE_PROCUREMENT);
-                        checkMap.put("valid", 1);
-                        List<TaskInfo> checkTaskInfos = baseTaskService.getTaskInfoList(checkMap);
-                        if(checkTaskInfos!=null && checkTaskInfos.size()>0){
+                        boolean isDingTask = baseTaskService.checkValidProcurement(quant.getLocationId());
+                        if(isDingTask){
                             continue;
                         }
 
@@ -828,7 +790,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
 
     public void createProcurement(boolean canMax) throws BizCheckedException {
         this.createShelfProcurementBak2(canMax);
-        this.createLoftProcurement(canMax);
+     //   this.createLoftProcurement(canMax);
     }
     public void createProcurementByMax(boolean canMax) throws BizCheckedException {
         this.createShelfProcurement(canMax);
@@ -1100,5 +1062,59 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
         BigDecimal containerVol = BigDecimal.valueOf(baseinfoItem.getPileNumber()).multiply(baseinfoItem.getPackLength()).multiply(baseinfoItem.getWidth()).multiply(baseinfoItem.getPackHeight());
         return  pickVolume.compareTo(containerVol) >= 0;
 
+    }
+    /**
+     * 根据需求数量调整补货数量
+     */
+    public boolean adjustTaskQty(BigDecimal requiredQty,BaseinfoLocation pickLocation,Long itemId){
+        BaseinfoItem item = itemService.getItem(itemId);
+        BigDecimal pickLocationQty = quantService.getQuantQtyByLocationIdAndItemId(pickLocation.getLocationId(),itemId);
+        if(pickLocationQty.compareTo(requiredQty) >= 0){
+            return true;
+        }
+
+        Map<String,Object> queryMap = new HashMap<String, Object>();
+        queryMap.put("toLocationId",pickLocation.getLocationId());
+        queryMap.put("valid", TaskConstant.Draft);
+        //可调整的任务id list
+        List<Long> canAdjustTaskList = new ArrayList<Long>();
+        List<TaskEntry> entrys = taskRpcService.getTaskHeadList(TaskConstant.TYPE_PROCUREMENT, queryMap);
+        boolean isFulfill = false;
+        BigDecimal needQty = requiredQty;
+        if(entrys!=null) {
+            for (TaskEntry entry : entrys) {
+                TaskInfo info = entry.getTaskInfo();
+                //已经正在做的
+                if (info.getStatus().compareTo(TaskConstant.Assigned) == 0) {
+                    needQty = needQty.subtract(info.getQty());
+                }
+                //判断该任务数量是不是整托
+                BigDecimal locationQty = quantService.getQuantQtyByLocationIdAndItemId(info.getFromLocationId(), info.getItemId());
+                //根据包装取整
+                BigDecimal[] needDecimals = locationQty.divideAndRemainder(item.getPackUnit());
+                locationQty = locationQty.subtract(needDecimals[1]);
+                if (locationQty.compareTo(info.getQty()) > 0) {
+                    canAdjustTaskList.add(info.getTaskId());
+                } else {
+                    needQty = needQty.subtract(info.getQty());
+                }
+                //当前任务数量比所需数量少
+                if (needQty.compareTo(BigDecimal.ZERO) <= 0) {
+                    isFulfill = true;
+                }
+            }
+        }
+        if (!isFulfill){
+            if(!canAdjustTaskList.isEmpty()) {
+                //先取消可调整的task,再创建
+                taskRpcService.batchCancel(TaskConstant.TYPE_PROCUREMENT, canAdjustTaskList);
+            }
+            //获取所有货架的存储位
+            List<BaseinfoLocation> shelfList = locationService.getBinsByFatherTypeAndUsage(LocationConstant.SHELF, BinUsageConstant.BIN_UASGE_STORE);
+
+            this.createOneShelfProcurement(item,pickLocation,needQty,shelfList);
+
+        }
+        return true;
     }
 }

@@ -334,6 +334,19 @@ public class SoOrderService {
         params.put("itemId", itemId);
         return getOutbSoDetailList(params);
     }
+
+
+    /**
+     * Lock obd header by order id obd header.
+     *
+     * @param orderId the order id
+     * @return the obd header
+     */
+    @Transactional(readOnly = false)
+    public ObdHeader lockObdHeaderByOrderId(Long orderId){
+        return obdHeaderDao.lockObdHeaderByOrderId(orderId);
+    }
+
     /**
      * 根据orderOtherId获取OutbSoHeader
      *
@@ -389,7 +402,7 @@ public class SoOrderService {
             waveService.insertDetail(waveDetail);
         }
         //生成obd moveStockQuant
-        tuService.createObdAndMoveStockQuant(tuHead,tuDetails);
+        tuService.createObdAndMoveStockQuant(tuHead,tuDetails,null);
 
         //退货成功修改订单状态
         this.update(obdHeader);

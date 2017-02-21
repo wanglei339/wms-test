@@ -48,7 +48,10 @@ public class AbsTaskHandler implements TaskHandler {
         baseTaskService.create(entry,head, this);
     }
     public void calcelTask(StockTakingHead head, List<TaskEntry> entries) {
-        baseTaskService.cancelTask(entries,head,this);
+        baseTaskService.cancelTask(entries, head, this);
+    }
+    public void cancel(TaskEntry entry,StockTakingHead head) {
+        baseTaskService.cancelTask(entry,head,this);
     }
 
     public void create(TaskEntry taskEntry) throws BizCheckedException{

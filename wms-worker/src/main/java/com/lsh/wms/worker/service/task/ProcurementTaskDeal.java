@@ -25,7 +25,7 @@ public class ProcurementTaskDeal implements IScheduleTaskDealSingle<String> {
 
     public boolean execute(String task, String ownSign) throws Exception {
         try {
-            iProcurementProveiderRpcService.createProcurement(false);
+            iProcurementProveiderRpcService.createLoftProcurement(false);
         }catch (Exception e){
             logger.error(e.getMessage());
             return false;

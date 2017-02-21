@@ -57,4 +57,6 @@ public interface IWaveRestService {
 
 
     public String getWaveDetailListByLocation(String collectLocationCode);
+
+    public String getWaveDetailByTuDetailId(Long tuDetailId)throws BizCheckedException;
 }

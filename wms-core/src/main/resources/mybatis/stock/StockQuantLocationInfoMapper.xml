@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lsh.wms.core.dao.stock.StockQuantLocationInfoDao" >
+
+	<resultMap id="stockQuantLocationInfoResultMap" type="StockQuantLocationInfo">
+		<id property="id" column="id"/>
+		<result property="locationId" column="location_id"/>
+		<result property="ownerId" column="owner_id"/>
+		<result property="itemId" column="item_id"/>
+		<result property="skuCode" column="sku_code"/>
+		<result property="codeType" column="code_type"/>
+		<result property="code" column="code"/>
+		<result property="packUnit" column="pack_unit"/>
+		<result property="packName" column="pack_name"/>
+		<result property="qty" column="qty"/>
+		<result property="shelfLife" column="shelf_life"/>
+		<result property="createdAt" column="created_at"/>
+		<result property="updatedAt" column="updated_at"/>
+		<result property="minLifeRet" column="min_life_ret"/>
+		<result property="supplierId" column="supplier_id"/>
+	</resultMap>
+  
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="StockQuantLocationInfo">
+		insert into stock_quant_location_info
+		<trim prefix="(" suffixOverrides="," suffix=")">
+        <if test="id != null">id,</if>
+        <if test="locationId != null">location_id,</if>
+        <if test="ownerId != null">owner_id,</if>
+        <if test="itemId != null">item_id,</if>
+        <if test="skuCode != null">sku_code,</if>
+        <if test="codeType != null">code_type,</if>
+        <if test="code != null">code,</if>
+        <if test="packUnit != null">pack_unit,</if>
+        <if test="packName != null">pack_name,</if>
+        <if test="qty != null">qty,</if>
+        <if test="shelfLife != null">shelf_life,</if>
+        <if test="createdAt != null">created_at,</if>
+        <if test="updatedAt != null">updated_at,</if>
+        <if test="minLifeRet != null">min_life_ret,</if>
+        <if test="supplierId != null">supplier_id,</if>
+        </trim>
+    	values
+    	<trim prefix="(" suffixOverrides="," suffix=")">
+        <if test="id != null">#{id},</if>
+        <if test="locationId != null">#{locationId},</if>
+        <if test="ownerId != null">#{ownerId},</if>
+        <if test="itemId != null">#{itemId},</if>
+        <if test="skuCode != null">#{skuCode},</if>
+        <if test="codeType != null">#{codeType},</if>
+        <if test="code != null">#{code},</if>
+        <if test="packUnit != null">#{packUnit},</if>
+        <if test="packName != null">#{packName},</if>
+        <if test="qty != null">#{qty},</if>
+        <if test="shelfLife != null">#{shelfLife},</if>
+        <if test="createdAt != null">#{createdAt},</if>
+        <if test="updatedAt != null">#{updatedAt},</if>
+        <if test="minLifeRet != null">#{minLifeRet},</if>
+        <if test="supplierId != null">#{supplierId},</if>
+		</trim>
+	</insert>
+
+	<update id="update" parameterType="StockQuantLocationInfo">
+		update stock_quant_location_info
+    	<set>
+  			<if test="locationId != null">location_id=#{locationId},</if>
+  			<if test="ownerId != null">owner_id=#{ownerId},</if>
+  			<if test="itemId != null">item_id=#{itemId},</if>
+  			<if test="skuCode != null">sku_code=#{skuCode},</if>
+  			<if test="codeType != null">code_type=#{codeType},</if>
+  			<if test="code != null">code=#{code},</if>
+  			<if test="packUnit != null">pack_unit=#{packUnit},</if>
+  			<if test="packName != null">pack_name=#{packName},</if>
+  			<if test="qty != null">qty=#{qty},</if>
+  			<if test="shelfLife != null">shelf_life=#{shelfLife},</if>
+  			<if test="createdAt != null">created_at=#{createdAt},</if>
+  			<if test="updatedAt != null">updated_at=#{updatedAt},</if>
+  			<if test="minLifeRet != null">min_life_ret=#{minLifeRet},</if>
+  			<if test="supplierId != null">supplier_id=#{supplierId}</if>
+		</set>
+		where ID=#{id}
+	</update>
+	<update id="updateByLocationAndItemAndSupplier" parameterType="StockQuantLocationInfo">
+		update stock_quant_location_info
+		<set>
+			<if test="locationId != null">location_id=#{locationId},</if>
+			<if test="ownerId != null">owner_id=#{ownerId},</if>
+			<if test="itemId != null">item_id=#{itemId},</if>
+			<if test="skuCode != null">sku_code=#{skuCode},</if>
+			<if test="codeType != null">code_type=#{codeType},</if>
+			<if test="code != null">code=#{code},</if>
+			<if test="packUnit != null">pack_unit=#{packUnit},</if>
+			<if test="packName != null">pack_name=#{packName},</if>
+			<if test="qty != null">qty=#{qty},</if>
+			<if test="shelfLife != null">shelf_life=#{shelfLife},</if>
+			<if test="createdAt != null">created_at=#{createdAt},</if>
+			<if test="updatedAt != null">updated_at=#{updatedAt},</if>
+			<if test="minLifeRet != null">min_life_ret=#{minLifeRet},</if>
+			<if test="supplierId != null">supplier_id=#{supplierId}</if>
+		</set>
+		where location_id=#{locationId} and item_id=#{itemId} and supplier_id=#{supplierId}
+	</update>
+
+	<update id="del" parameterType="StockQuantLocationInfo">
+		delete from  stock_quant_location_info
+		<include refid="delQueryCondition"/>
+	</update>
+  
+	<select id="getStockQuantLocationInfoById" parameterType="int" resultMap="stockQuantLocationInfoResultMap">
+		select * from stock_quant_location_info
+		where ID=#{id} 
+	</select>
+  
+	<select id="countStockQuantLocationInfo" parameterType="map" resultType="int">
+		select count(*) from stock_quant_location_info
+		<include refid="queryCondition"/>
+	</select>
+  
+	<select id="getStockQuantLocationInfoList" parameterType="map" resultMap="stockQuantLocationInfoResultMap">
+		select * from stock_quant_location_info
+		<include refid="queryCondition"/>
+		<if test="start != null and limit != null">
+			ORDER BY  min_life_ret ASC
+		limit #{start},#{limit}
+		</if>
+	</select>
+  
+	<sql id="queryCondition">
+		<where>
+			<if test="id != null">id=#{id}</if>
+			<if test="locationId != null">and location_id=#{locationId}</if>
+			<if test="ownerId != null">and owner_id=#{ownerId}</if>
+			<if test="itemId != null">and item_id=#{itemId}</if>
+			<if test="skuCode != null">and sku_code like CONCAT('%',#{skuCode},'%' )</if>
+			<if test="codeType != null">and code_type=#{codeType}</if>
+			<if test="code != null">and code=#{code}</if>
+			<if test="packUnit != null">and pack_unit=#{packUnit}</if>
+			<if test="packName != null">and pack_name=#{packName}</if>
+			<if test="qty != null">and qty=#{qty}</if>
+			<if test="shelfLife != null">and shelf_life=#{shelfLife}</if>
+			<if test="createdAt != null">and created_at=#{createdAt}</if>
+			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
+			<if test="minLifeRet != null">and min_life_ret=#{minLifeRet}</if>
+			<if test="supplierId != null">and supplier_id=#{supplierId}</if>
+			<if test="behindRet != null">and min_life_ret &lt;= #{behindRet}</if>
+			<if test="itemIdList != null">
+				and item_id in
+				<foreach collection="itemIdList"  item="item" index="index" open="(" separator=","  close=")">
+					#{item}
+				</foreach>
+			</if>
+			<if test="locationIdList != null">
+				and location_id in
+				<foreach collection="locationIdList"  item="item" index="index" open="(" separator=","  close=")">
+					#{item}
+				</foreach>
+			</if>
+		</where>
+	</sql>
+	<sql id="delQueryCondition">
+		<where>
+			<if test="id != null">id=#{id}</if>
+			<if test="locationId != null">and location_id=#{locationId}</if>
+			<if test="ownerId != null">and owner_id=#{ownerId}</if>
+			<if test="itemId != null">and item_id=#{itemId}</if>
+			<if test="skuCode != null">and sku_code like CONCAT('%',#{skuCode},'%' )</if>
+			<if test="codeType != null">and code_type=#{codeType}</if>
+			<if test="code != null">and code=#{code}</if>
+			<if test="packUnit != null">and pack_unit=#{packUnit}</if>
+			<if test="packName != null">and pack_name=#{packName}</if>
+			<if test="qty != null">and qty=#{qty}</if>
+			<if test="shelfLife != null">and shelf_life=#{shelfLife}</if>
+			<if test="createdAt != null">and created_at=#{createdAt}</if>
+			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
+			<if test="minLifeRet != null">and min_life_ret=#{minLifeRet}</if>
+			<if test="supplierId != null">and supplier_id=#{supplierId}</if>
+		</where>
+	</sql>
+   
+</mapper>

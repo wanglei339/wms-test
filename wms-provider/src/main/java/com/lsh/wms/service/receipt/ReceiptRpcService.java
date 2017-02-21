@@ -48,7 +48,6 @@ import com.lsh.wms.model.so.ObdDetail;
 import com.lsh.wms.model.so.ObdHeader;
 import com.lsh.wms.model.stock.StockLot;
 import com.lsh.wms.model.stock.StockMove;
-import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.system.ModifyLog;
 import com.lsh.wms.model.system.SysUser;
 import com.lsh.wms.model.task.TaskEntry;
@@ -257,7 +256,8 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 inbReceiptDetail.setOrderId(ibdHeader.getOrderId());
 
                 //根据InbPoHeader中的OwnerUid及InbReceiptDetail中的SkuId获取Item
-                BaseinfoItem baseinfoItem = itemService.getItem(ibdHeader.getOwnerUid(), inbReceiptDetail.getSkuId());
+                //BaseinfoItem baseinfoItem = itemService.getItem(ibdHeader.getOwnerUid(), inbReceiptDetail.getSkuId());
+                BaseinfoItem baseinfoItem = itemService.getItem(receiptItem.getItemId());
                 inbReceiptDetail.setItemId(baseinfoItem.getItemId());
                 inbReceiptDetail.setBarCode(baseinfoItem.getCode());
 
@@ -359,7 +359,9 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 move.setQty(inboundUnitQty);
                 move.setItemId(inbReceiptDetail.getItemId());
                 move.setOperator(Long.valueOf(inbReceiptHeader.getReceiptUser()));
-                move.setTaskId(taskId);
+                //move.setTaskId(taskId);
+                move.setTaskId(ibdHeader.getOrderId());// TODO: 17/2/16  返仓没有生成任务,此处记录taskId无意义,改成orderId
+
 
                 Map<String, Object> moveInfo = new HashMap<String, Object>();
                 moveInfo.put("lot", newStockLot);
@@ -423,7 +425,8 @@ public class ReceiptRpcService implements IReceiptRpcService {
                     throw new BizCheckedException("2020022");
                 }
 
-                BaseinfoItem baseinfoItem = itemService.getItem(ibdHeader.getOwnerUid(), csiSku.getSkuId());
+                //BaseinfoItem baseinfoItem = itemService.getItem(ibdHeader.getOwnerUid(), csiSku.getSkuId());
+                BaseinfoItem baseinfoItem = itemService.getItem(receiptItem.getItemId());
 
                 //根据OrderId及SkuId获取InbPoDetail
                 List<IbdDetail> ibdDetailList = poOrderService.getInbPoDetailByOrderAndSkuCode(receiptItem.getOrderId(), baseinfoItem.getSkuCode());
@@ -507,7 +510,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
                     //如果单位不为ea 判断下是否为整件
                     if(inboundUnitQty.divideAndRemainder(ibdPackUnit)[1].compareTo(BigDecimal.ZERO) == 0) {
                         obdStreamDetail.setAllocUnitName(receiptItem.getPackName());
-                        obdStreamDetail.setAllocUnitQty(PackUtil.EAQty2UomQty(inboundUnitQty,receiptItem.getPackName()));
+                        obdStreamDetail.setAllocUnitQty(PackUtil.EAQty2UomQty(inboundUnitQty,receiptItem.getPackUnit()));
                     }else{
                         obdStreamDetail.setAllocUnitName("EA");
                         obdStreamDetail.setAllocUnitQty(inboundUnitQty);
@@ -856,9 +859,14 @@ public class ReceiptRpcService implements IReceiptRpcService {
     }
 
     public void insertReceipt(Long orderId , Long staffId) throws BizCheckedException, ParseException {
-        IbdHeader ibdHeader = poOrderService.getInbPoHeaderByOrderId(orderId);
+        //锁记录
+        //IbdHeader ibdHeader = poOrderService.getInbPoHeaderByOrderId(orderId);
+        IbdHeader ibdHeader = poOrderService.lockIbdHeaderByOrderId(orderId);
         if (ibdHeader == null) {
             throw new BizCheckedException("2020001");
+        }
+        if(ibdHeader.getOrderStatus() == PoConstant.ORDER_RECTIPT_ALL){
+            throw new BizCheckedException("2028892");
         }
         List<IbdDetail> ibdDetails = poOrderService.getInbPoDetailListByOrderId(orderId);
         ReceiptRequest request = new ReceiptRequest();
@@ -906,12 +914,14 @@ public class ReceiptRpcService implements IReceiptRpcService {
 //            ObdDetail obdDetail = obdDetails.get(0);
             item.setArriveNum(ibdDetail.getOrderQty());
             item.setOrderId(ibdHeader.getOrderId());
-            //item.setBarCode(obdDetail);
+            item.setBarCode(baseinfoItem.getCode());
+            item.setItemId(baseinfoItem.getItemId());
             item.setInboundQty(ibdDetail.getOrderQty());
             item.setPackName(ibdDetail.getPackName());
             item.setPackUnit(ibdDetail.getPackUnit());
             //item.setSkuId(obdDetail.getSkuId());
             item.setSkuId(baseinfoItem.getSkuId());
+            item.setSkuCode(baseinfoItem.getSkuCode());
             item.setSkuName(ibdDetail.getSkuName());
             item.setDetailOtherId(ibdDetail.getDetailOtherId());
             items.add(item);
@@ -1059,7 +1069,8 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 throw new BizCheckedException("2020022");
             }
             inbReceiptDetail.setSkuId(csiSku.getSkuId());
-            BaseinfoItem baseinfoItem = itemService.getItem(ibdHeader.getOwnerUid(), csiSku.getSkuId());
+            //BaseinfoItem baseinfoItem = itemService.getItem(ibdHeader.getOwnerUid(), csiSku.getSkuId());
+            BaseinfoItem baseinfoItem = itemService.getItem(receiptItem.getItemId());
             inbReceiptDetail.setItemId(baseinfoItem.getItemId());
 
             //根据OrderId及SkuCode获取InbPoDetail

@@ -117,6 +117,12 @@ public class ItemService {
         }
         return items.get(0);
     }
+    public List<BaseinfoItem> getItemByPackCode(String packCode){
+        Map<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("packCode", packCode);
+        List<BaseinfoItem> items = itemDao.getBaseinfoItemList(mapQuery);
+        return items;
+    }
 
 //    /**
 //     * 查找有效的item
@@ -295,6 +301,19 @@ public class ItemService {
             skuCodes.add(item.getSkuCode());
         }
         return skuCodes;
+    }
+    /**
+     * 根据skuId + ownerId 查找商品ItemId
+     */
+    public Long getItemIdBySkuAndOwner(Long ownerId,Long skuId){
+        Map<String,Object> map = new HashMap<String, Object>();
+        map.put("ownerId", ownerId);
+        map.put("skuId", skuId);
+        List<BaseinfoItem> itemList = itemDao.getBaseinfoItemList(map);
+        if(itemList == null || itemList.size()==0){
+            return null;
+        }
+        return itemList.get(0).getItemId();
     }
 
     /**

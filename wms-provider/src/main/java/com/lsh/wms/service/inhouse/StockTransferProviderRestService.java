@@ -7,7 +7,6 @@ import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.inhouse.IStockTransferProviderRestService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.utils.PackUtil;
-import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.transfer.StockTransferPlan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

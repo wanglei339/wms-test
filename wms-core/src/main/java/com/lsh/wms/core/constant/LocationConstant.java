@@ -1,6 +1,5 @@
 package com.lsh.wms.core.constant;
 
-import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -266,7 +265,6 @@ public class LocationConstant {
             put(DIFF_AREA, CLASSIFICATION_AREAS);
             put(SO_INBOUND_AREA, CLASSIFICATION_AREAS);
             put(SO_DIRECT_AREA, CLASSIFICATION_AREAS);
-
         }
     };
 
