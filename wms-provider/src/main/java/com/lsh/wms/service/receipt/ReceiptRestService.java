@@ -6,6 +6,7 @@ import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.alibaba.fastjson.JSON;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
+import com.lsh.base.common.utils.StrUtils;
 import com.lsh.wms.api.model.base.BaseResponse;
 import com.lsh.wms.api.model.base.ResUtils;
 import com.lsh.wms.api.model.base.ResponseConstant;
@@ -171,6 +172,18 @@ public class ReceiptRestService implements IReceiptRestService {
     public String getInbReceiptIds() throws BizCheckedException{
         Map<String, Object> params = RequestUtils.getRequest();
         return JsonUtils.SUCCESS(receiptRpcService.getInbReceiptIds(params));
+    }
+
+    @POST
+    @Path("modifyProTime")
+    public String modifyProTime() throws BizCheckedException, ParseException {
+        Map<String, Object> request = RequestUtils.getRequest();
+        logger.info(StrUtils.formatString("Params is : ",request));
+        Long uid = Long.valueOf(request.get("uid").toString());
+        Long receiptId = (Long) request.get("receiptId");
+        String newProTime = request.get("newProTime").toString();
+        receiptRpcService.modifyProTime(receiptId,newProTime,uid);
+        return JsonUtils.SUCCESS();
     }
 
 
