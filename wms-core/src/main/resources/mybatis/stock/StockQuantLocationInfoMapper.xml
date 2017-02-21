@@ -102,7 +102,7 @@
 
 	<update id="del" parameterType="StockQuantLocationInfo">
 		delete from  stock_quant_location_info
-		<include refid="queryCondition"/>
+		<include refid="delQueryCondition"/>
 	</update>
   
 	<select id="getStockQuantLocationInfoById" parameterType="int" resultMap="stockQuantLocationInfoResultMap">
@@ -154,6 +154,25 @@
 					#{item}
 				</foreach>
 			</if>
+		</where>
+	</sql>
+	<sql id="delQueryCondition">
+		<where>
+			<if test="id != null">id=#{id}</if>
+			<if test="locationId != null">and location_id=#{locationId}</if>
+			<if test="ownerId != null">and owner_id=#{ownerId}</if>
+			<if test="itemId != null">and item_id=#{itemId}</if>
+			<if test="skuCode != null">and sku_code like CONCAT('%',#{skuCode},'%' )</if>
+			<if test="codeType != null">and code_type=#{codeType}</if>
+			<if test="code != null">and code=#{code}</if>
+			<if test="packUnit != null">and pack_unit=#{packUnit}</if>
+			<if test="packName != null">and pack_name=#{packName}</if>
+			<if test="qty != null">and qty=#{qty}</if>
+			<if test="shelfLife != null">and shelf_life=#{shelfLife}</if>
+			<if test="createdAt != null">and created_at=#{createdAt}</if>
+			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
+			<if test="minLifeRet != null">and min_life_ret=#{minLifeRet}</if>
+			<if test="supplierId != null">and supplier_id=#{supplierId}</if>
 		</where>
 	</sql>
    
