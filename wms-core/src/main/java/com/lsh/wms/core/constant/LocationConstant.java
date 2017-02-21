@@ -1,6 +1,5 @@
 package com.lsh.wms.core.constant;
 
-import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -159,6 +158,9 @@ public class LocationConstant {
     public static final Integer IS_LEAF = 1;
     public static final Integer NOT_LEAF = 0;
 
+    //库位的关联的默认值
+    public static final Long REF_BIN_DEFUALT = 0L;
+
 
 
 
@@ -266,7 +268,6 @@ public class LocationConstant {
             put(DIFF_AREA, CLASSIFICATION_AREAS);
             put(SO_INBOUND_AREA, CLASSIFICATION_AREAS);
             put(SO_DIRECT_AREA, CLASSIFICATION_AREAS);
-
         }
     };
 

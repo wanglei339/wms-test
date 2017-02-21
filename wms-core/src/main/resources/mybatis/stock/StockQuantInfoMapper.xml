@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lsh.wms.core.dao.stock.StockQuantInfoDao" >
+
+	<resultMap id="stockQuantInfoResultMap" type="StockQuantInfo">
+		<id property="id" column="id"/>
+		<result property="itemId" column="item_id"/>
+		<result property="skuCode" column="sku_code"/>
+		<result property="codeType" column="code_type"/>
+		<result property="code" column="code"/>
+		<result property="packUnit" column="pack_unit"/>
+		<result property="packName" column="pack_name"/>
+		<result property="allQty" column="all_qty"/>
+		<result property="canUseQty" column="can_use_qty"/>
+		<result property="defectQty" column="defect_qty"/>
+		<result property="returnQty" column="return_qty"/>
+		<result property="shelfLife" column="shelf_life"/>
+		<result property="remainShelfLife" column="remain_shelf_life"/>
+		<result property="createdAt" column="created_at"/>
+		<result property="updatedAt" column="updated_at"/>
+		<result property="minLifeRet" column="min_life_ret"/>
+		<result property="soCloseQty" column="so_close_qty"/>
+		<result property="ownerId" column="owner_id"/>
+	</resultMap>
+  
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="StockQuantInfo">
+		insert into stock_quant_info
+		<trim prefix="(" suffixOverrides="," suffix=")">
+        <if test="id != null">id,</if>
+        <if test="itemId != null">item_id,</if>
+        <if test="skuCode != null">sku_code,</if>
+        <if test="codeType != null">code_type,</if>
+        <if test="code != null">code,</if>
+        <if test="packUnit != null">pack_unit,</if>
+        <if test="packName != null">pack_name,</if>
+        <if test="allQty != null">all_qty,</if>
+        <if test="canUseQty != null">can_use_qty,</if>
+        <if test="defectQty != null">defect_qty,</if>
+        <if test="returnQty != null">return_qty,</if>
+        <if test="shelfLife != null">shelf_life,</if>
+        <if test="remainShelfLife != null">remain_shelf_life,</if>
+        <if test="createdAt != null">created_at,</if>
+        <if test="updatedAt != null">updated_at,</if>
+        <if test="minLifeRet != null">min_life_ret,</if>
+        <if test="soCloseQty != null">so_close_qty,</if>
+        <if test="ownerId != null">owner_id,</if>
+        </trim>
+    	values
+    	<trim prefix="(" suffixOverrides="," suffix=")">
+        <if test="id != null">#{id},</if>
+        <if test="itemId != null">#{itemId},</if>
+        <if test="skuCode != null">#{skuCode},</if>
+        <if test="codeType != null">#{codeType},</if>
+        <if test="code != null">#{code},</if>
+        <if test="packUnit != null">#{packUnit},</if>
+        <if test="packName != null">#{packName},</if>
+        <if test="allQty != null">#{allQty},</if>
+        <if test="canUseQty != null">#{canUseQty},</if>
+        <if test="defectQty != null">#{defectQty},</if>
+        <if test="returnQty != null">#{returnQty},</if>
+        <if test="shelfLife != null">#{shelfLife},</if>
+        <if test="remainShelfLife != null">#{remainShelfLife},</if>
+        <if test="createdAt != null">#{createdAt},</if>
+        <if test="updatedAt != null">#{updatedAt},</if>
+        <if test="minLifeRet != null">#{minLifeRet},</if>
+        <if test="soCloseQty != null">#{soCloseQty},</if>
+        <if test="ownerId != null">#{ownerId},</if>
+		</trim>
+	</insert>
+
+	<update id="updateByItemId" parameterType="StockQuantInfo">
+		update stock_quant_info
+    	<set>
+  			<if test="itemId != null">item_id=#{itemId},</if>
+  			<if test="skuCode != null">sku_code=#{skuCode},</if>
+  			<if test="codeType != null">code_type=#{codeType},</if>
+  			<if test="code != null">code=#{code},</if>
+  			<if test="packUnit != null">pack_unit=#{packUnit},</if>
+  			<if test="packName != null">pack_name=#{packName},</if>
+  			<if test="allQty != null">all_qty=#{allQty},</if>
+  			<if test="canUseQty != null">can_use_qty=#{canUseQty},</if>
+  			<if test="defectQty != null">defect_qty=#{defectQty},</if>
+  			<if test="returnQty != null">return_qty=#{returnQty},</if>
+  			<if test="shelfLife != null">shelf_life=#{shelfLife},</if>
+  			<if test="remainShelfLife != null">remain_shelf_life=#{remainShelfLife},</if>
+  			<if test="createdAt != null">created_at=#{createdAt},</if>
+  			<if test="updatedAt != null">updated_at=#{updatedAt},</if>
+  			<if test="minLifeRet != null">min_life_ret=#{minLifeRet},</if>
+  			<if test="soCloseQty != null">so_close_qty=#{soCloseQty},</if>
+  			<if test="ownerId != null">owner_id=#{ownerId}</if>
+		</set>
+		where item_id=#{itemId}
+	</update>
+  
+	<select id="getStockQuantInfoById" parameterType="int" resultMap="stockQuantInfoResultMap">
+		select * from stock_quant_info
+		where ID=#{id} 
+	</select>
+  
+	<select id="countStockQuantInfo" parameterType="map" resultType="int">
+		select count(*) from stock_quant_info
+		<include refid="queryCondition"/>
+	</select>
+  
+	<select id="getStockQuantInfoList" parameterType="map" resultMap="stockQuantInfoResultMap">
+		select * from stock_quant_info
+		<include refid="queryCondition"/>
+		ORDER BY  min_life_ret ASC
+		<if test="start != null and limit != null">
+		limit #{start},#{limit}
+		</if>
+	</select>
+  
+	<sql id="queryCondition">
+		<where>
+			<if test="id != null">id=#{id}</if>
+			<if test="itemId != null">and item_id=#{itemId}</if>
+			<if test="skuCode != null">and sku_code like CONCAT('%',#{skuCode},'%' )</if>
+			<if test="codeType != null">and code_type=#{codeType}</if>
+			<if test="code != null">and code=#{code}</if>
+			<if test="packUnit != null">and pack_unit=#{packUnit}</if>
+			<if test="packName != null">and pack_name=#{packName}</if>
+			<if test="allQty != null">and all_qty=#{allQty}</if>
+			<if test="canUseQty != null">and can_use_qty=#{canUseQty}</if>
+			<if test="defectQty != null">and defect_qty=#{defectQty}</if>
+			<if test="returnQty != null">and return_qty=#{returnQty}</if>
+			<if test="shelfLife != null">and shelf_life=#{shelfLife}</if>
+			<if test="remainShelfLife != null">and remain_shelf_life=#{remainShelfLife}</if>
+			<if test="createdAt != null">and created_at=#{createdAt}</if>
+			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
+			<if test="minLifeRet != null">and min_life_ret=#{minLifeRet}</if>
+			<if test="soCloseQty != null">and so_close_qty=#{soCloseQty}</if>
+			<if test="ownerId != null">and owner_id=#{ownerId}</if>
+			<if test="behindRet != null">and min_life_ret &lt;= #{behindRet}</if>
+			<if test="itemIdList != null">
+				and item_id in
+				<foreach collection="itemIdList"  item="item" index="index" open="(" separator=","  close=")">
+					#{item}
+				</foreach>
+			</if>
+		</where>
+	</sql>
+   
+</mapper>

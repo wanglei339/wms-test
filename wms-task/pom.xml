@@ -81,9 +81,6 @@
     <profiles>
         <profile>
             <id>wuhao</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
             <properties>
                 <profile.name>dev</profile.name>
                 <log.file>/data/logs/pub-provider/provider.log</log.file>

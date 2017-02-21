@@ -1,6 +1,5 @@
 package com.lsh.wms.service.back;
 
-import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
@@ -9,13 +8,14 @@ import com.lsh.wms.core.service.po.PoOrderService;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.model.po.IbdHeader;
 import com.lsh.wms.model.po.IbdObdRelation;
-import com.lsh.wms.api.service.back.IBackInStorageProviderRpcService;
 import com.lsh.wms.model.so.ObdHeader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.ws.rs.*;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.QueryParam;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

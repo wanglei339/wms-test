@@ -342,6 +342,7 @@ public class SoOrderService {
      * @param orderId the order id
      * @return the obd header
      */
+    @Transactional(readOnly = false)
     public ObdHeader lockObdHeaderByOrderId(Long orderId){
         return obdHeaderDao.lockObdHeaderByOrderId(orderId);
     }
