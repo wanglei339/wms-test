@@ -6,10 +6,7 @@ import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.api.service.stock.IStockQuantRpcService;
-import com.lsh.wms.core.constant.ContainerConstant;
-import com.lsh.wms.core.constant.LocationConstant;
-import com.lsh.wms.core.constant.TaskConstant;
-import com.lsh.wms.core.constant.WriteOffConstant;
+import com.lsh.wms.core.constant.*;
 import com.lsh.wms.core.service.container.ContainerService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.location.LocationService;
@@ -350,13 +347,13 @@ public class StockQuantRpcService implements IStockQuantRpcService {
                 if(stockQuantInfos.get(key)!=null){
                     locationInfo = stockQuantInfos.get(key);
                     locationInfo.setQty(locationInfo.getQty().add(quant.getQty()));
-                    if(quant.getExpireDate().compareTo(locationInfo.getMinLife()) <0) {
-                        Long now = DateUtils.getCurrentSeconds();
-                        int remainDate = (int)((quant.getExpireDate() - now) / (24 * 60 * 60)) ;
-                        locationInfo.setMinLifeRet(locationInfo.getShelfLife().compareTo(BigDecimal.ZERO) == 0 ? 1 : ((double) remainDate) / locationInfo.getShelfLife().doubleValue());
-                        locationInfo.setMinLife(quant.getExpireDate());
-                        stockQuantInfos.put(key,locationInfo);
-                    }
+//                    if(quant.getExpireDate().compareTo(locationInfo.getMinLife()) ==0) {
+//                        Long now = DateUtils.getCurrentSeconds();
+//                        int remainDate = (int)((quant.getExpireDate() - now) / (24 * 60 * 60));
+//                        locationInfo.setMinLifeRet(locationInfo.getShelfLife().compareTo(BigDecimal.ZERO) == 0 ? 1 : ((double) remainDate) / locationInfo.getShelfLife().doubleValue());
+//                        locationInfo.setMinLife(quant.getExpireDate());
+//                        stockQuantInfos.put(key,locationInfo);
+//                    }
                 }else {
                     locationInfo = new StockQuantLocationInfo();
                     BaseinfoItem item = itemService.getItem(quant.getItemId());
@@ -372,10 +369,19 @@ public class StockQuantRpcService implements IStockQuantRpcService {
                     locationInfo.setOwnerId(quant.getOwnerId());
                     locationInfo.setQty(quant.getQty());
 
+                    BaseinfoLocation location = locationService.getLocation(quant.getLocationId());
+
+                    //捡货位和区级别的都是默认为1
                     Long now = DateUtils.getCurrentSeconds();
-                    int remainDate = (int)((quant.getExpireDate() - now) / (24 * 60 * 60)) ;
-                    locationInfo.setMinLifeRet(item.getShelfLife().compareTo(BigDecimal.ZERO) == 0 ? 1 : ((double) remainDate) / locationInfo.getShelfLife().doubleValue());
-                    locationInfo.setMinLife(quant.getExpireDate());
+                    int remainDate = (int) ((quant.getExpireDate() - now) / (24 * 60 * 60));
+
+                    if(location.getBinUsage().compareTo(BinUsageConstant.BIN_UASGE_PICK)==0 || location.getBinUsage().compareTo(0)==0){
+                        locationInfo.setMinLifeRet(1.0);
+                    }else {
+
+                        locationInfo.setMinLifeRet(item.getShelfLife().compareTo(BigDecimal.ZERO) == 0 ? 1 : ((double) remainDate) / locationInfo.getShelfLife().doubleValue());
+                    }
+                    locationInfo.setMinLife(remainDate);
                 }
                 if(stockLocationMap.containsKey(key)){
                     stockLocationMap.put(key, null);
