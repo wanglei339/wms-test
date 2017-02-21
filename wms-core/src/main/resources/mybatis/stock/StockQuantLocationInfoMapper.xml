@@ -118,8 +118,8 @@
 	<select id="getStockQuantLocationInfoList" parameterType="map" resultMap="stockQuantLocationInfoResultMap">
 		select * from stock_quant_location_info
 		<include refid="queryCondition"/>
+		ORDER BY  min_life_ret ASC
 		<if test="start != null and limit != null">
-			ORDER BY  min_life_ret ASC
 		limit #{start},#{limit}
 		</if>
 	</select>
