@@ -158,6 +158,9 @@ public class LocationConstant {
     public static final Integer IS_LEAF = 1;
     public static final Integer NOT_LEAF = 0;
 
+    //库位的关联的默认值
+    public static final Long REF_BIN_DEFUALT = 0L;
+
 
 
 
