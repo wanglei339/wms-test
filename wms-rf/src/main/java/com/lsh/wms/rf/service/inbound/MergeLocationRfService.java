@@ -85,7 +85,7 @@ public class MergeLocationRfService implements IMergeLocationRfService {
         }
         iLocationDetailRpc.splitBins(locationCode);
         Map<String, Object> resultMap = new HashMap<String, Object>();
-        resultMap.put("Done", true);
+        resultMap.put("response", true);
         return JsonUtils.SUCCESS(resultMap);
     }
 }
