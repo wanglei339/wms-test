@@ -43,6 +43,21 @@ public interface ILocationDetailRpc {
      */
     public List<BaseinfoLocation> getNextLevelLocations(Long locationId) throws BizCheckedException;
 
+    /**
+     * 合并库位
+     * @param binCodes    待合并库位
+     * @throws BizCheckedException
+     * @return  返回一个map 分别 "msg":xx , "arr":问题locationId
+     */
+    public Map<String,Object> mergeBinsByLocationIds(List<String> binCodes) throws BizCheckedException;
+
+    /**
+     * 合并库位
+     * @param locationCode    库位码
+     * @throws BizCheckedException
+     */
+    public void splitBins(String locationCode) throws BizCheckedException;
+
 
 
 
