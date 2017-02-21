@@ -28,7 +28,7 @@ import java.util.Map;
  * @Date 2017/2/16 下午7:36
  */
 @Service(protocol = "rest")
-@Path("inbound/merge")
+@Path("inbound/location")
 @Consumes({MediaType.APPLICATION_JSON, MediaType.TEXT_XML})
 @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
 public class MergeLocationRfService implements IMergeLocationRfService {
