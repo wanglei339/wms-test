@@ -20,6 +20,7 @@ import com.lsh.wms.model.po.*;
 import com.lsh.wms.model.so.ObdDetail;
 import com.lsh.wms.model.stock.StockLot;
 import com.lsh.wms.model.stock.StockMove;
+import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.system.ModifyLog;
 import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.wave.WaveDetail;
@@ -90,6 +91,9 @@ public class PoReceiptService {
     private PoOrderService poOrderService;
     @Autowired
     private BaseTaskService baseTaskService;
+
+    @Autowired
+    private StockQuantService quantService;
     /**
      * 插入InbReceiptHeader及List<InbReceiptDetail>
      * @param inbReceiptHeader
@@ -408,6 +412,23 @@ public class PoReceiptService {
         }
         if(updateTaskInfos != null && updateTaskInfos.size() > 0){
             baseTaskService.batchUpdate(updateTaskInfos);
+        }
+        modifyLogService.addModifyLog(modifyLog);
+    }
+
+    /**
+     * 修改生产日期
+     */
+    @Transactional(readOnly = false)
+    public void modifyProTime(InbReceiptDetail inbReceiptDetail, List<StockQuant> updateStockQuants,
+                                 ModifyLog modifyLog, StockLot stockLot){
+        this.updateInbReceiptDetail(inbReceiptDetail);
+        stockLotService.updateLot(stockLot);
+
+        if(updateStockQuants != null && updateStockQuants.size() > 0){
+            for(StockQuant stockQuant : updateStockQuants){
+                quantService.update(stockQuant);
+            }
         }
         modifyLogService.addModifyLog(modifyLog);
     }
