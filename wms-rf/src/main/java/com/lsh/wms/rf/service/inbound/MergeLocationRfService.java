@@ -44,11 +44,14 @@ public class MergeLocationRfService implements IMergeLocationRfService {
      */
     @POST
     @Path("mergeBins")
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
+    @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
     public String mergeBins() throws BizCheckedException {
         Map<String, Object> mapQuery = RequestUtils.getRequest();
         List<String> binCodes = null;
         try {
-            binCodes = (List<String>) mapQuery.get("binCodes");
+            binCodes = JSON.parseArray(mapQuery.get("binCodes").toString(), String.class);
+            logger.info(binCodes.toString());
         } catch (Exception e) {
             logger.error(e.getMessage());
             return JsonUtils.TOKEN_ERROR("传递格式参数有误");
@@ -74,6 +77,8 @@ public class MergeLocationRfService implements IMergeLocationRfService {
      */
     @POST
     @Path("splitBins")
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
+    @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
     public String splitBins() throws BizCheckedException {
         Map<String, Object> mapQuery = RequestUtils.getRequest();
         String locationCode = null;
