@@ -275,12 +275,12 @@ public class StockQuantRpcService implements IStockQuantRpcService {
                 queryStockMap.put("itemId",baseinfoItem.getItemId());
                 List<StockQuant> quants =  quantService.getQuants(queryStockMap);
                 double minLifeRet = 1;
-                Map<Double,Integer> remainShelfLifeMap = new HashMap<Double, Integer>();
-                List<Double> remainShelfLifeList = new ArrayList<Double>();
+                Map<Integer,Integer> remainShelfLifeMap = new HashMap<Integer, Integer>();
+                List<Integer> remainShelfLifeList = new ArrayList<Integer>();
                 if(quants!=null){
                     for(StockQuant quant:quants){
                         Long now = DateUtils.getCurrentSeconds();
-                        double remainDate = ((quant.getExpireDate() - now) / (24.0 * 60.0 * 60.0)) ;
+                        int remainDate = (int)((quant.getExpireDate() - now) / (24.0 * 60.0 * 60.0)) ;
                         if(!remainShelfLifeMap.containsKey(remainDate)){
                             double lifeRet = 1;
                             if(stockQuantInfo.getShelfLife().compareTo(BigDecimal.ZERO)!=0){
@@ -373,7 +373,7 @@ public class StockQuantRpcService implements IStockQuantRpcService {
 
                     //捡货位和区级别的都是默认为1
                     Long now = DateUtils.getCurrentSeconds();
-                    double remainDate = ((quant.getExpireDate() - now) / (24.0 * 60.0 * 60.0));
+                    int remainDate = (int)(((quant.getExpireDate() - now) / (24.0 * 60.0 * 60.0)));
 
                     if(location.getBinUsage().compareTo(BinUsageConstant.BIN_UASGE_PICK)==0 || location.getBinUsage().compareTo(0)==0){
                         locationInfo.setMinLifeRet(1.0);
