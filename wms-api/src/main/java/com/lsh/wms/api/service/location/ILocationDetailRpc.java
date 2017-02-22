@@ -58,6 +58,14 @@ public interface ILocationDetailRpc {
      */
     public void splitBins(String locationCode) throws BizCheckedException;
 
+    /**
+     * 查询库位合并的状态
+     * @param locationCode
+     * @return  返回map  "canSplit":true|false  "binCodes":list
+     * @throws BizCheckedException
+     */
+    public Map<String,Object> checkBin(String locationCode) throws BizCheckedException;
+
 
 
 

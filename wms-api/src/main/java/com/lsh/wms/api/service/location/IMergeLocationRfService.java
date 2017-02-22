@@ -9,4 +9,5 @@ import com.lsh.base.common.exception.BizCheckedException;
 public interface IMergeLocationRfService {
     public String mergeBins()throws BizCheckedException;
     public String splitBins()throws BizCheckedException;
+    public String checkBin()throws BizCheckedException;
 }

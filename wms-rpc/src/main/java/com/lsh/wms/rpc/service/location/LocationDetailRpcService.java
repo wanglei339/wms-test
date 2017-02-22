@@ -312,5 +312,73 @@ public class LocationDetailRpcService implements ILocationDetailRpc {
         }
     }
 
+    /**
+     * 查询库位的关联的库位编码集合
+     *
+     * @param locationCode
+     * @return 返回map  "canSplit":true|false  "binCodes":list
+     * @throws BizCheckedException
+     */
+    public Map<String, Object> checkBin(String locationCode) throws BizCheckedException {
+        boolean canSplit = true;
+        List<String> binCodes = new ArrayList<String>();
+        Map<String, Object> result = new HashMap<String, Object>();
+        Long oneLocationId = locationRpcService.getLocationIdByCode(locationCode);
+        BaseinfoLocation location = locationService.getLocation(oneLocationId);
+        //库存,锁
+        if (null == location) {
+            throw new BizCheckedException("2180001");
+        }
+        if (!LocationConstant.BIN.equals(location.getType())) {
+            throw new BizCheckedException("2180037");
+        }
+        BaseinfoLocationBin oneBin = (BaseinfoLocationBin) locationDetailService.getIBaseinfoLocaltionModelById(location.getLocationId());
+        Long targetLocationId = oneBin.getRelLocationId();
+        //若不是关联的库位,不需要拆分
+        if (0L == targetLocationId) {
+            canSplit = false;
+            result.put("canSplit", canSplit);
+            result.put("arr", binCodes);
+            result.put("msg", "该位置不是合并库位,无需拆分");
+            return result;
+        }
+        //关联的在使用的bin,区别其他被锁定的bin
+        BaseinfoLocationBin targetBin = (BaseinfoLocationBin) locationDetailService.getIBaseinfoLocaltionModelById(targetLocationId);
+        if (LocationConstant.IS_LOCKED.equals(targetBin.getIsLocked())) {
+            canSplit = false;
+            result.put("canSplit", canSplit);
+            result.put("arr", binCodes);
+            result.put("msg", "该位置已被锁定,不可拆分");
+            return result;
+        }
+        //库存和这个息息相关,有库存就一定有这个数
+        if (0L != targetBin.getCurContainerVol()) {
+            canSplit = false;
+            result.put("canSplit", canSplit);
+            result.put("arr", binCodes);
+            result.put("msg", "该位置已被占用,不可拆分");
+            return result;
+        }
+        Map<String, Object> queryMap = new HashMap<String, Object>();
+        queryMap.put("relLocationId", targetBin.getRelLocationId());
+        List<BaseinfoLocationBin> allRelBins = binService.getBins(queryMap);
+        if (null == allRelBins || allRelBins.size() < 2) {
+            canSplit = false;
+            result.put("canSplit", canSplit);
+            result.put("arr", binCodes);
+            result.put("msg", "该库位无关联,无需拆分");
+            return result;
+        }
+        for (BaseinfoLocationBin bin : allRelBins) {
+            BaseinfoLocation temp = locationService.getLocation(bin.getLocationId());
+            if (null != temp) {
+                binCodes.add(temp.getLocationCode());
+            }
+        }
+        result.put("canSplit",canSplit);
+        result.put("arr", binCodes);
+        return result;
+    }
+
 
 }

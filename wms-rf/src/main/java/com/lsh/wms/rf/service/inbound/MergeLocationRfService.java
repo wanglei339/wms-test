@@ -93,4 +93,26 @@ public class MergeLocationRfService implements IMergeLocationRfService {
         resultMap.put("response", true);
         return JsonUtils.SUCCESS(resultMap);
     }
+    /**
+     * 查询库位的合并状态
+     *
+     * @return
+     * @throws BizCheckedException
+     */
+    @POST
+    @Path("checkBin")
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
+    @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
+    public String checkBin() throws BizCheckedException {
+        Map<String, Object> mapQuery = RequestUtils.getRequest();
+        String locationCode = null;
+        try {
+            locationCode = mapQuery.get("locationCode").toString();
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            return JsonUtils.TOKEN_ERROR("传递格式参数有误");
+        }
+        Map<String,Object> result = iLocationDetailRpc.checkBin(locationCode);
+        return JsonUtils.SUCCESS(result);
+    }
 }
