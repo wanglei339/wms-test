@@ -377,11 +377,12 @@ public class StockQuantRpcService implements IStockQuantRpcService {
 
                     if(location.getBinUsage().compareTo(BinUsageConstant.BIN_UASGE_PICK)==0 || location.getBinUsage().compareTo(0)==0){
                         locationInfo.setMinLifeRet(1.0);
+                        locationInfo.setMinLife(0);
                     }else {
 
                         locationInfo.setMinLifeRet(item.getShelfLife().compareTo(BigDecimal.ZERO) == 0 ? 1 : ((double) remainDate) / locationInfo.getShelfLife().doubleValue());
+                        locationInfo.setMinLife(remainDate);
                     }
-                    locationInfo.setMinLife(remainDate);
                 }
                 if(stockLocationMap.containsKey(key)){
                     stockLocationMap.put(key, null);
