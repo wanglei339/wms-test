@@ -37,7 +37,7 @@ public class StockQuantLocationInfo implements Serializable {
 	/** 供商id */
     private Long supplierId;
 
-	private Integer minLife;
+	private double minLife;
 	
 	public Long getId(){
 		return this.id;
@@ -159,11 +159,11 @@ public class StockQuantLocationInfo implements Serializable {
 		this.supplierId = supplierId;
 	}
 
-	public Integer getMinLife() {
+	public double getMinLife() {
 		return minLife;
 	}
 
-	public void setMinLife(Integer minLife) {
+	public void setMinLife(double minLife) {
 		this.minLife = minLife;
 	}
 }
