@@ -240,7 +240,7 @@ public class LocationDetailRpcService implements ILocationDetailRpc {
             //合并库位
             for (int i = 1; i < binIds.size(); i++) {
                 BaseinfoLocationBin bin = (BaseinfoLocationBin) locationDetailService.getIBaseinfoLocaltionModelById(binIds.get(i));
-                if (0L != toBin.getRelLocationId()) {
+                if (0L != bin.getRelLocationId()) {
                     mergedBinCodes.add(bin.getLocationCode());
                 }
                 bins.add(bin);
