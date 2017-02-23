@@ -3,13 +3,19 @@ package com.lsh.wms.service.sync;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.google.common.eventbus.Subscribe;
 import com.lsh.base.common.utils.DateUtils;
+import com.lsh.base.common.utils.StrUtils;
 import com.lsh.wms.api.service.inhouse.IProcurementProveiderRpcService;
 import com.lsh.wms.api.service.inhouse.IStockTakingProviderRpcService;
 import com.lsh.wms.core.constant.LocationConstant;
+import com.lsh.wms.core.constant.PoConstant;
 import com.lsh.wms.core.service.location.LocationService;
+import com.lsh.wms.core.service.po.PoOrderService;
+import com.lsh.wms.core.service.utils.PackUtil;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.ProcurementInfo;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
+import com.lsh.wms.model.po.IbdDetail;
+import com.lsh.wms.model.po.IbdHeader;
 import com.lsh.wms.model.taking.FillTakingPlanParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +23,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -39,6 +47,8 @@ public class AsyncEventListener {
     private WaveService waveService;
     @Autowired
     private LocationService locationService;
+    @Autowired
+    private PoOrderService poOrderService;
 
 
     /**
@@ -100,4 +110,35 @@ public class AsyncEventListener {
         }
         logger.info("end_task:" + DateUtils.getCurrentSeconds());
     }
+
+    @Subscribe
+    public void closeIbdHeaderStatus(Long orderId){
+        logger.info(StrUtils.formatString("order_id : " ,orderId));
+        List<IbdDetail> ibdDetails = poOrderService.getInbPoDetailListByOrderId(orderId);
+        Boolean doneflag = true;
+        List<IbdHeader> updateIbdHeaders = new ArrayList<IbdHeader>();
+        for (IbdDetail ibdDetail : ibdDetails) {
+            //订货单位转换为基本单位来计算
+            BigDecimal orderUnitQty = PackUtil.UomQty2EAQty(ibdDetail.getOrderQty(),ibdDetail.getPackUnit());
+            BigDecimal inboundQty = ibdDetail.getInboundQty();
+            if(orderUnitQty.compareTo(inboundQty) > 0){
+                doneflag = false;
+                break;
+            }
+        }
+        if(doneflag){
+            IbdHeader updateIbdHeader = new IbdHeader();
+            updateIbdHeader.setOrderId(orderId);
+            updateIbdHeader.setOrderStatus(PoConstant.ORDER_RECTIPT_ALL);
+            updateIbdHeaders.add(updateIbdHeader);
+        }
+
+        //批量修改状态
+        poOrderService.batchUpdateIbdHeaderByOrderId(updateIbdHeaders);
+
+
+
+    }
+
+
 }

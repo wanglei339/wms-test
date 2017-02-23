@@ -185,7 +185,7 @@ public class QCRestService implements IRFQCRestService {
 
         if (qcTaskInfo.getStatus() == TaskConstant.Draft) {
             iTaskRpcService.assign(qcTaskInfo.getTaskId(), Long.valueOf(RequestUtils.getHeader("uid")));
-        }                                                                               // todo 可以解决 加入任务流状态的标示,根据任务流状态和container取 detail中去取
+        }
         if (details.size() == 0) {
             //空托盘
             throw new BizCheckedException("2120005");
@@ -230,17 +230,6 @@ public class QCRestService implements IRFQCRestService {
             }
         }
 
-//        //如果是直流所有的直接跳转为已经QC了
-//        //todo 以后组盘有异常,还需都更新回来,根据qcTaskInfo.getQcSkip(),变更所有的qcDone更改,修改
-//        if (isDirect) {
-//            for (WaveDetail one : details) {
-//                one.setQcExceptionDone(2L);
-//                one.setQcQty(one.getPickQty()); //先默认qc数量是正常的
-//                waveService.updateDetail(one);
-//                isFirstQC = false;
-//            }
-//        }
-
         //找出有责任的得detail,现有流程是一个商品只有一个挂有异常,把异常的detail的id、和商品绑定起来,--->那个商品的哪个detail有问题,需要修复
         int boxNum = 0;
         int allBoxNum = 0;
@@ -284,7 +273,6 @@ public class QCRestService implements IRFQCRestService {
 
             //判断是第几次的QC,只有QC过一遍,再次QC都是复核QC
             detail.put("qcTimes", waveDetail.getQcTimes());
-            //todo 如果有异常的话,直流的也要qc
             undoDetails.add(detail);
         }
         allBoxNum = boxNum;
@@ -319,11 +307,8 @@ public class QCRestService implements IRFQCRestService {
         rstMap.put("customerName", soInfo.getDeliveryName());
         rstMap.put("collectionRoadCode", collectLocaion.getLocationCode());
         rstMap.put("itemLineNum", mapItem2PickQty.size());
-        //TODO BOX NUM
-
         rstMap.put("allBoxNum", allBoxNum);
         rstMap.put("itemBoxNum", boxNum);
-        //TODO 前端显示有问题,没显示周装箱的总数量
         rstMap.put("turnoverBoxNum", hasEA ? 1 : 0);
         if (TaskConstant.Done.equals(qcTaskInfo.getStatus())) {
             rstMap.put("allBoxNum", qcTaskInfo.getTaskPackQty());
@@ -374,7 +359,7 @@ public class QCRestService implements IRFQCRestService {
         if (qcTaskInfo == null) {
             throw new BizCheckedException("2120007");
         }
-        //转换商品条形码为sku码   // FIXME 16/12/16 itemid可能对应多条 国条(和skuId一对一) ,多国条找到的skuId可能和wave_detail中记载的对不对(物美)
+        //转换商品条形码为sku码
         //未来可能会使用item  前提出库的时候一个托盘的货是一个货主的
         ObdHeader obdHeader = iSoRpcService.getOutbSoHeaderDetailByOrderId(qcTaskInfo.getOrderId());
         if (null == obdHeader) {
@@ -383,17 +368,6 @@ public class QCRestService implements IRFQCRestService {
 
 
         String code = (String) request.get("code");
-  /*      CsiSku skuInfo = csiRpcService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, code);
-
-        if (skuInfo == null) {
-            throw new BizCheckedException("2120001");
-        }
-        long skuId = skuInfo.getSkuId();
-
-        Long ownerId = obdHeader.getOwnerUid();
-//        Long ownerId = qcTaskInfo.getOwnerId(); FIXME
-        BaseinfoItem item = itemRpcService.getItem(ownerId, skuId);*/
-
         Long ownerId = obdHeader.getOwnerUid();
         BaseinfoItem item = this.getItem(ownerId, code);
         if (null == item) {

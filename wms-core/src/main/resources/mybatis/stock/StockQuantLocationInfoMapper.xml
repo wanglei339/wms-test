@@ -17,44 +17,47 @@
 		<result property="createdAt" column="created_at"/>
 		<result property="updatedAt" column="updated_at"/>
 		<result property="minLifeRet" column="min_life_ret"/>
+		<result property="minLife" column="min_life"/>
 		<result property="supplierId" column="supplier_id"/>
 	</resultMap>
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="StockQuantLocationInfo">
 		insert into stock_quant_location_info
-		<trim prefix="(" suffixOverrides="," suffix=")">
-        <if test="id != null">id,</if>
-        <if test="locationId != null">location_id,</if>
-        <if test="ownerId != null">owner_id,</if>
-        <if test="itemId != null">item_id,</if>
-        <if test="skuCode != null">sku_code,</if>
-        <if test="codeType != null">code_type,</if>
-        <if test="code != null">code,</if>
-        <if test="packUnit != null">pack_unit,</if>
-        <if test="packName != null">pack_name,</if>
-        <if test="qty != null">qty,</if>
-        <if test="shelfLife != null">shelf_life,</if>
-        <if test="createdAt != null">created_at,</if>
-        <if test="updatedAt != null">updated_at,</if>
-        <if test="minLifeRet != null">min_life_ret,</if>
+			<trim prefix="(" suffixOverrides="," suffix=")">
+        	<if test="id != null">id,</if>
+        	<if test="locationId != null">location_id,</if>
+        	<if test="ownerId != null">owner_id,</if>
+        	<if test="itemId != null">item_id,</if>
+        	<if test="skuCode != null">sku_code,</if>
+        	<if test="codeType != null">code_type,</if>
+        	<if test="code != null">code,</if>
+        	<if test="packUnit != null">pack_unit,</if>
+        	<if test="packName != null">pack_name,</if>
+        	<if test="qty != null">qty,</if>
+        	<if test="shelfLife != null">shelf_life,</if>
+        	<if test="createdAt != null">created_at,</if>
+        	<if test="updatedAt != null">updated_at,</if>
+        	<if test="minLifeRet != null">min_life_ret,</if>
+			<if test="minLife != null">min_life,</if>
         <if test="supplierId != null">supplier_id,</if>
         </trim>
     	values
     	<trim prefix="(" suffixOverrides="," suffix=")">
-        <if test="id != null">#{id},</if>
-        <if test="locationId != null">#{locationId},</if>
-        <if test="ownerId != null">#{ownerId},</if>
-        <if test="itemId != null">#{itemId},</if>
-        <if test="skuCode != null">#{skuCode},</if>
-        <if test="codeType != null">#{codeType},</if>
-        <if test="code != null">#{code},</if>
-        <if test="packUnit != null">#{packUnit},</if>
-        <if test="packName != null">#{packName},</if>
-        <if test="qty != null">#{qty},</if>
-        <if test="shelfLife != null">#{shelfLife},</if>
-        <if test="createdAt != null">#{createdAt},</if>
-        <if test="updatedAt != null">#{updatedAt},</if>
-        <if test="minLifeRet != null">#{minLifeRet},</if>
+        	<if test="id != null">#{id},</if>
+        	<if test="locationId != null">#{locationId},</if>
+        	<if test="ownerId != null">#{ownerId},</if>
+        	<if test="itemId != null">#{itemId},</if>
+        	<if test="skuCode != null">#{skuCode},</if>
+        	<if test="codeType != null">#{codeType},</if>
+        	<if test="code != null">#{code},</if>
+        	<if test="packUnit != null">#{packUnit},</if>
+        	<if test="packName != null">#{packName},</if>
+        	<if test="qty != null">#{qty},</if>
+        	<if test="shelfLife != null">#{shelfLife},</if>
+        	<if test="createdAt != null">#{createdAt},</if>
+        	<if test="updatedAt != null">#{updatedAt},</if>
+        	<if test="minLifeRet != null">#{minLifeRet},</if>
+			<if test="minLife != null">#{minLife},</if>
         <if test="supplierId != null">#{supplierId},</if>
 		</trim>
 	</insert>
@@ -75,6 +78,7 @@
   			<if test="createdAt != null">created_at=#{createdAt},</if>
   			<if test="updatedAt != null">updated_at=#{updatedAt},</if>
   			<if test="minLifeRet != null">min_life_ret=#{minLifeRet},</if>
+			<if test="minLife != null">min_life=#{minLife},</if>
   			<if test="supplierId != null">supplier_id=#{supplierId}</if>
 		</set>
 		where ID=#{id}
@@ -95,6 +99,7 @@
 			<if test="createdAt != null">created_at=#{createdAt},</if>
 			<if test="updatedAt != null">updated_at=#{updatedAt},</if>
 			<if test="minLifeRet != null">min_life_ret=#{minLifeRet},</if>
+			<if test="minLife != null">min_life=#{minLife},</if>
 			<if test="supplierId != null">supplier_id=#{supplierId}</if>
 		</set>
 		where location_id=#{locationId} and item_id=#{itemId} and supplier_id=#{supplierId}
@@ -118,8 +123,8 @@
 	<select id="getStockQuantLocationInfoList" parameterType="map" resultMap="stockQuantLocationInfoResultMap">
 		select * from stock_quant_location_info
 		<include refid="queryCondition"/>
+		ORDER BY  min_life_ret ASC
 		<if test="start != null and limit != null">
-			ORDER BY  min_life_ret ASC
 		limit #{start},#{limit}
 		</if>
 	</select>
@@ -140,6 +145,7 @@
 			<if test="createdAt != null">and created_at=#{createdAt}</if>
 			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
 			<if test="minLifeRet != null">and min_life_ret=#{minLifeRet}</if>
+			<if test="minLife != null">and min_life=#{minLife}</if>
 			<if test="supplierId != null">and supplier_id=#{supplierId}</if>
 			<if test="behindRet != null">and min_life_ret &lt;= #{behindRet}</if>
 			<if test="itemIdList != null">
@@ -172,6 +178,7 @@
 			<if test="createdAt != null">and created_at=#{createdAt}</if>
 			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
 			<if test="minLifeRet != null">and min_life_ret=#{minLifeRet}</if>
+			<if test="minLife != null">and min_life=#{minLife}</if>
 			<if test="supplierId != null">and supplier_id=#{supplierId}</if>
 		</where>
 	</sql>

@@ -60,4 +60,6 @@ public interface IReceiptRpcService {
     void modifyQty(Long receiptId,BigDecimal qty,Long uid) throws BizCheckedException;
 
     List<Long> getInbReceiptIds(Map<String, Object> params);
+
+    void modifyProTime(Long receiptId,String newProTime,Long uid) throws ParseException;
 }

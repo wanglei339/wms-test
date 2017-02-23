@@ -117,6 +117,7 @@ public class SearchRestService implements ISearchRestService{
                 for (WaveDetail waveDetail : waveDetails) {
                     BaseinfoItem item  = itemService.getItem(waveDetail.getItemId());
                     quantSb.append("\n");
+                    quantSb.append("货主: " + item.getOwnerId() + "\n");
                     quantSb.append("商品编码: " + item.getSkuCode() + "\n");
                     quantSb.append("商品名称: " + item.getSkuName() + "\n");
                     quantSb.append("拣货状态: " + (waveDetail.getPickAt().compareTo(0L) > 0 ? "拣货完成":"待拣货") + "\n");
@@ -145,7 +146,7 @@ public class SearchRestService implements ISearchRestService{
             quantSb.append("箱规 : " + item.getPackUnit().longValue() + "\n");
             quantSb.append("箱数 : " + quant.getQty().divide(item.getPackUnit(),2,RoundingMode.HALF_UP) + "\n");
             quantSb.append("数量 : " + quant.getQty().setScale(2, BigDecimal.ROUND_HALF_UP) + "\n");
-            //quantSb.append("货主 : " + quant.getOwnerId() + " \n ");
+            quantSb.append("货主 : " + quant.getOwnerId() + "\n");
         }
         Map<String,Object> rep = new HashMap<String, Object>();
         rep.put("data",quantSb);
@@ -175,7 +176,7 @@ public class SearchRestService implements ISearchRestService{
                     quantSb.append("箱规 : " + item.getPackUnit().longValue() + "\n");
                     quantSb.append("数量 : " + quant.getQty().setScale(2, BigDecimal.ROUND_HALF_UP) + "\n");
                     quantSb.append("箱数 : " + quant.getQty().divide(item.getPackUnit(),2,RoundingMode.HALF_UP) + "\n");
-                    //quantSb.append("货主 : " + quant.getOwnerId() + " \n ");
+                    quantSb.append("货主 : " + quant.getOwnerId() + "\n");
                 }
             }
         }
