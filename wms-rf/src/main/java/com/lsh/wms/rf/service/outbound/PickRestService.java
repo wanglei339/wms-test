@@ -714,6 +714,10 @@ public class PickRestService implements IPickRestService {
             if (nextPickDetail.getPickTaskId() == null || nextPickDetail.getPickTaskId().equals(0L)) {
                 pickDone = true;
                 done = true;
+                //自动集货
+                for(Long doneTaskId : taskIds){
+                    iTaskRpcService.done(doneTaskId, 0L, staffId);
+                }
             } else {
                 done = false;
                 pickDone = false;
