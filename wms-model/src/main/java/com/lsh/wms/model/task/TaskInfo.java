@@ -125,7 +125,7 @@ public class TaskInfo implements Serializable {
      */
     private Long cancelTime = 0L;
     /** 挂起时间 */
-    private Long holdTime;
+    private Long holdTime = 0L;
     /**
      * 扩展字段
      */

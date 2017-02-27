@@ -6,10 +6,13 @@ import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.base.q.Module.Base;
 import com.lsh.wms.api.model.location.LocationDetailRequest;
 import com.lsh.wms.api.service.location.ILocationDetailRpc;
+import com.lsh.wms.core.constant.BinUsageConstant;
 import com.lsh.wms.core.constant.LocationConstant;
+import com.lsh.wms.core.service.item.ItemLocationService;
 import com.lsh.wms.core.service.location.BaseinfoLocationBinService;
 import com.lsh.wms.core.service.location.LocationDetailService;
 import com.lsh.wms.core.service.location.LocationService;
+import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.baseinfo.BaseinfoLocationBin;
 import com.lsh.wms.model.baseinfo.IBaseinfoLocaltionModel;
@@ -39,6 +42,8 @@ public class LocationDetailRpcService implements ILocationDetailRpc {
     private LocationRpcService locationRpcService;
     @Autowired
     private BaseinfoLocationBinService binService;
+    @Autowired
+    private ItemLocationService itemLocationService;
 
     public IBaseinfoLocaltionModel getLocationDetailById(Long locationId) throws BizCheckedException {
         BaseinfoLocation subLocation = (BaseinfoLocation) locationDetailService.getIBaseinfoLocaltionModelById(locationId);
@@ -180,6 +185,8 @@ public class LocationDetailRpcService implements ILocationDetailRpc {
         List<String> mergedBinCodes = new ArrayList<String>();
         //被锁定的
         List<String> lockBinCodes = new ArrayList<String>();
+        //是否是商品的拣货位
+        List<String> pickBinCodes = new ArrayList<String>();
         if (null == binCodes || binCodes.size() < 2) {
             throw new BizCheckedException("2180036");
         }
@@ -237,14 +244,34 @@ public class LocationDetailRpcService implements ILocationDetailRpc {
             if (0L != toBin.getRelLocationId()) {
                 mergedBinCodes.add(toBin.getLocationCode());
             }
+            //是否是商品的拣货位
+            if (BinUsageConstant.BIN_UASGE_PICK.equals(toBin.getBinUsage())) {
+                List<BaseinfoItemLocation> itemLocations = itemLocationService.getItemLocationByLocationID(toBin.getLocationId());
+                if (null != itemLocations && !itemLocations.isEmpty()) {
+                    pickBinCodes.add(toBin.getLocationCode());
+                }
+            }
             //合并库位
             for (int i = 1; i < binIds.size(); i++) {
                 BaseinfoLocationBin bin = (BaseinfoLocationBin) locationDetailService.getIBaseinfoLocaltionModelById(binIds.get(i));
                 if (0L != bin.getRelLocationId()) {
                     mergedBinCodes.add(bin.getLocationCode());
                 }
+                //是否是商品的拣货位
+                if (BinUsageConstant.BIN_UASGE_PICK.equals(bin.getBinUsage())) {
+                    List<BaseinfoItemLocation> itemLocations = itemLocationService.getItemLocationByLocationID(bin.getLocationId());
+                    if (null != itemLocations && !itemLocations.isEmpty()) {
+                        pickBinCodes.add(bin.getLocationCode());
+                    }
+                }
                 bins.add(bin);
             }
+        }
+        //配置的拣货位合并
+        if (pickBinCodes.size()>0){
+            result.put("msg", "合并位置是商品的拣货位,请选择不是商品的拣货位合并");
+            result.put("arr", pickBinCodes);
+            return result;
         }
         //有库存的
         if (quantBinCodes.size() > 0) {
@@ -375,7 +402,7 @@ public class LocationDetailRpcService implements ILocationDetailRpc {
                 binCodes.add(temp.getLocationCode());
             }
         }
-        result.put("canSplit",canSplit);
+        result.put("canSplit", canSplit);
         result.put("arr", binCodes);
         return result;
     }
