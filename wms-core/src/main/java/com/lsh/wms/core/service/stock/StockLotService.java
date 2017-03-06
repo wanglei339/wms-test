@@ -27,9 +27,6 @@ import java.util.concurrent.ConcurrentMap;
 @Transactional(readOnly = true)
 
 public class StockLotService {
-    private static final Logger logger = LoggerFactory.getLogger(StockLotService.class);
-    private static final ConcurrentMap<Long, StockLot> m_LotCache = new
-            ConcurrentHashMap<Long, StockLot>();
     @Autowired
     private StockLotDao lotDao;
 
@@ -37,22 +34,15 @@ public class StockLotService {
     private StockQuantDao quantDao;
 
     public StockLot getStockLotByLotId(long iLotId) {
-        Long key = iLotId;
-        StockLot lot = m_LotCache.get(key);
-        if (lot == null) {
-            //not exist in cache, search in mysql
-            Map<String, Object> mapQuery = new HashMap<String, Object>();
+         Map<String, Object> mapQuery = new HashMap<String, Object>();
             mapQuery.put("lotId", iLotId);
             List<StockLot> lots = lotDao.getStockLotList(mapQuery);
 
             if (lots.size() == 1) {
-                lot = lots.get(0);
-                m_LotCache.put(key, lot);
+                return lots.get(0);
             } else {
                 return null;
             }
-        }
-        return lot;
     }
 
     public Long getSupplierIdByItemId(Long itemId) {
