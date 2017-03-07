@@ -47,11 +47,13 @@ public class StockQuant implements Serializable,Cloneable {
 	/** 保质期失效时间 */
     private Long expireDate = 0L;
 	/**  */
-    private Long createdAt;
+    private Long createdAt = 0L;
 	/**  */
-    private Long updatedAt;
+    private Long updatedAt = 0L;
 
 	private Long itemId;
+
+	private BigDecimal delta = BigDecimal.ZERO;
 
 	/** 0-非残次，1-残次 */
 	private Long isDefect = 0L;
@@ -254,6 +256,14 @@ public class StockQuant implements Serializable,Cloneable {
 
 	public void  setPackName(String packName){
 		this.packName = packName;
+	}
+
+	public BigDecimal getDelta() {
+		return delta;
+	}
+
+	public void setDelta(BigDecimal delta) {
+		this.delta = delta;
 	}
 
 	@Override

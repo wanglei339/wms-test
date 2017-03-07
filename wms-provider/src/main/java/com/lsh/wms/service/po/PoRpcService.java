@@ -5,10 +5,7 @@ import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.base.common.config.PropertyUtils;
 import com.lsh.base.common.exception.BizCheckedException;
-import com.lsh.base.common.utils.BeanMapTransUtils;
-import com.lsh.base.common.utils.DateUtils;
-import com.lsh.base.common.utils.ObjUtils;
-import com.lsh.base.common.utils.RandomUtils;
+import com.lsh.base.common.utils.*;
 import com.lsh.wms.api.model.po.PoItem;
 import com.lsh.wms.api.model.po.PoRequest;
 import com.lsh.wms.api.service.back.IBackInStorageProviderRpcService;
@@ -21,6 +18,7 @@ import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.po.PoOrderService;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.utils.IdGenerator;
+import com.lsh.wms.core.service.utils.PackUtil;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
 import com.lsh.wms.model.po.IbdDetail;
@@ -32,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -405,6 +404,41 @@ public class PoRpcService implements IPoRpcService {
         params.put("throwAt",time);
         params.put("orderType",PoConstant.ORDER_TYPE_CPO);//直流
         poOrderService.updateStatusTOthrow(params);
+    }
+
+    public void closeIbdOrder() {
+        Map<String,Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("orderType",PoConstant.ORDER_TYPE_PO);
+        mapQuery.put("orderStatus",PoConstant.ORDER_RECTIPTING);
+        List<IbdHeader> ibdHeaderList = poOrderService.getInbPoHeaderList(mapQuery);
+        List<IbdHeader> updateIbdHeaders = new ArrayList<IbdHeader>();
+        //记录下修改过的订单
+        List<Long> orderIds = new ArrayList<Long>();
+        for (IbdHeader ibdHeader : ibdHeaderList){
+            Long orderId = ibdHeader.getOrderId();
+            List<IbdDetail> ibdDetails = poOrderService.getInbPoDetailListByOrderId(orderId);
+            Boolean flag = true;
+            for (IbdDetail ibdDetail : ibdDetails) {
+                //订货单位转换为EA来计算
+                BigDecimal orderUnitQty = PackUtil.UomQty2EAQty(ibdDetail.getOrderQty(),ibdDetail.getPackUnit());
+                BigDecimal inboundQty = ibdDetail.getInboundQty();
+                if(orderUnitQty.compareTo(inboundQty) > 0){
+                    flag = false;
+                    break;
+                }
+            }
+            if(flag){
+                IbdHeader updateIbdHeader = new IbdHeader();
+                updateIbdHeader.setOrderId(orderId);
+                updateIbdHeader.setOrderStatus(PoConstant.ORDER_RECTIPT_ALL);
+                orderIds.add(orderId);
+                updateIbdHeaders.add(updateIbdHeader);
+            }
+        }
+        logger.info(StrUtils.formatString("modify ibdHeader orderStatus include {0}",orderIds.toString()));
+        //批量修改状态
+        poOrderService.batchUpdateIbdHeaderByOrderId(updateIbdHeaders);
+
     }
 
 }

@@ -4,10 +4,8 @@ package com.lsh.wms.rpc.service.item;
  * Created by zengwenjun on 16/7/8.
  */
 
-import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.base.common.exception.BizCheckedException;
-import com.lsh.wms.api.service.csi.ICsiRpcService;
 import com.lsh.wms.api.service.item.IItemRpcService;
 import com.lsh.wms.core.service.item.ItemLocationService;
 import com.lsh.wms.core.service.item.ItemService;
@@ -18,10 +16,8 @@ import com.lsh.wms.rpc.service.csi.CsiRpcService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -82,6 +78,14 @@ public class ItemRpcService implements IItemRpcService {
 
     public List<BaseinfoItemLocation> getItemLocationByLocationID(long iLocationId) {
         return itemLocationService.getItemLocationByLocationID(iLocationId);
+    }
+    public BaseinfoItemLocation getItemLocationByLocationIdAndItemId(long iLocationId,long itemId) {
+        List<BaseinfoItemLocation> itemLocations = itemLocationService.getItemLocationByLocationIdAndItemId(iLocationId,itemId);
+        if(itemLocations==null || itemLocations.size()==0){
+            return null;
+        }else {
+            return itemLocations.get(0);
+        }
     }
 
     public BaseinfoItemLocation insertItemLocation(BaseinfoItemLocation itemLocation) {

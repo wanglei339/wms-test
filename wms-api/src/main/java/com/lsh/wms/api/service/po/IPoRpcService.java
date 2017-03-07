@@ -44,4 +44,7 @@ public interface IPoRpcService {
 
     void updateStatusTOthrow(Long intervalTime);
 
+    void closeIbdOrder();
+
+
 }

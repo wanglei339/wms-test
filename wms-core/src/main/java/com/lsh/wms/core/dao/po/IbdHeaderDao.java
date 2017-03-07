@@ -15,6 +15,8 @@ public interface IbdHeaderDao {
 
 	void updateByOrderOtherIdOrOrderId(IbdHeader ibdHeader);
 
+	void batchUpdateIbdHeaderByOrderId(List<IbdHeader> ibdHeaders);
+
 	IbdHeader getIbdHeaderById(Long id);
 
 	Integer countIbdHeader(Map<String, Object> params);
@@ -28,5 +30,7 @@ public interface IbdHeaderDao {
 	List<IbdHeader> getIbdListOrderByDate(String orderIds);
 
 	void updateStatusTOthrow(Map<String, Object> params);
+
+	IbdHeader lockIbdHeaderByOrderId(Long orderId);
 	
 }

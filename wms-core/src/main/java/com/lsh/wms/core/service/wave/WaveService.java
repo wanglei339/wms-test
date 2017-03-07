@@ -16,6 +16,7 @@ import com.lsh.wms.core.service.so.SoDeliveryService;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.stock.StockMoveService;
 import com.lsh.wms.core.service.stock.StockQuantService;
+import com.lsh.wms.core.service.stock.StockSummaryService;
 import com.lsh.wms.core.service.utils.IdGenerator;
 import com.lsh.wms.core.service.utils.PackUtil;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
@@ -25,6 +26,7 @@ import com.lsh.wms.model.so.OutbDeliveryDetail;
 import com.lsh.wms.model.so.OutbDeliveryHeader;
 import com.lsh.wms.model.so.ObdHeader;
 import com.lsh.wms.model.stock.StockQuant;
+import com.lsh.wms.model.stock.StockSummary;
 import com.lsh.wms.model.wave.WaveAllocDetail;
 import com.lsh.wms.model.wave.WaveDetail;
 import com.lsh.wms.model.wave.WaveHead;
@@ -74,6 +76,8 @@ public class WaveService {
     private SoOrderService soOrderService;
     @Autowired
     private CsiCustomerService csiCustomerService;
+    @Autowired
+    private StockSummaryService stockSummaryService;
 
     @Transactional(readOnly = false)
     public void createWave(WaveHead head, List<Map> vOrders){
@@ -402,7 +406,7 @@ public class WaveService {
     @Transactional(readOnly = true)
     public BigDecimal getUnPickedQty(long itemId)
     {
-        //获取带捡货商品
+        //获取待捡货商品
         Map<String, Object> mapSumQuery = new HashMap<String, Object>();
         mapSumQuery.put("itemId", itemId);
         mapSumQuery.put("isAlive", 1);
@@ -546,8 +550,11 @@ public class WaveService {
     @Transactional(readOnly = false)
     public WaveDetail splitShelfWaveDetail(WaveDetail detail, BigDecimal splitQty, Long order) {
         WaveDetail splitDetail = new WaveDetail();
-        BigDecimal restQty = stockQuantService.getQuantQtyByLocationIdAndItemId(detail.getAllocPickLocation(), detail.getItemId());
-        // 判断分配拣货位上是否又有库存了
+        // 改为只要有可用可存即可
+        StockSummary stockSummary = stockSummaryService.getStockSummaryByItemId(detail.getItemId());
+        BigDecimal restQty = stockSummary.getAvailQty();
+        /*BigDecimal restQty = stockQuantService.getQuantQtyByLocationIdAndItemId(detail.getAllocPickLocation(), detail.getItemId());
+        // 判断分配拣货位上是否又有库存了*/
         if (restQty.compareTo(BigDecimal.ZERO) == 1) {
             BigDecimal realSplitQty = BigDecimal.ZERO;
             if (restQty.compareTo(splitQty) >= 0) {
@@ -786,6 +793,15 @@ public class WaveService {
         mapQuery.put("isAlive", 1);
         List<Long> locationIds = detailDao.getAllocatedLocationList(mapQuery);
         return locationIds == null ? new LinkedList<Long>() : locationIds;
+    }
+
+    @Transactional(readOnly = true)
+    public List<WaveDetail> getWaveDetailByTuDetailId(Long tuDetailId){
+        Map<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("isValid", 1);
+        mapQuery.put("tuDetailId", tuDetailId);
+        List<WaveDetail> waveDetails = detailDao.getWaveDetailList(mapQuery);
+        return waveDetails == null ? new ArrayList<WaveDetail>() : waveDetails;
     }
 
 }

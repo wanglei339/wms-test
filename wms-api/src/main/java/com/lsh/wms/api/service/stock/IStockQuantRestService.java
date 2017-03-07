@@ -21,13 +21,17 @@ public interface IStockQuantRestService {
     String toDefect(Map<String, Object> mapCondition) throws BizCheckedException;
     String toRefund(Map<String, Object> mapCondition) throws BizCheckedException;
     String getHistory(Long quant_id);
-    String writeOffQuant(Long quantId, BigDecimal realQty)throws BizCheckedException;
+    String writeOffQuant(Long quantId, BigDecimal realQty,Long operator)throws BizCheckedException;
 
     String getItemStockCount(Map<String, Object> mapQuery);
     String getItemStockList(Map<String, Object> mapQuery);
 
     String getLocationStockCount(Map<String, Object> mapQuery);
     String getLocationStockList(Map<String, Object> mapQuery);
+    String getStockInfoList(Map<String, Object> mapQuery);
+    String countStockInfoList(Map<String, Object> mapQuery);
+    String getStockLocationInfoList(Map<String, Object> mapQuery);
+    String countStockLocationInfoList(Map<String, Object> mapQuery);
     String traceQuant(Long quantId);
     String getBackItemLocationList(Map<String, Object> mapQuery);
 }

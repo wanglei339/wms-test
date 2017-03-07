@@ -1,8 +1,15 @@
 package com.lsh.wms.core.service.performance;
 
+import com.lsh.base.common.exception.BizCheckedException;
+import com.lsh.base.common.utils.BeanMapTransUtils;
+import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.core.constant.TaskConstant;
+import com.lsh.wms.core.dao.system.StaffPerformanceDao;
 import com.lsh.wms.core.dao.task.TaskInfoDao;
+import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.wave.WaveService;
+import com.lsh.wms.model.baseinfo.BaseinfoItem;
+import com.lsh.wms.model.system.StaffPerformance;
 import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.wave.WaveDetail;
 import org.slf4j.Logger;
@@ -11,6 +18,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 
 /**
@@ -25,6 +34,10 @@ public class PerformanceService {
     private TaskInfoDao taskInfoDao;
     @Autowired
     private WaveService waveService;
+    @Autowired
+    private ItemService itemService;
+    @Autowired
+    private StaffPerformanceDao staffPerformanceDao;
 
 
     /*public List<Map<String, Object>> getPerformance(Map<String, Object> condition) {
@@ -69,9 +82,74 @@ public class PerformanceService {
         //return taskInfoList;
         return newTaskInfoList;
     }*/
+    //写入绩效统计结果
+    @Transactional(readOnly = false)
+    public void createPerformance(Map<String, Object> condition){
+        List<StaffPerformance> oldPerformanceList = staffPerformanceDao.getStaffPerformanceList(condition);
+        if(oldPerformanceList != null && oldPerformanceList.size() > 0){
+            //已生成绩效统计结果
+            logger.info("已生成历史绩效统计结果");
+            return;
+        }
+        List<Map<String, Object>> getPerformanceList = this.getPerformance(condition);
+        if(getPerformanceList == null || getPerformanceList.size() == 0) {
+            //绩效统计结果为空
+            logger.info("历史绩效统计结果为空");
+            return;
+        }
+        List<StaffPerformance> performanceList = new ArrayList<StaffPerformance>();
+        for(Map<String, Object> map : getPerformanceList){
+            StaffPerformance staffPerformance = BeanMapTransUtils.map2Bean(map,StaffPerformance.class);
+            staffPerformance.setSubType(Long.parseLong(map.get("sub_type").toString()));
+            staffPerformance.setBusinessMode(Integer.parseInt(map.get("business_mode").toString()));
+            staffPerformance.setOperator(Long.parseLong(map.get("uid").toString()));
+            staffPerformance.setCreatedAt(DateUtils.getCurrentSeconds());
+            staffPerformance.setUpdatedAt(DateUtils.getCurrentSeconds());
+            performanceList.add(staffPerformance);
+        }
+        staffPerformanceDao.batchinsert(performanceList);
+    }
+    //获取绩效,历史绩效从绩效统计表里查
+    public List<StaffPerformance> getStaffPerformance(Map<String, Object> condition){
+        List<StaffPerformance> performanceList = new ArrayList<StaffPerformance>();
+        Long todayBeginSeconds = DateUtils.getTodayBeginSeconds();
+        boolean isSearchCurrentDay = true;//是否只查询当天实时绩效
 
+        Long startDate = Long.parseLong(condition.get("startDate").toString());
+        Long endDate = Long.parseLong(condition.get("startDate").toString());
 
+        if(startDate <  todayBeginSeconds){
+            isSearchCurrentDay = false;
+        }
 
+        //获取当天绩效
+        if(isSearchCurrentDay) {
+            condition.put("startDate", DateUtils.getTodayBeginSeconds());
+            condition.put("endDate", DateUtils.getTodayBeginSeconds());
+            List<Map<String, Object>> currentDayperformanceList = this.getPerformance(condition);
+            if (currentDayperformanceList != null && currentDayperformanceList.size() > 0) {
+                for (Map<String, Object> map1 : currentDayperformanceList) {
+                    StaffPerformance staffPerformance = BeanMapTransUtils.map2Bean(map1, StaffPerformance.class);
+                    staffPerformance.setSubType(Long.parseLong(map1.get("sub_type").toString()));
+                    staffPerformance.setBusinessMode(Integer.parseInt(map1.get("business_mode").toString()));
+                    staffPerformance.setOperator(Long.parseLong(map1.get("uid").toString()));
+                    performanceList.add(staffPerformance);
+                }
+            }
+        }else{
+            //获取历史绩效
+            List<StaffPerformance> oldPerformanceList = staffPerformanceDao.getStaffPerformanceList(condition);
+            if(oldPerformanceList != null && oldPerformanceList.size() > 0){
+                performanceList.addAll(oldPerformanceList);
+            }
+        }
+
+        return performanceList;
+    }
+
+    /*
+    获取绩效,直接统计
+     */
     public List<Map<String, Object>> getPerformance(Map<String, Object> condition) {
         List<Map<String, Object>> taskInfoList = taskInfoDao.getPerformance(condition);
         List<Map<String, Object>> newTaskInfoList = new ArrayList<Map<String, Object>>();
@@ -104,33 +182,59 @@ public class PerformanceService {
             pickWaveDetailList = waveService.getWaveDetails(waveMap);
         }
         List<WaveDetail> qcWaveDetailList = new ArrayList<WaveDetail>();
-       if(qcTaskIdList != null && qcTaskIdList.size() >0){
-           Map<String,Object> waveMap = new HashMap<String, Object>();
-           waveMap.put("qcTaskIds",qcTaskIdList);
-           qcWaveDetailList = waveService.getWaveDetails(waveMap);
-       }
-        Map<Long,Set<Long>> itemSetByTaskId = new HashMap<Long, Set<Long>>();
+        if(qcTaskIdList != null && qcTaskIdList.size() >0){
+            Map<String,Object> waveMap = new HashMap<String, Object>();
+            waveMap.put("qcTaskIds",qcTaskIdList);
+            qcWaveDetailList = waveService.getWaveDetails(waveMap);
+        }
+        //改为list
+        //Map<Long,Set<Long>> itemSetByTaskId = new HashMap<Long, Set<Long>>();
+        Map<Long,List<Long>> itemListByTaskId = new HashMap<Long, List<Long>>();
+        Map<Long,BigDecimal> packTotalByTaskId = new HashMap<Long, BigDecimal>();
+        Map<Long,BaseinfoItem> baseinfoItems = new HashMap<Long, BaseinfoItem>();
+        //拣货箱数 取wave_detail 中的AllocUnitQty
         //统计每个拣货任务中的商品数
+        BigDecimal sumPack = BigDecimal.ZERO;
         for (WaveDetail waveDetail : pickWaveDetailList) {
             Long taskId = waveDetail.getPickTaskId();
-            if(itemSetByTaskId.get(taskId) == null){
-                itemSetByTaskId.put(taskId,new HashSet<Long>());
+            if(itemListByTaskId.get(taskId) == null){
+                itemListByTaskId.put(taskId,new ArrayList<Long>());
             }
-            Set<Long> itemSet = itemSetByTaskId.get(taskId);
-            itemSet.add(waveDetail.getItemId());
-            itemSetByTaskId.put(taskId,itemSet);
+            if(packTotalByTaskId.get(taskId) == null){
+                packTotalByTaskId.put(taskId,BigDecimal.ZERO);
+            }
+            //每个任务中的总箱数
+            BigDecimal packUnit = BigDecimal.ONE;
+            if(baseinfoItems.get(waveDetail.getItemId()) == null){
+                BaseinfoItem item = itemService.getItem(waveDetail.getItemId());
+                if(item == null){
+                    throw new BizCheckedException("2020022");
+                }
+                packUnit = item.getPackUnit();
+                baseinfoItems.put(waveDetail.getItemId(),item);
+            }else{
+                packUnit = baseinfoItems.get(waveDetail.getItemId()).getPackUnit();
+            }
+
+            sumPack = packTotalByTaskId.get(taskId).add(waveDetail.getPickQty().divide(packUnit,2, RoundingMode.HALF_UP));
+            packTotalByTaskId.put(taskId,sumPack);
+
+            //每个任务中的商品数
+            List<Long> itemList = itemListByTaskId.get(taskId);
+            itemList.add(waveDetail.getItemId());
+            itemListByTaskId.put(taskId,itemList);
         }
-        //统计每个QC任务中的商品数
+        //统计每个QC任务中的商品条数
         for (WaveDetail waveDetail : qcWaveDetailList) {
             Long taskId = waveDetail.getQcTaskId();
-            if(itemSetByTaskId.get(taskId) == null){
-                itemSetByTaskId.put(taskId,new HashSet<Long>());
+            if(itemListByTaskId.get(taskId) == null){
+                itemListByTaskId.put(taskId,new ArrayList<Long>());
             }
-            Set<Long> itemSet = itemSetByTaskId.get(taskId);
-            itemSet.add(waveDetail.getItemId());
-            itemSetByTaskId.put(taskId,itemSet);
+            List<Long> itemList = itemListByTaskId.get(taskId);
+            itemList.add(waveDetail.getItemId());
+            itemListByTaskId.put(taskId,itemList);
         }
-        if(itemSetByTaskId.size() > 0){
+        if(itemListByTaskId.size() > 0){
             //将商品数匹配到每条绩效记录中
             for (Map<String,Object> map : taskInfoList) {
                 String taskInfos = map.get("taskIds").toString();
@@ -139,14 +243,23 @@ public class PerformanceService {
                 if(type != TaskConstant.TYPE_QC && type != TaskConstant.TYPE_PICK) {
                     continue;
                 }
-                Set<Long> itemSet = new HashSet<Long>();//统计每条绩效的商品sku数
+
+                List<Long> itemList = new ArrayList<Long>();//统计每条绩效的商品sku数
+                BigDecimal packTotal = BigDecimal.ZERO;
                 for(String taskIds : taskInfoArr){
                     Long taskId = Long.parseLong(taskIds);
-                    if(itemSetByTaskId.get(taskId) != null){
-                        itemSet.addAll(itemSetByTaskId.get(taskId));
+                    if(itemListByTaskId.get(taskId) != null){
+                        itemList.addAll(itemListByTaskId.get(taskId));
+
+                    }
+                    if(packTotalByTaskId.get(taskId) != null){
+                        packTotal = packTotal.add(packTotalByTaskId.get(taskId));
                     }
                 }
-                map.put("skuCount",itemSet.size());
+                if(type == TaskConstant.TYPE_PICK){
+                    map.put("taskPackQty",packTotal);
+                }
+                map.put("skuCount",itemList.size());
             }
         }
         return newTaskInfoList;
@@ -154,8 +267,20 @@ public class PerformanceService {
 
     //获取总数
     public Integer getPerformanceCount(Map<String, Object> condition){
+        Long startDate = Long.parseLong(condition.get("startDate").toString());
+        Long endDate = Long.parseLong(condition.get("startDate").toString());
+        Long todayBeginSeconds = DateUtils.getTodayBeginSeconds();
+        boolean isSearchCurrentDay = true;//是否只查询当天实时绩效
+        if(startDate <  todayBeginSeconds){
+            isSearchCurrentDay = false;
+        }
+        if(isSearchCurrentDay){
+            return taskInfoDao.getPerformanceCount(condition);
+        }else{
+            //查询历史绩效
+            return staffPerformanceDao.getStaffPerformanceCount(condition);
+        }
 
-        return taskInfoDao.getPerformanceCount(condition);
     }
 
     public List<TaskInfo> getPerformaceDetaile(Map<String,Object> mapQuery){

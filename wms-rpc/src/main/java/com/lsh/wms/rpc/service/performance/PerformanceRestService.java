@@ -4,11 +4,14 @@ import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
+import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.api.service.performance.IPerformanceRestService;
 import com.lsh.wms.core.service.staff.StaffService;
 import com.lsh.wms.model.baseinfo.BaseinfoStaffInfo;
+import com.lsh.wms.model.system.StaffPerformance;
 import com.lsh.wms.model.system.SysUser;
 import com.lsh.wms.rpc.service.system.SysUserRpcService;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,67 +48,40 @@ public class PerformanceRestService implements IPerformanceRestService {
     @POST
     @Path("getPerformance")
     public String getPerformance(Map<String, Object> mapQuery) throws BizCheckedException {
-//        List<Map<String,Object>> result = new ArrayList<Map<String, Object>>();
-//        List<BaseinfoStaffInfo> staffList =  staffService.getStaffList(mapQuery);
-//        for(BaseinfoStaffInfo staff : staffList) {
-//            mapQuery.put("staffId", staff.getStaffId());
-//            List<Map<String, Object>> stat = performanceRpcService.getPerformance(mapQuery);
-//            result.addAll(stat);
-//        }
-        //将查询条件的员工工号staffNo 先查staff表转为staffId,根据staffId去SysUser表,根据的staffId转化为uid,然后去task表中查
-        //staffNo->staffId
-        String staffNo = (String) mapQuery.get("staffNo");
-        List<Map<String, Object>> listTemp = new ArrayList<Map<String, Object>>();
-        if (staffNo == null) {
-            listTemp = performanceRpcService.getPerformance(mapQuery);
-        } else {
-            Map<String, Object> staffQuery = new HashMap<String, Object>();
-            staffQuery.put("staffNo", staffNo);
-            List<BaseinfoStaffInfo> staffList = staffService.getStaffList(staffQuery);
-            List<Long> uidList = new ArrayList<Long>();
-            if (staffList != null && !staffList.isEmpty()) {
-                //staffId -> uidList
-                Map<String, Object> userQuery = new HashMap<String, Object>();
-                userQuery.put("staffId", staffList.get(0).getStaffId());
-                List<SysUser> userList = sysUserRpcService.getSysUserList(userQuery);
-                if (userList != null && !userList.isEmpty()) {
-                    for (SysUser user : userList) {
-                        uidList.add(user.getUid());
-                    }
-                    //拿到了uidList
-                    mapQuery.put("uidList", uidList);
-                    listTemp = performanceRpcService.getPerformance(mapQuery);
-                }
-            }
+
+        List<StaffPerformance> listTemp = new ArrayList<StaffPerformance>();
+
+        if(mapQuery.get("startDate") == null || mapQuery.get("endDate") == null){
+            throw new BizCheckedException("1800001");//需指定查询区间
         }
+        Long startDate = Long.parseLong(mapQuery.get("startDate").toString());
+        Long endDate = Long.parseLong(mapQuery.get("endDate").toString());
+        Long currentDate = DateUtils.getTodayBeginSeconds();
+        if(startDate >= currentDate || endDate < currentDate){
+        }else{
+            throw new BizCheckedException("1800002");//当天数据与历史数据不能混合查询
+        }
+
+        listTemp = performanceRpcService.getPerformance(mapQuery);
         return JsonUtils.SUCCESS(listTemp);
     }
 
     @POST
     @Path("getPerformanceCount")
     public String getPerformanceCount(Map<String, Object> mapQuery) throws BizCheckedException {
-        String staffNo = (String) mapQuery.get("staffNo");
         Integer count = 0;
-        if (staffNo == null) {
-            count = performanceRpcService.getPerformanceCount(mapQuery);
-        } else {
-            Map<String, Object> staffQuery = new HashMap<String, Object>();
-            staffQuery.put("staffNo", staffNo);
-            List<BaseinfoStaffInfo> staffList = staffService.getStaffList(staffQuery);
-            List<Long> uidList = new ArrayList<Long>();
-            if (staffList != null && !staffList.isEmpty()) {
-                Map<String, Object> userQuery = new HashMap<String, Object>();
-                userQuery.put("staffId", staffList.get(0).getStaffId());
-                List<SysUser> userList = sysUserRpcService.getSysUserList(userQuery);
-                if (userList != null && !userList.isEmpty()) {
-                    for (SysUser user : userList) {
-                        uidList.add(user.getUid());
-                    }
-                    mapQuery.put("uidList", uidList);
-                    count = performanceRpcService.getPerformanceCount(mapQuery);
-                }
-            }
+        if(mapQuery.get("startDate") == null || mapQuery.get("endDate") == null){
+            throw new BizCheckedException("1800001");//需指定查询区间
         }
+        Long startDate = Long.parseLong(mapQuery.get("startDate").toString());
+        Long endDate = Long.parseLong(mapQuery.get("endDate").toString());
+        Long currentDate = DateUtils.getTodayBeginSeconds();
+        if(startDate >= currentDate || endDate < currentDate){
+            //开始时间大于等于当前时间,或结束时间小于当前时间
+        }else{
+            throw new BizCheckedException("1800002");//当天数据历史数据不能混合查询
+        }
+        count = performanceRpcService.getPerformanceCount(mapQuery);
         return JsonUtils.SUCCESS(count);
     }
 
@@ -121,6 +97,14 @@ public class PerformanceRestService implements IPerformanceRestService {
     @Path("getTaskInfo")
     public String getTaskInfo(Map<String, Object> mapQuery) {
         return JsonUtils.SUCCESS(performanceRpcService.getTaskInfo(mapQuery));
+    }
+
+    @POST
+    @Path("createPerformance")
+    public String createPerformance(Map<String, Object> mapQuery) {
+        logger.info("生成员工绩效记录");
+        performanceRpcService.createPerformance(mapQuery);
+        return JsonUtils.SUCCESS();
     }
 
 }

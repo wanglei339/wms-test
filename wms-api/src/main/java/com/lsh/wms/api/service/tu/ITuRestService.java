@@ -33,4 +33,8 @@ public interface ITuRestService {
      * @throws BizCheckedException
      */
     public String removeTuDetail(Long mergedContainerId) throws BizCheckedException;
+
+    public String getTudetailByTudetailId(Long tuDetailId) throws BizCheckedException;
+
+    public String removeTuEntry(String tuId) throws BizCheckedException;
 }

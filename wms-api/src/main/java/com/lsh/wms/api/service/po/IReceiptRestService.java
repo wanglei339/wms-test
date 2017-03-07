@@ -49,5 +49,6 @@ public interface IReceiptRestService {
     String modifyQty() throws BizCheckedException;
 
     String getInbReceiptIds() throws BizCheckedException;
+    String modifyProTime() throws ParseException;
 
 }

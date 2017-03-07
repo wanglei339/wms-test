@@ -125,8 +125,8 @@ public class StockQuantRestService implements IStockQuantRestService {
     }
     @GET
     @Path("writeOffQuant")
-    public String writeOffQuant(@QueryParam("quantId") Long quantId,@QueryParam("realQty") BigDecimal realQty) throws BizCheckedException{
-        stockQuantRpcService.writeOffQuant(quantId,realQty);
+    public String writeOffQuant(@QueryParam("quantId") Long quantId,@QueryParam("realQty") BigDecimal realQty,@QueryParam("operator") Long operator) throws BizCheckedException{
+        stockQuantRpcService.writeOffQuant(quantId,realQty,operator);
         return JsonUtils.SUCCESS();
     }
 
@@ -152,6 +152,26 @@ public class StockQuantRestService implements IStockQuantRestService {
     @Path("getLocationStockList")
     public String getLocationStockList(Map<String, Object> mapQuery) {
         return JsonUtils.SUCCESS(stockQuantRpcService.getLocationStockList(mapQuery));
+    }
+    @POST
+    @Path("getStockInfoList")
+    public String getStockInfoList(Map<String, Object> mapQuery) {
+        return JsonUtils.SUCCESS(stockQuantRpcService.getStockInfo(mapQuery));
+    }
+    @POST
+    @Path("countStockInfoList")
+    public String countStockInfoList(Map<String, Object> mapQuery) {
+        return JsonUtils.SUCCESS(stockQuantRpcService.countStockInfo(mapQuery));
+    }
+    @POST
+    @Path("getStockLocationInfoList")
+    public String getStockLocationInfoList(Map<String, Object> mapQuery) {
+        return JsonUtils.SUCCESS(stockQuantRpcService.getStockLocationInfo(mapQuery));
+    }
+    @POST
+    @Path("countStockLocationInfoList")
+    public String countStockLocationInfoList(Map<String, Object> mapQuery) {
+        return JsonUtils.SUCCESS(stockQuantRpcService.countStockLocationInfo(mapQuery));
     }
 
     @GET

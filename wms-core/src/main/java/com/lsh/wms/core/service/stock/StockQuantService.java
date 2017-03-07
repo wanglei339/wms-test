@@ -2,20 +2,17 @@ package com.lsh.wms.core.service.stock;
 
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.DateUtils;
+import com.lsh.base.common.utils.StrUtils;
 import com.lsh.wms.api.model.so.ObdDetail;
 import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.constant.TaskConstant;
-import com.lsh.wms.core.dao.stock.StockMoveDao;
-import com.lsh.wms.core.dao.stock.StockQuantDao;
-import com.lsh.wms.core.dao.stock.StockQuantMoveRelDao;
+import com.lsh.wms.core.dao.stock.*;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.task.BaseTaskService;
+import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
-import com.lsh.wms.model.stock.StockLot;
-import com.lsh.wms.model.stock.StockMove;
-import com.lsh.wms.model.stock.StockQuant;
-import com.lsh.wms.model.stock.StockQuantMoveRel;
+import com.lsh.wms.model.stock.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,7 +48,15 @@ public class StockQuantService {
     @Autowired
     private BaseTaskService baseTaskService;
 
-    @Autowired StockLotService lotService;
+    @Autowired
+    StockLotService lotService;
+
+    @Autowired
+    StockQuantInfoDao stockQuantInfoDao;
+    @Autowired
+    StockQuantLocationInfoDao stockQuantLocationInfoDao;
+
+
 
 
     @Transactional(readOnly = false)
@@ -161,8 +166,12 @@ public class StockQuantService {
             packName = String.format("H%02d", quant.getPackUnit().toBigInteger());
         }
         quant.setPackName(packName);
-        quant.setCreatedAt(DateUtils.getCurrentSeconds());
-        quant.setUpdatedAt(DateUtils.getCurrentSeconds());
+        if(quant.getCreatedAt().equals(0L)) {
+            quant.setCreatedAt(DateUtils.getCurrentSeconds());
+        }
+        if(quant.getUpdatedAt().equals(0L)) {
+            quant.setUpdatedAt(DateUtils.getCurrentSeconds());
+        }
         stockQuantDao.insert(quant);
     }
 
@@ -170,6 +179,30 @@ public class StockQuantService {
     public void update(StockQuant quant) {
         quant.setUpdatedAt(DateUtils.getCurrentSeconds());
         stockQuantDao.update(quant);
+    }
+
+    @Transactional(readOnly = false)
+    public void moveQuant(StockQuant quant) {
+        quant.setUpdatedAt(DateUtils.getCurrentSeconds());
+        stockQuantDao.moveQuant(quant);
+    }
+
+    @Transactional(readOnly = false)
+    public void cleanZeroQuant(StockQuant quant) {
+        if (1 == stockQuantDao.cleanZeroQuant(quant)) {
+            logger.info(StrUtils.formatString("clean zero quant from id:{0}, location:{1}, item:{2}, container:{3}", quant.getId(), quant.getLocationId(), quant.getItemId(), quant.getContainerId()));
+        }
+    }
+
+    @Transactional(readOnly = false)
+    public void changeQty(StockQuant quant, BigDecimal delta) throws BizCheckedException {
+        quant.setUpdatedAt(DateUtils.getCurrentSeconds());
+        quant.setDelta(delta);
+        int ret = stockQuantDao.changeQty(quant);
+        if (ret != 1) {
+            throw new BizCheckedException("商品数量不足");
+        }
+        cleanZeroQuant(quant);
     }
 
     public int getContainerQty(Long locationId) {
@@ -204,11 +237,11 @@ public class StockQuantService {
             if (quant.getReserveTaskId() != 0 && quant.getReserveTaskId().compareTo(move.getTaskId()) != 0) {
                 continue;
             }
-            this.split(quant, qtyDone);
+            quant = this.split(quant, qtyDone);
             quant.setLocationId(move.getToLocationId());
             quant.setContainerId(move.getToContainerId());
+            this.moveQuant(quant);
 
-            this.update(quant);
             // 新建 quant move历史记录
             if(move.getId() ==null){
                 // 创建move
@@ -240,23 +273,30 @@ public class StockQuantService {
     }
 
     @Transactional(readOnly = false)
-    public void split(StockQuant quant, BigDecimal requiredQty) {
+    public StockQuant split(StockQuant quant, BigDecimal requiredQty) throws BizCheckedException{
         if (quant.getQty().compareTo(requiredQty) <= 0 && quant.getQty().compareTo(BigDecimal.ZERO) > 0) {
-            return;
+            return quant;
         }
+        // 修改源库位上的库存数量，减去要分裂的值出来
+        this.changeQty(quant, requiredQty);
 
+        // 创建要移动的库存出来
         StockQuant newQuant = (StockQuant) quant.clone();
-        newQuant.setQty(quant.getQty().subtract(requiredQty));
+        Long sourceQuantId = quant.getId();
+        newQuant.setQty(requiredQty);
         newQuant.setReserveTaskId(0L);
         this.create(newQuant);
+
         Map<String, Object> queryMap = new HashMap<String, Object>();
-        queryMap.put("quantId", quant.getId());
+        queryMap.put("quantId", sourceQuantId);
         List<StockQuantMoveRel> relList = relDao.getStockQuantMoveRelList(queryMap);
         for (StockQuantMoveRel rel : relList) {
             rel.setQuantId(newQuant.getId());
             relDao.insert(rel);
         }
-        quant.setQty(requiredQty);
+
+        quant = newQuant;
+        return newQuant;
     }
 
     @Transactional(readOnly = false)
@@ -267,7 +307,7 @@ public class StockQuantService {
             if (!quant.isAvailable()) {
                 continue;
             }
-            this.split(quant, requiredQty);
+            quant = this.split(quant, requiredQty);
             quant.setReserveTaskId(taskId);
             resultList.add(quant);
             stockQuantDao.update(quant);
@@ -420,6 +460,14 @@ public class StockQuantService {
         }
         return qty;
     }
+    public List<StockQuant> getQuantByLocationIdAndItemId(Long locationId, Long itemId) {
+        Map<String, Object> queryMap = new HashMap();
+        queryMap.put("locationId", locationId);
+        queryMap.put("itemId", itemId);
+        this.prepareQuery(queryMap);
+        List<StockQuant> stockQuants = stockQuantDao.getQuants(queryMap);
+        return stockQuants;
+    }
 
     public BigDecimal getQuantQtyByContainerId(Long containerId) {
         Map<String, Object> queryMap = new HashMap();
@@ -512,5 +560,107 @@ public class StockQuantService {
     public List<StockQuant> getStockQuantList(Map<String, Object> mapQuery) {
         return stockQuantDao.getStockQuantList(mapQuery);
     }
+    @Transactional(readOnly = false)
+    public void insertStockInfo(StockQuantInfo stockQuantInfo){
+        stockQuantInfo.setCreatedAt(DateUtils.getCurrentSeconds());
+        stockQuantInfo.setUpdatedAt(DateUtils.getCurrentSeconds());
+        stockQuantInfoDao.insert(stockQuantInfo);
+    }
+    @Transactional(readOnly = false)
+    public void insertStockInfoList(List<StockQuantInfo> stockQuantInfoList){
+        for(StockQuantInfo stockQuantInfo:stockQuantInfoList) {
+            stockQuantInfo.setCreatedAt(DateUtils.getCurrentSeconds());
+            stockQuantInfo.setUpdatedAt(DateUtils.getCurrentSeconds());
+            stockQuantInfoDao.insert(stockQuantInfo);
+        }
+    }
+    @Transactional(readOnly = false)
+    public void updateStockInfoList(List<StockQuantInfo> stockQuantInfoList){
+        for(StockQuantInfo stockQuantInfo:stockQuantInfoList) {
+            stockQuantInfo.setUpdatedAt(DateUtils.getCurrentSeconds());
+            stockQuantInfoDao.updateByItemId(stockQuantInfo);
+        }
+    }
+    public StockQuantInfo getStockInfoByitemId(Long itemId){
+        Map <String,Object> queryMap = new HashMap<String, Object>();
+        queryMap.put("itemId", itemId);
+        List<StockQuantInfo> infos = stockQuantInfoDao.getStockQuantInfoList(queryMap);
+        return (infos== null || infos.size()==0) ? null : infos.get(0);
+    }
+    public List<StockQuantInfo> getStockInfoList( Map <String,Object> queryMap){
+        return  stockQuantInfoDao.getStockQuantInfoList(queryMap);
+    }
+    public Integer countStockInfoList( Map <String,Object> queryMap){
+        return  stockQuantInfoDao.countStockQuantInfo(queryMap);
+    }
+    @Transactional(readOnly = false)
+    public void initializeStockInfoList(List<StockQuantInfo> updateStockQuantInfoList,List<StockQuantInfo> insertStockQuantInfoList){
+        for(StockQuantInfo stockQuantInfo:insertStockQuantInfoList) {
+            stockQuantInfo.setUpdatedAt(DateUtils.getCurrentSeconds());
+            stockQuantInfo.setCreatedAt(DateUtils.getCurrentSeconds());
+            stockQuantInfoDao.insert(stockQuantInfo);
+        }
+        for(StockQuantInfo stockQuantInfo:updateStockQuantInfoList){
+            stockQuantInfo.setUpdatedAt(DateUtils.getCurrentSeconds());
+            stockQuantInfoDao.updateByItemId(stockQuantInfo);
+        }
+    }
 
+
+    @Transactional(readOnly = false)
+    public void insertStockLocationInfo(StockQuantLocationInfo stockQuantLocationInfo){
+        stockQuantLocationInfo.setCreatedAt(DateUtils.getCurrentSeconds());
+        stockQuantLocationInfo.setUpdatedAt(DateUtils.getCurrentSeconds());
+        stockQuantLocationInfoDao.insert(stockQuantLocationInfo);
+    }
+    @Transactional(readOnly = false)
+    public void insertStockLocationInfoList(List<StockQuantLocationInfo> stockQuantLocationInfoList){
+        for(StockQuantLocationInfo stockQuantLocationInfo:stockQuantLocationInfoList) {
+            stockQuantLocationInfo.setCreatedAt(DateUtils.getCurrentSeconds());
+            stockQuantLocationInfo.setUpdatedAt(DateUtils.getCurrentSeconds());
+            stockQuantLocationInfoDao.insert(stockQuantLocationInfo);
+        }
+    }
+    @Transactional(readOnly = false)
+    public void updateStockLocationInfoList(List<StockQuantLocationInfo> stockQuantLocationInfoList){
+        for(StockQuantLocationInfo stockQuantLocationInfo:stockQuantLocationInfoList) {
+            stockQuantLocationInfo.setUpdatedAt(DateUtils.getCurrentSeconds());
+            stockQuantLocationInfoDao.updateByLocationAndItemAndSupplier(stockQuantLocationInfo);
+        }
+    }
+    @Transactional(readOnly = false)
+    public void delStockLocationInfo(List<StockQuantLocationInfo> stockQuantLocationInfoList){
+        for(StockQuantLocationInfo stockQuantLocationInfo:stockQuantLocationInfoList) {
+            stockQuantLocationInfoDao.del(stockQuantLocationInfo);
+        }
+    }
+    @Transactional(readOnly = false)
+    public void initializeStockLocationInfoList(List<StockQuantLocationInfo> updateStockQuantLocationInfoList,List<StockQuantLocationInfo> insertStockQuantLocationInfoList,List<StockQuantLocationInfo> delStockQuantLocationInfoList){
+        for(StockQuantLocationInfo stockQuantLocationInfo:insertStockQuantLocationInfoList) {
+            stockQuantLocationInfo.setUpdatedAt(DateUtils.getCurrentSeconds());
+            stockQuantLocationInfo.setCreatedAt(DateUtils.getCurrentSeconds());
+            stockQuantLocationInfoDao.insert(stockQuantLocationInfo);
+        }
+        for(StockQuantLocationInfo stockQuantLocationInfo:updateStockQuantLocationInfoList){
+            stockQuantLocationInfo.setUpdatedAt(DateUtils.getCurrentSeconds());
+            stockQuantLocationInfoDao.updateByLocationAndItemAndSupplier(stockQuantLocationInfo);
+        }
+        for(StockQuantLocationInfo stockQuantLocationInfo:delStockQuantLocationInfoList){
+            stockQuantLocationInfoDao.del(stockQuantLocationInfo);
+        }
+    }
+    public StockQuantLocationInfo getStockLocationInfoByitemIdAndLocationIdAndSuppilerId(Long itemId,Long locationId,Long supplierId){
+        Map <String,Object> queryMap = new HashMap<String, Object>();
+        queryMap.put("itemId", itemId);
+        queryMap.put("locationId", locationId);
+        queryMap.put("supplierId", supplierId);
+        List<StockQuantLocationInfo> infos = stockQuantLocationInfoDao.getStockQuantLocationInfoList(queryMap);
+        return (infos== null || infos.size()==0) ? null : infos.get(0);
+    }
+    public List<StockQuantLocationInfo> getStockLocationInfoList( Map <String,Object> queryMap){
+        return  stockQuantLocationInfoDao.getStockQuantLocationInfoList(queryMap);
+    }
+    public Integer countStockLocationInfoList( Map <String,Object> queryMap){
+        return  stockQuantLocationInfoDao.countStockQuantLocationInfo(queryMap);
+    }
 }

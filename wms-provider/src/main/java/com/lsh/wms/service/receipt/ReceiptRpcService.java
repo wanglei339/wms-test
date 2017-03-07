@@ -33,6 +33,7 @@ import com.lsh.wms.core.service.po.ReceiveService;
 import com.lsh.wms.core.service.so.SoDeliveryService;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.stock.StockLotService;
+import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.system.SysUserService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.core.service.utils.IdGenerator;
@@ -145,6 +146,9 @@ public class ReceiptRpcService implements IReceiptRpcService {
     private SoOrderService soOrderService;
     @Autowired
     private BaseTaskService baseTaskService;
+
+    @Autowired
+    private StockQuantService stockQuantService;
 
     public Boolean throwOrder(String orderOtherId) throws BizCheckedException {
         IbdHeader ibdHeader = new IbdHeader();
@@ -360,7 +364,9 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 move.setQty(inboundUnitQty);
                 move.setItemId(inbReceiptDetail.getItemId());
                 move.setOperator(Long.valueOf(inbReceiptHeader.getReceiptUser()));
-                move.setTaskId(taskId);
+                //move.setTaskId(taskId);
+                move.setTaskId(ibdHeader.getOrderId());// TODO: 17/2/16  返仓没有生成任务,此处记录taskId无意义,改成orderId
+
 
                 Map<String, Object> moveInfo = new HashMap<String, Object>();
                 moveInfo.put("lot", newStockLot);
@@ -858,9 +864,14 @@ public class ReceiptRpcService implements IReceiptRpcService {
     }
 
     public void insertReceipt(Long orderId , Long staffId) throws BizCheckedException, ParseException {
-        IbdHeader ibdHeader = poOrderService.getInbPoHeaderByOrderId(orderId);
+        //锁记录
+        //IbdHeader ibdHeader = poOrderService.getInbPoHeaderByOrderId(orderId);
+        IbdHeader ibdHeader = poOrderService.lockIbdHeaderByOrderId(orderId);
         if (ibdHeader == null) {
             throw new BizCheckedException("2020001");
+        }
+        if(ibdHeader.getOrderStatus() == PoConstant.ORDER_RECTIPT_ALL){
+            throw new BizCheckedException("2028892");
         }
         List<IbdDetail> ibdDetails = poOrderService.getInbPoDetailListByOrderId(orderId);
         ReceiptRequest request = new ReceiptRequest();
@@ -1602,6 +1613,68 @@ public class ReceiptRpcService implements IReceiptRpcService {
     */
     public List<Long> getInbReceiptIds(Map<String, Object> params){
         return poReceiptService.getInbReceiptIds(params);
+    }
+
+
+    /**
+     * 修改商品生产日期
+     * @param receiptId
+     * @param newProTime
+     * @param uid
+     */
+    public void modifyProTime(Long receiptId, String newProTime, Long uid) throws BizCheckedException, ParseException {
+        //保质期的修改包含三个地方 InbReceiptDetail stockQuant stockLot
+        SysUser user = sysUserService.getSysUserByUid(uid.toString());
+        List<InbReceiptDetail> details = poReceiptService.getInbReceiptDetailListByReceiptId(receiptId);
+        if (details == null && details.size() == 0) {
+            throw new BizCheckedException("2028893");
+        }
+        InbReceiptDetail inbReceiptDetail = details.get(0);
+        //修改InbReceiptDetail
+        Date proTime = inbReceiptDetail.getProTime();//记录原始生产日期
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Date newProDate = sdf.parse(newProTime);
+        inbReceiptDetail.setProTime(newProDate);
+
+        //修改stockLot
+        //修改失效日期
+        BaseinfoItem baseinfoItem = itemService.getItem(inbReceiptDetail.getItemId());
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(newProDate);
+        calendar.add(calendar.DAY_OF_YEAR,baseinfoItem.getShelfLife().intValue());
+        Long expireDate = calendar.getTime().getTime()/1000;
+        StockLot stockLot = stockLotService.getStockLotByLotId(inbReceiptDetail.getLotId());
+        if(stockLot == null){
+            throw new BizCheckedException("2028894");
+        }
+        stockLot.setProductDate(newProDate.getTime()/1000);
+        stockLot.setExpireDate(expireDate);
+
+        //修改stockQuant
+        Map<String,Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("lotId",inbReceiptDetail.getLotId());
+        List<StockQuant> stockQuants = stockQuantService.getQuants(mapQuery);
+        List<StockQuant> updateStockQuants = new ArrayList<StockQuant>();
+
+        if(stockQuants != null && stockQuants.size() > 0){
+            for(StockQuant stockQuant : stockQuants){
+                stockQuant.setExpireDate(expireDate);
+                updateStockQuants.add(stockQuant);
+            }
+        }
+
+        ModifyLog modifyLog = new ModifyLog();
+        modifyLog.setBusinessId(receiptId);
+        modifyLog.setDetailId("");
+        modifyLog.setModifyType(ModifyConstant.MODIFY_LOG_TYPE_RECEIPT);
+        modifyLog.setOperator(uid);
+        sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+        String date = sdf.format(new Date());
+        String remark = StrUtils.formatString("用户{0}将生产日期由{1}改为{2},修改时间为:{3}",user.getUsername(),proTime,newProTime,date);
+        modifyLog.setModifyMessage(remark);
+
+        poReceiptService.modifyProTime(inbReceiptDetail,updateStockQuants,modifyLog,stockLot);
+
     }
 
 
