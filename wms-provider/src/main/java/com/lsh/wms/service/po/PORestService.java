@@ -9,10 +9,7 @@ import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.model.base.BaseResponse;
 import com.lsh.wms.api.model.base.ResUtils;
 import com.lsh.wms.api.model.base.ResponseConstant;
-import com.lsh.wms.api.model.po.Header;
-import com.lsh.wms.api.model.po.IbdBackRequest;
-import com.lsh.wms.api.model.po.IbdItem;
-import com.lsh.wms.api.model.po.PoRequest;
+import com.lsh.wms.api.model.po.*;
 import com.lsh.wms.api.service.back.IDataBackService;
 import com.lsh.wms.api.service.po.IPoRestService;
 import com.lsh.wms.api.service.request.RequestUtils;
@@ -21,9 +18,13 @@ import com.lsh.wms.core.constant.PoConstant;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.location.BaseinfoLocationWarehouseService;
 import com.lsh.wms.core.service.po.PoOrderService;
+import com.lsh.wms.core.service.utils.PackUtil;
+import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoLocationWarehouse;
 import com.lsh.wms.model.po.IbdDetail;
 import com.lsh.wms.model.po.IbdHeader;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,6 +81,34 @@ public class PORestService implements IPoRestService {
     @POST
     @Path("insert")
     public BaseResponse insertOrder(PoRequest request) throws BizCheckedException{
+        int index = 0;
+        for(PoItem item :request.getItems()){
+            String skuCode = item.getSkuCode();
+            Long ownerId = request.getOwnerUid();
+            BaseinfoItem baseinfoItem =itemService.getItemsBySkuCode(ownerId,skuCode);
+            if(baseinfoItem == null){
+                throw new BizCheckedException("1010003",skuCode,"");//商品信息不存在
+            }
+            String msg = "";
+
+            if(!baseinfoItem.getPackName().equals(item.getPackName())){
+                msg += "包装名称,";
+            }
+            if(baseinfoItem.getPackUnit().compareTo(item.getPackUnit()) != 0){
+                msg += "包装单位,";
+            }
+            if(item.getOrderQty()==null || item.getOrderQty().compareTo(BigDecimal.ZERO) <= 0){
+                msg += "进货数量,";
+            }
+            if(StringUtils.isNotBlank(msg)){
+                throw new BizCheckedException("1010004",skuCode+":"+msg,"");//商品信息错误
+            }
+            item.setSkuName(baseinfoItem.getSkuName());
+            item.setUnitName(baseinfoItem.getUnitName());
+            item.setUnitQty(PackUtil.UomQty2EAQty(item.getOrderQty(),item.getPackUnit()));
+            index = index +1;
+            item.setDetailOtherId(index+"");
+        }
         poRpcService.insertOrder(request);
         return ResUtils.getResponse(ResponseConstant.RES_CODE_1,ResponseConstant.RES_MSG_OK,null);
     }

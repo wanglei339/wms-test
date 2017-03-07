@@ -3,6 +3,7 @@ package com.lsh.wms.core.service.location;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.ObjUtils;
+import com.lsh.base.q.Module.Base;
 import com.lsh.wms.api.model.location.LocationDetailRequest;
 import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.service.location.targetlist.*;
@@ -89,11 +90,6 @@ public class LocationDetailService {
         locationDetailServiceFactory.register(LocationConstant.DOCK_AREA, baseinfoLocationDockService);
         //货位
         locationDetailServiceFactory.register(LocationConstant.BIN, baseinfoLocationBinService);
-        //货架和阁楼的货位
-//        locationDetailServiceFactory.register(LocationConstant.SHELF_PICKING_BIN, baseinfoLocationBinService);
-//        locationDetailServiceFactory.register(LocationConstant.SHELF_STORE_BIN, baseinfoLocationBinService);
-//        locationDetailServiceFactory.register(LocationConstant.LOFT_PICKING_BIN, baseinfoLocationBinService);
-//        locationDetailServiceFactory.register(LocationConstant.LOFT_STORE_BIN, baseinfoLocationBinService);
 
 
         //添加各种功能bin的service服务
@@ -112,19 +108,12 @@ public class LocationDetailService {
         //注入拆零区、拆零货架、拆零层级、拆零存储一体货位
         locationDetailServiceFactory.register(LocationConstant.SPLIT_AREA, baseinfoLocationRegionService);
         locationDetailServiceFactory.register(LocationConstant.SPLIT_SHELF, baseinfoLocationShelfService);
-//        locationDetailServiceFactory.register(LocationConstant.SPLIT_SHELF_BIN, baseinfoLocationBinService);
-        //注入贵品区、贵品货架、贵品货架层级、贵品存拣货位
-//        locationDetailServiceFactory.register(LocationConstant.VALUABLES_AREA, baseinfoLocationRegionService);
-//        locationDetailServiceFactory.register(LocationConstant.VALUABLES_SHELF, baseinfoLocationShelfService);
-//        locationDetailServiceFactory.register(LocationConstant.VALUABLES_SHELF_BIN, baseinfoLocationBinService);
         //注入播种区、播种货位
         locationDetailServiceFactory.register(LocationConstant.SOW_AREA, baseinfoLocationRegionService);
         locationDetailServiceFactory.register(LocationConstant.SOW_BIN, baseinfoLocationBinService);
         //注入 供商退货区、供商退货货架、供商退货货架层、供商退货入库位置、供商退货存储位置
         locationDetailServiceFactory.register(LocationConstant.SUPPLIER_RETURN_AREA, baseinfoLocationRegionService);
         locationDetailServiceFactory.register(LocationConstant.SUPPLIER_RETURN_SHELF, baseinfoLocationShelfService);
-//        locationDetailServiceFactory.register(LocationConstant.SUPPLIER_RETURN_IN_BIN, baseinfoLocationBinService);
-//        locationDetailServiceFactory.register(LocationConstant.SUPPLIER_RETURN_STORE_BIN, baseinfoLocationBinService);
 
         //差异区
         locationDetailServiceFactory.register(LocationConstant.DIFF_AREA, baseinfoLocationRegionService);
@@ -165,11 +154,6 @@ public class LocationDetailService {
         locationDetailModelFactory.register(LocationConstant.DOCK_AREA, new BaseinfoLocationDock());
         //货位
         locationDetailModelFactory.register(LocationConstant.BIN, new BaseinfoLocationBin());
-        //货架和阁楼的货位
-//        locationDetailModelFactory.register(LocationConstant.SHELF_PICKING_BIN, new BaseinfoLocationBin());
-//        locationDetailModelFactory.register(LocationConstant.SHELF_STORE_BIN, new BaseinfoLocationBin());
-//        locationDetailModelFactory.register(LocationConstant.LOFT_PICKING_BIN, new BaseinfoLocationBin());
-//        locationDetailModelFactory.register(LocationConstant.LOFT_STORE_BIN, new BaseinfoLocationBin());
         //功能bin
         locationDetailModelFactory.register(LocationConstant.FLOOR_BIN, new BaseinfoLocationBin());
         locationDetailModelFactory.register(LocationConstant.TEMPORARY_BIN, new BaseinfoLocationBin());
@@ -187,12 +171,6 @@ public class LocationDetailService {
         locationDetailModelFactory.register(LocationConstant.SPLIT_AREA, new BaseinfoLocationRegion());
         locationDetailModelFactory.register(LocationConstant.SPLIT_SHELF, new BaseinfoLocationShelf());
         locationDetailModelFactory.register(LocationConstant.SPLIT_SHELF_COLUMN, new BaseinfoLocation());
-//        locationDetailModelFactory.register(LocationConstant.SPLIT_SHELF_BIN, new BaseinfoLocationBin());
-        //注入贵品区、贵品货架、贵品货架层级、贵品存拣货位
-//        locationDetailModelFactory.register(LocationConstant.VALUABLES_AREA, new BaseinfoLocationRegion());
-//        locationDetailModelFactory.register(LocationConstant.VALUABLES_SHELF, new BaseinfoLocationShelf());
-//        locationDetailModelFactory.register(LocationConstant.VALUABLES_SHELF_LEVEL, new BaseinfoLocation());
-//        locationDetailModelFactory.register(LocationConstant.VALUABLES_SHELF_BIN, new BaseinfoLocationBin());
         //注入播种区和播种货位
         locationDetailModelFactory.register(LocationConstant.SOW_AREA, new BaseinfoLocationRegion());
         locationDetailModelFactory.register(LocationConstant.SOW_BIN, new BaseinfoLocationBin());
@@ -200,17 +178,10 @@ public class LocationDetailService {
         locationDetailModelFactory.register(LocationConstant.SUPPLIER_RETURN_AREA, new BaseinfoLocationRegion());
         locationDetailModelFactory.register(LocationConstant.SUPPLIER_RETURN_SHELF, new BaseinfoLocationShelf());
         locationDetailModelFactory.register(LocationConstant.SUPPLIER_RETURN_LEVEL, new BaseinfoLocation());
-//        locationDetailModelFactory.register(LocationConstant.SUPPLIER_RETURN_IN_BIN, new BaseinfoLocationBin());
-//        locationDetailModelFactory.register(LocationConstant.SUPPLIER_RETURN_STORE_BIN, new BaseinfoLocationBin());
         //集货道、集货道组、集货位
         locationDetailModelFactory.register(LocationConstant.COLLECTION_ROAD_GROUP, new BaseinfoLocation());
         locationDetailModelFactory.register(LocationConstant.COLLECTION_ROAD, new BaseinfoLocation());
         locationDetailModelFactory.register(LocationConstant.COLLECTION_BIN, new BaseinfoLocationBin());
-        //阁楼或货架的货架块,
-//        locationDetailModelFactory.register(LocationConstant.SHELF_PICK_BLOCK, new BaseinfoLocation());
-//        locationDetailModelFactory.register(LocationConstant.SHELF_STORE_BLOCK, new BaseinfoLocation());
-//        locationDetailModelFactory.register(LocationConstant.LOFT_PICK_BLOCK, new BaseinfoLocation());
-//        locationDetailModelFactory.register(LocationConstant.LOFT_STORE_BLOCK, new BaseinfoLocation());
         locationDetailModelFactory.register(LocationConstant.DIFF_AREA, new BaseinfoLocationRegion());
         locationDetailModelFactory.register(LocationConstant.SO_INBOUND_AREA, new BaseinfoLocationRegion());
         locationDetailModelFactory.register(LocationConstant.SO_DIRECT_AREA, new BaseinfoLocationRegion());
@@ -285,40 +256,6 @@ public class LocationDetailService {
         if (location.getFatherId() == -1L) {
             return baseinfoLocation;
         }
-        //如果是货架个体,插入指定层的货架层
-        // todo 如果单插入阁楼层的话,会出现插入两次主表的问题(货架和层一起插就不会),因为阁楼|货架层service注入了原来的locationService
-//        if (LocationConstant.SHELF.equals(iBaseinfoLocaltionModel.getType())) {
-//            this.insertShelflevelsByShelf(baseinfoLocation, iBaseinfoLocaltionModel, LocationConstant.SHELF_LEVELS);
-//            //将货架的叶子节点设置为0
-//            location.setIsLeaf(0);
-//            locationService.updateLocation(location);
-//        }
-//        //  如果是阁楼个体,插入指定层的阁楼层
-//        if (LocationConstant.LOFT.equals(iBaseinfoLocaltionModel.getType())) {
-//            this.insertShelflevelsByShelf(baseinfoLocation, iBaseinfoLocaltionModel, LocationConstant.LOFT_LEVELS);
-//            //将货架的叶子节点设置为0
-//            location.setIsLeaf(0);
-//            locationService.updateLocation(location);
-//        }
-//        if (LocationConstant.SPLIT_SHELF.equals(iBaseinfoLocaltionModel.getType())) {
-//            this.insertShelflevelsByShelf(baseinfoLocation, iBaseinfoLocaltionModel, LocationConstant.SPLIT_SHELF_LEVEL);
-//            //将货架的叶子节点设置为0
-//            location.setIsLeaf(0);
-//            locationService.updateLocation(location);
-//        }
-//        //贵品区的货架
-//        if (LocationConstant.VALUABLES_SHELF.equals(iBaseinfoLocaltionModel.getType())) {
-//            this.insertShelflevelsByShelf(baseinfoLocation, iBaseinfoLocaltionModel, LocationConstant.VALUABLES_SHELF_LEVEL);
-//            //将货架的叶子节点设置为0
-//            location.setIsLeaf(0);
-//            locationService.updateLocation(location);
-//        }
-//        if (LocationConstant.SUPPLIER_RETURN_SHELF.equals(iBaseinfoLocaltionModel.getType())) {
-//            this.insertShelflevelsByShelf(baseinfoLocation, iBaseinfoLocaltionModel, LocationConstant.SUPPLIER_RETURN_LEVEL);
-//            //将货架的叶子节点设置为0
-//            location.setIsLeaf(0);
-//            locationService.updateLocation(location);
-//        }
         //更新父亲
         fatherLocation.setIsLeaf(0);
         //父亲是在原库位插入子库位
@@ -520,6 +457,60 @@ public class LocationDetailService {
         IStrategy istrategy = locationDetailServiceFactory.getIstrategy(iBaseinfoLocaltionModel.getType());
         istrategy.removeLocation(iBaseinfoLocaltionModel.getLocationId());
         return iBaseinfoLocaltionModel;
+    }
+
+    /**
+     * 合并库位
+     *
+     * @param bins      需要锁定的库位
+     * @param targetBin 合并后使用的库位
+     */
+    @Transactional(readOnly = false)
+    public void mergeBins(List<BaseinfoLocationBin> bins, BaseinfoLocationBin targetBin) {
+        //原目标体积
+        BigDecimal oldVolume = targetBin.getVolume();
+        BigDecimal totalVolume = targetBin.getVolume();
+        //锁库位
+        List<Long> toLockIds = new ArrayList<Long>();
+        Long refLocationId = targetBin.getLocationId();
+
+        for (BaseinfoLocationBin bin : bins) {
+            locationService.lockLocation(bin.getLocationId());
+            totalVolume = totalVolume.add(bin.getVolume());
+            //连接处理
+            bin.setRelLocationId(refLocationId);
+            bin.setOldVolume(bin.getVolume());
+            baseinfoLocationBinService.update(bin);
+        }
+
+        //更新目标库位体积,建立连接,记录合并前的体积
+        targetBin.setVolume(totalVolume);
+        targetBin.setOldVolume(oldVolume);
+        targetBin.setRelLocationId(targetBin.getLocationId());
+        baseinfoLocationBinService.update(targetBin);
+
+    }
+
+    /**
+     * 拆分合并后的库位
+     *
+     * @param bins      需要拆分的库位
+     * @param targetBin 和拆分库位绑定的库位
+     */
+    @Transactional(readOnly = false)
+    public void splitBins(List<BaseinfoLocationBin> bins, BaseinfoLocationBin targetBin) {
+        //恢复未锁定的状态,去掉关联关系,更改体积
+        //原目标库位体积
+        BigDecimal oldVolume = targetBin.getOldVolume();
+        targetBin.setVolume(oldVolume);
+        targetBin.setRelLocationId(LocationConstant.REF_BIN_DEFUALT);
+        baseinfoLocationBinService.update(targetBin);
+
+        for (BaseinfoLocationBin bin : bins) {
+            locationService.unlockLocation(bin.getLocationId());
+            bin.setRelLocationId(LocationConstant.REF_BIN_DEFUALT);
+            baseinfoLocationBinService.update(bin);
+        }
     }
 
 

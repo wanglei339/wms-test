@@ -78,6 +78,12 @@
 			<if test="pickLocationid != null">and pick_locationid=#{pickLocationid}</if>
 			<if test="userstatus != null">and userstatus=#{userstatus}</if>
 			<if test="itemId != null">and item_id=#{itemId}</if>
+			<if test="itemIds != null">
+				and item_id in
+				<foreach collection="itemIds" item="itemId" index="index" open="(" separator=","  close=")">
+					#{itemId}
+				</foreach>
+			</if>
 			<if test="minQty != null"> and min_qty=#{minQty}</if>
 			<if test="maxQty != null">and max_qty=#{maxQty}</if>
 			<if test="pickLocationType != null">and pick_location_type=#{pickLocationType}</if>

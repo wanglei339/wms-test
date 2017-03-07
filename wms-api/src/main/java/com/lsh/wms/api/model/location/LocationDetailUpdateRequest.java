@@ -114,6 +114,18 @@ public class LocationDetailUpdateRequest implements Serializable {
      * 货位所在温区
      */
     private Integer zoneType;
+    /** 原库位体积，用于拆分库位还原体积使用 */
+    private BigDecimal oldVolume;
+    /** 合并后关联库位的locationId */
+    private Long relLocationId;
+
+    public Long getRelLocationId() {
+        return relLocationId;
+    }
+
+    public void setRelLocationId(Long relLocationId) {
+        this.relLocationId = relLocationId;
+    }
     //..................................Dock独有的
     /**
      * 码头名
@@ -482,5 +494,13 @@ public class LocationDetailUpdateRequest implements Serializable {
 
     public void setWeigh(BigDecimal weigh) {
         this.weigh = weigh;
+    }
+
+    public void setOldVolume(BigDecimal oldVolume) {
+        this.oldVolume = oldVolume;
+    }
+
+    public BigDecimal getOldVolume() {
+        return oldVolume;
     }
 }

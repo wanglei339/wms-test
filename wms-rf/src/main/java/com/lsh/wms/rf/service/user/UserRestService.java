@@ -121,7 +121,7 @@ public class UserRestService implements IUserRestService {
                     put("do_releasecollection", "一键装车");
                     put("do_search", "查询");
                     put("do_return", "返仓");
-
+                    put("do_mergesplitbin", "合并拆分库位");
                 }
             };
             Long uid = Long.valueOf(RequestUtils.getHeader("uid"));

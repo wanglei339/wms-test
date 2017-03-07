@@ -113,8 +113,6 @@ public class ShipRestService implements IShipRestService {
     }
 
     /**
-     * todo 修改一键装车,创建tu,装车
-     *
      * @return
      * @throws BizCheckedException
      */
@@ -243,8 +241,6 @@ public class ShipRestService implements IShipRestService {
 
 
     /**
-     * todo 修改获取集货道的所有东西
-     *
      * @return
      * @throws BizCheckedException
      */
