@@ -17,5 +17,6 @@ public class PickConstant {
 
     public static final Long COLLECT_ALLOC_MODE_ROUTE = 1L;
     public static final Long COLLECT_ALLOC_MODE_CUSTOMER = 2L;
+    public static final Long COLLECT_ALLOC_MODE_STATIC = 3L;
 
 }

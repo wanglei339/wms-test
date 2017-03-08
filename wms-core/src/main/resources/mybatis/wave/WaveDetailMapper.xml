@@ -146,6 +146,11 @@
 	<update id="shipWave" parameterType="long">
 		update wave_detail set is_alive=0 where wave_id=#{waveId}
 	</update>
+
+	<update id="changeWave" parameterType="WaveDetail">
+	  	update wave_detail set wave_id=#{waveId},alloc_collect_location=#{allocCollectLocation},real_collect_location=#{realCollectLocation}
+	    where pick_task_id=#{pickTaskId};
+	</update>
   
 	<select id="getWaveDetailById" parameterType="long" resultMap="waveDetailResultMap">
 		select * from wave_detail
