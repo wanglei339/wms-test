@@ -779,6 +779,7 @@ public class WaveCore {
         }
         if(bAllAlloc){
             //进行波次拆分的捡货任务的修正
+            this._allocDock();
             this._repairSplitWave();
             waveService.setStatus(waveId, WaveConstant.STATUS_RELEASE_SUCC, true);
             throw new BizCheckedException("2040022");
