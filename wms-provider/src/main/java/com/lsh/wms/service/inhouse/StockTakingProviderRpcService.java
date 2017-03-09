@@ -531,7 +531,7 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
     public void createPlanWarehouse(List<Long> zoneIds, Long planer) throws BizCheckedException {
         List<WorkZone> zoneList = this.getSelectedZones(zoneIds);
         //get all location list;
-        List<Long> binLocations = locationService.getALLBins();
+        List<Long> binLocations = locationService.getALLUnLockBins();
         //cluster by zone;计算量稍微有点大,会不会超时啊?
         Set<Long> setBinDup = new HashSet<Long>();
         Map<Long, List<Long>> mapZoneBinArrs = new HashMap<Long, List<Long>>();
