@@ -355,7 +355,11 @@ public class WaveCore {
             for (TaskEntry entry : tasks) {
                 if (!entry.getTaskInfo().getWaveId().equals(waveId)) {
                     //need to repair
-                    taskService.changeWave(entry.getTaskInfo(), (PickTaskHead) entry.getTaskHead(), waveId, mapOrder2CollectBin.get(orderHead.getOrderId()));
+                    taskService.changeWave(entry.getTaskInfo(),
+                            (PickTaskHead) entry.getTaskHead(),
+                            waveId,
+                            mapOrder2CollectBin.get(orderHead.getOrderId()),
+                            orderHead.getTransPlan());
                     if(!collectLocations.contains( mapOrder2CollectBin.get(orderHead.getOrderId()))){
                         locationService.lockLocation(mapOrder2CollectBin.get(orderHead.getOrderId()));
                         collectLocations.add(mapOrder2CollectBin.get(orderHead.getOrderId()));

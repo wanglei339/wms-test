@@ -316,7 +316,7 @@ public class PickTaskService {
     }
 
     @Transactional(readOnly = false)
-    public void changeWave(TaskInfo taskInfo, PickTaskHead taskHead, long toWaveId, long toCollectLocationId) {
+    public void changeWave(TaskInfo taskInfo, PickTaskHead taskHead, long toWaveId, long toCollectLocationId, String transPlan) {
         //加锁,重新读取taskinfo信息,防止任务执行临界点上进行修改导致的不可预期的错误.
         taskInfo = taskInfoDao.lockById(taskInfo.getTaskId());
         //repair stock quant when task is done
@@ -325,6 +325,7 @@ public class PickTaskService {
         }
         //repair task_info
         taskInfo.setWaveId(toWaveId);
+        taskInfo.setTransPlan(transPlan);
         taskInfoDao.update(taskInfo);
         //repair pick_task_head
         taskHead.setWaveId(toWaveId);
