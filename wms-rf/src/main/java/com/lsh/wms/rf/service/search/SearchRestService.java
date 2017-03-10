@@ -114,7 +114,7 @@ public class SearchRestService implements ISearchRestService{
             if(taskInfo != null && TaskConstant.TYPE_PICK.equals(taskInfo.getType())){
                 quantSb.append("拣货签 : " + code + "\n");
                 List<WaveDetail> waveDetails = waveService.getDetailsByPickTaskIdPc(Long.valueOf(code));
-                BaseinfoLocation pickLocation = locationService.getLocation(waveDetails.get(0).getRealCollectLocation());
+                BaseinfoLocation pickLocation = locationService.getLocation(waveDetails.get(0).getAllocCollectLocation());
                 quantSb.append("分配集货位: " + pickLocation.getLocationCode() + "\n");
                 for (WaveDetail waveDetail : waveDetails) {
                     BaseinfoItem item  = itemService.getItem(waveDetail.getItemId());
