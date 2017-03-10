@@ -327,6 +327,7 @@ public class PickTaskService {
         taskInfo.setWaveId(toWaveId);
         taskInfoDao.update(taskInfo);
         //repair pick_task_head
+        taskHead.setWaveId(toWaveId);
         taskHead.setAllocCollectLocation(toCollectLocationId);
         if (taskInfo.getStatus().equals(TaskConstant.Done)) {
             taskHead.setRealCollectLocation(toCollectLocationId);

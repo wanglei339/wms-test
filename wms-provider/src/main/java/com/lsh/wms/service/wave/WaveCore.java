@@ -125,8 +125,8 @@ public class WaveCore {
         //锁定集货区,记得发货的时候释放哟
         //虽然分配了,却未能占用,这就别锁了
         //固定集货道模式,这也别锁了,锁了也没用
+        Set<Long> collectLocations = new HashSet<Long>();
         if (waveTemplate.getCollectDynamic() == 1) {
-            Set<Long> collectLocations = new HashSet<Long>();
             for (TaskEntry entry : entryList) {
                 collectLocations.add(((PickTaskHead) entry.getTaskHead()).getAllocCollectLocation());
             }
@@ -135,7 +135,7 @@ public class WaveCore {
             }
         }
         //进行波次拆分的捡货任务的修正
-        this._repairSplitWave();
+        this._repairSplitWave(collectLocations);
         //创建捡货任务
         if (entryList.size() > 0) {
             taskRpcService.batchCreate(TaskConstant.TYPE_PICK, entryList);
@@ -347,19 +347,23 @@ public class WaveCore {
 
     }
 
-        private void _repairSplitWave() throws BizCheckedException {
-            for (ObdHeader orderHead : orderList) {
-                Map<String, Object> mapQuery = new HashMap<String, Object>();
-                mapQuery.put("orderId", orderHead.getOrderId());
-                List<TaskEntry> tasks = taskRpcService.getTaskHeadList(TaskConstant.TYPE_PICK, mapQuery);
-                for (TaskEntry entry : tasks) {
-                    if (!entry.getTaskInfo().getWaveId().equals(waveId)) {
-                        //need to repair
-                        taskService.changeWave(entry.getTaskInfo(), (PickTaskHead) entry.getTaskHead(), waveId, mapOrder2CollectBin.get(orderHead.getOrderId()));
+    private void _repairSplitWave(Set<Long> collectLocations) throws BizCheckedException {
+        for (ObdHeader orderHead : orderList) {
+            Map<String, Object> mapQuery = new HashMap<String, Object>();
+            mapQuery.put("orderId", orderHead.getOrderId());
+            List<TaskEntry> tasks = taskRpcService.getTaskHeadList(TaskConstant.TYPE_PICK, mapQuery);
+            for (TaskEntry entry : tasks) {
+                if (!entry.getTaskInfo().getWaveId().equals(waveId)) {
+                    //need to repair
+                    taskService.changeWave(entry.getTaskInfo(), (PickTaskHead) entry.getTaskHead(), waveId, mapOrder2CollectBin.get(orderHead.getOrderId()));
+                    if(!collectLocations.contains( mapOrder2CollectBin.get(orderHead.getOrderId()))){
+                        locationService.lockLocation(mapOrder2CollectBin.get(orderHead.getOrderId()));
+                        collectLocations.add(mapOrder2CollectBin.get(orderHead.getOrderId()));
                     }
                 }
             }
         }
+    }
 
     private Map<Long,ProcurementInfo> _executePickModel() throws BizCheckedException{
         Map<Long,ProcurementInfo> needAdjustItemMap = new HashMap<Long, ProcurementInfo>();
@@ -780,7 +784,7 @@ public class WaveCore {
         if(bAllAlloc){
             //进行波次拆分的捡货任务的修正
             this._allocDock();
-            this._repairSplitWave();
+            this._repairSplitWave(new HashSet<Long>());
             waveService.setStatus(waveId, WaveConstant.STATUS_RELEASE_SUCC, true);
             throw new BizCheckedException("2040022");
         }
