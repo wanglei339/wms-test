@@ -512,11 +512,13 @@ public class QCRestService implements IRFQCRestService {
         //跳过qc明细,系统默认拣货量和qc量相等
         qcTaskInfo.setSubType(TaskConstant.QC_TYPE_QC_GROUP);
         if (skip) {
+            Long qc_at = DateUtils.getCurrentSeconds();     //qc的时间会写入wave_detail中
             for (WaveDetail detail : details) {
                 detail.setQcQty(detail.getPickQty()); //先默认qc数量是正常的
                 detail.setQcTimes(WaveConstant.QC_TIMES_MORE);
                 detail.setQcExceptionDone(WaveConstant.QC_EXCEPTION_STATUS_NORMAL);
                 detail.setQcException(WaveConstant.QC_EXCEPTION_NORMAL);  // 正常不需要处理
+                detail.setQcAt(qc_at);
                 waveService.updateDetail(detail);
             }
             //qc的方式  qc的类型  显示 PC的列表页   QC 的状态   只组盘 未QC加组盘
