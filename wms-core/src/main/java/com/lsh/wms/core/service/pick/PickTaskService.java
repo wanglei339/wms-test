@@ -152,7 +152,7 @@ public class PickTaskService {
                     throw new BizCheckedException("2060019");
                 }
                 // 移动库存
-                moveService.moveToContainer(itemId, staffId, quantContainerId, containerId, collectRegionLocation.getLocationId(), qty);
+                moveService.moveToContainer(itemId, staffId, quantContainerId, containerId, collectRegionLocation.getLocationId(), qty, taskId);
             }
             // 存在库存差异时移动差异库存至差异区
             /*if (pickDetail.getAllocQty().compareTo(qty) == 1 && quantQty.compareTo(qty) == 1) {
