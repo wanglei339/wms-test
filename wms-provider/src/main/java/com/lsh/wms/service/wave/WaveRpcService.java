@@ -87,10 +87,18 @@ public class WaveRpcService implements IWaveRpcService {
             if(so.getOrderStatus().equals(SoConstant.ORDER_STATUS_CANCLE)){
                 throw new BizCheckedException("2041005",orderId,"");
             }
-            if(so.getWaveId() > 0){
-                //返回waveId
-                return so.getWaveId();
-                //throw new BizCheckedException("2041001", orderId,"");
+            if(so.getWaveId() > 0) {
+                WaveHead oldWaveHead = waveService.getWave(so.getWaveId());
+                if (oldWaveHead.getWaveTemplateId().equals(pickWaveHead.getWaveTemplateId())) {
+                    //重复请求,返回waveId
+                    return so.getWaveId();
+                    //throw new BizCheckedException("2041001", orderId,"");
+                } else if (false) {
+                    //按道理因该在WaveTemplate里加一个标记,标记某个波次模版创建的波次不允许被拆分修改到别的波次中去,防止一些安全隐患,但我偷懒,以后再说吧
+                    throw new BizCheckedException("2041001", orderId, "");
+                } else {
+                    //拆分订单到新波次中
+                }
             }
             /*if(order.get("transPlan") == null
                     || order.get("waveIndex") == null

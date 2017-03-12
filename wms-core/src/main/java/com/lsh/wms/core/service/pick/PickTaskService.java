@@ -9,6 +9,7 @@ import com.lsh.wms.core.constant.ContainerConstant;
 import com.lsh.wms.core.constant.PickConstant;
 import com.lsh.wms.core.constant.ReportConstant;
 import com.lsh.wms.core.constant.TaskConstant;
+import com.lsh.wms.core.dao.task.TaskInfoDao;
 import com.lsh.wms.core.dao.wave.WaveDetailDao;
 import com.lsh.wms.core.dao.pick.PickTaskHeadDao;
 import com.lsh.wms.core.dao.wave.WaveDetailDao;
@@ -53,6 +54,8 @@ public class PickTaskService {
     private static final Logger logger = LoggerFactory.getLogger(PickTaskService.class);
 
     @Autowired
+    private TaskInfoDao taskInfoDao;
+    @Autowired
     private PickTaskHeadDao taskHeadDao;
     @Autowired
     private WaveDetailDao taskDetailDao;
@@ -78,15 +81,15 @@ public class PickTaskService {
     private DifferenceZoneReportService differenceZoneReportService;
 
     @Transactional(readOnly = false)
-    public Boolean createPickTask(PickTaskHead head, List<WaveDetail> details){
+    public Boolean createPickTask(PickTaskHead head, List<WaveDetail> details) {
         List<PickTaskHead> heads = new ArrayList<PickTaskHead>();
         heads.add(head);
         return this.createPickTasks(heads, details);
     }
 
     @Transactional(readOnly = false)
-    public Boolean createPickTasks(List<PickTaskHead> heads, List<WaveDetail> details){
-        for(PickTaskHead head : heads){
+    public Boolean createPickTasks(List<PickTaskHead> heads, List<WaveDetail> details) {
+        for (PickTaskHead head : heads) {
             head.setCreatedAt(DateUtils.getCurrentSeconds());
             head.setUpdatedAt(DateUtils.getCurrentSeconds());
             taskHeadDao.insert(head);
@@ -108,7 +111,7 @@ public class PickTaskService {
     }
 
 
-    public PickTaskHead getPickTaskHead(Long taskId){
+    public PickTaskHead getPickTaskHead(Long taskId) {
         HashMap<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("taskId", taskId);
         List<PickTaskHead> pickTaskHeadList = taskHeadDao.getPickTaskHeadList(mapQuery);
@@ -117,6 +120,7 @@ public class PickTaskService {
 
     /**
      * 更新拣货详情并移动库存
+     *
      * @param pickDetail
      * @param locationId
      * @param containerId
@@ -135,7 +139,7 @@ public class PickTaskService {
         if (quants.size() > 0) {
             BigDecimal quantQty = BigDecimal.ZERO;
             Long quantContainerId = quants.get(0).getContainerId();
-            for (StockQuant quant: quants) {
+            for (StockQuant quant : quants) {
                 quantQty = quantQty.add(quant.getQty());
                 if (!quantContainerId.equals(quant.getContainerId()) && qty.compareTo(BigDecimal.ZERO) == 1) {
                     throw new BizCheckedException("2060025");
@@ -202,10 +206,11 @@ public class PickTaskService {
 
     /**
      * 回溯拣货状态
+     *
      * @param staffId
      * @return
      */
-    public Map<String, Object> restore (Long staffId, List<Map> taskList) {
+    public Map<String, Object> restore(Long staffId, List<Map> taskList) {
         Map<String, Object> result = new HashMap<String, Object>();
         // 获取分配给操作人员的所有拣货任务
         List<TaskInfo> taskInfos = baseTaskService.getAssignedTaskByOperator(staffId, TaskConstant.TYPE_PICK);
@@ -215,12 +220,12 @@ public class PickTaskService {
         // 取taskId
         List<Long> taskIds = new ArrayList<Long>();
 
-        for (TaskInfo taskInfo: taskInfos) {
+        for (TaskInfo taskInfo : taskInfos) {
             taskIds.add(taskInfo.getTaskId());
         }
 
         if (taskList != null && !taskList.isEmpty()) {
-            for (Map<Long, Object> task: taskList) {
+            for (Map<Long, Object> task : taskList) {
                 if (!taskIds.contains(Long.valueOf(task.get("taskId").toString()))) {
                     throw new BizCheckedException("2060011");
                 }
@@ -254,6 +259,7 @@ public class PickTaskService {
 
     /**
      * 设置结果
+     *
      * @param result
      * @param locationKey
      * @param resultKey
@@ -272,7 +278,7 @@ public class PickTaskService {
         result.put(resultKey, location.getLocationCode());
         result.put("taskSubType", taskInfo.getSubType());
         // 按照箱规转换数量
-        if (result.get("allocQty") != null && new BigDecimal(result.get("allocQty").toString()).compareTo(BigDecimal.ZERO)!=0) {
+        if (result.get("allocQty") != null && new BigDecimal(result.get("allocQty").toString()).compareTo(BigDecimal.ZERO) != 0) {
             BigDecimal allocQty = new BigDecimal(result.get("allocQty").toString());
             result.put("allocQty", PackUtil.EAQty2UomQty(allocQty, result.get("allocUnitName").toString()));
         }
@@ -307,5 +313,36 @@ public class PickTaskService {
         }
         result.put("containerId", taskInfo.getContainerId().toString());
         return result;
+    }
+
+    @Transactional(readOnly = false)
+    public void changeWave(TaskInfo taskInfo, PickTaskHead taskHead, long toWaveId, long toCollectLocationId, String transPlan) {
+        //加锁,重新读取taskinfo信息,防止任务执行临界点上进行修改导致的不可预期的错误.
+        taskInfo = taskInfoDao.lockById(taskInfo.getTaskId());
+        //repair stock quant when task is done
+        if (taskInfo.getStatus().equals(TaskConstant.Done)) {
+            stockMoveService.moveWholeContainer(taskHead.getContainerId(), taskHead.getTaskId(), taskInfo.getOperator(), taskHead.getRealCollectLocation(), toCollectLocationId);
+        }
+        //repair task_info
+        taskInfo.setWaveId(toWaveId);
+        taskInfo.setTransPlan(transPlan);
+        taskInfoDao.update(taskInfo);
+        //repair pick_task_head
+        taskHead.setWaveId(toWaveId);
+        taskHead.setAllocCollectLocation(toCollectLocationId);
+        if (taskInfo.getStatus().equals(TaskConstant.Done)) {
+            taskHead.setRealCollectLocation(toCollectLocationId);
+        }
+        taskHeadDao.update(taskHead);
+        //repair wave_detail
+        WaveDetail detail = new WaveDetail();
+        detail.setPickTaskId(taskInfo.getTaskId());
+        detail.setWaveId(toWaveId);
+        detail.setAllocCollectLocation(toCollectLocationId);
+        detail.setRealCollectLocation(0l);
+        if (taskInfo.getStatus().equals(TaskConstant.Done)) {
+            detail.setRealCollectLocation(toCollectLocationId);
+        }
+        taskDetailDao.changeWave(detail);
     }
 }

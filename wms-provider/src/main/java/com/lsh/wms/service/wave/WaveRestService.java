@@ -377,7 +377,8 @@ public class WaveRestService implements IWaveRestService {
             throw new BizCheckedException("2040015");
         }
         if (locationService.getLocation(tpl.getCollectLocations()) == null
-                || locationService.getLocation(tpl.getCollectLocations()).getType() != LocationConstant.COLLECTION_ROAD_GROUP) {
+                || (locationService.getLocation(tpl.getCollectLocations()).getType() != LocationConstant.COLLECTION_ROAD_GROUP
+                && locationService.getLocation(tpl.getCollectLocations()).getType() != LocationConstant.COLLECTION_ROAD)) {
             throw new BizCheckedException("2040016");
         }
         try {
@@ -396,7 +397,8 @@ public class WaveRestService implements IWaveRestService {
             throw new BizCheckedException("2040015");
         }
         if (locationService.getLocation(tpl.getCollectLocations()) == null
-                || locationService.getLocation(tpl.getCollectLocations()).getType() != LocationConstant.COLLECTION_ROAD_GROUP) {
+            || (locationService.getLocation(tpl.getCollectLocations()).getType() != LocationConstant.COLLECTION_ROAD_GROUP
+                                        && locationService.getLocation(tpl.getCollectLocations()).getType() != LocationConstant.COLLECTION_ROAD)) {
             throw new BizCheckedException("2040016");
         }
         try {

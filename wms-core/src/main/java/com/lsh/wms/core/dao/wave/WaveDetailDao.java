@@ -30,4 +30,5 @@ public interface WaveDetailDao {
 
 	List<Long> getAllocatedLocationList(Map<String, Object> params);
 
+	void changeWave(WaveDetail waveDetail);
 }

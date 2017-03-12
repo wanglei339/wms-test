@@ -132,6 +132,11 @@ public class InStorageRfRestService  implements IInStorageRfRestService {
             } else {
                 //货主默认为链商
                 itemId  = itemService.getItemIdBySkuAndOwner(CsiConstan.OWNER_LSH,csiSku.getSkuId());
+                if (itemId == null || itemId.compareTo(0l)==0){
+                    errorStr.append("国条(箱码)"+barcode+",").append("在仓库不存在").append(System.getProperty("line.separator"));
+                    isAllTrue = false;
+                    continue;
+                }
             }
             if(itemMap.containsKey(itemId)){
                 continue;

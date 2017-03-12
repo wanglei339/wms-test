@@ -1550,6 +1550,19 @@ public class LocationService {
         List<Long> locationIds = locationDao.getLocationBinByType(queryMap);
         return locationIds != null && locationIds.size() > 0 ? locationIds : new ArrayList<Long>();
     }
+    /**
+     * 获取全库位
+     *
+     * @return
+     */
+    public List<Long> getALLUnLockBins() {
+        Map<String, Object> queryMap = new HashMap<String, Object>();
+        queryMap.put("isLeaf", LocationConstant.IS_LEAF);
+        queryMap.put("type", LocationConstant.BIN);
+        queryMap.put("isLocked", LocationConstant.UNLOCK);
+        List<Long> locationIds = locationDao.getLocationBinByType(queryMap);
+        return locationIds != null && locationIds.size() > 0 ? locationIds : new ArrayList<Long>();
+    }
 
     /**
      * 同一区域下,根据通道、列、层(可选),进行蛇形排序

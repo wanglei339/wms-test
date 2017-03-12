@@ -95,6 +95,7 @@ public class WaveGenerator {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("waveId", 0L);
         mapQuery.put("waveOrderType", waveOrderType);
+        mapQuery.put("orderStatus", 1L);
         final List<ObdHeader> orderHeadList = orderService.getOutbSoHeaderList(mapQuery);
         for(ObdHeader header : orderHeadList){
             //List<ObdDetail> details = orderService.getOutbSoDetailListByOrderId(header.getOrderId());
