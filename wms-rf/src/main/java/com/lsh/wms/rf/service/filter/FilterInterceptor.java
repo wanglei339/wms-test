@@ -59,7 +59,7 @@ public class FilterInterceptor{
                 throw ex;
             }
         }else{
-            logger.info("method name ~~~~~~~~~~"+pjp.getSignature().getName() +"~~~~~~~~~~~~~~~~");
+            logger.info("method name is :"+pjp.getSignature().getName());
             if("userLogin".equals(pjp.getSignature().getName()) || "userLogout".equals(pjp.getSignature().getName())){
                 try {
                   return pjp.proceed();
@@ -67,7 +67,6 @@ public class FilterInterceptor{
                     throw ex;
                 }
             }else{
-                logger.info("~~~~~~~~~~~~~~~~~~~~~~~~");
                 HttpServletRequest request = (HttpServletRequest) RpcContext.getContext().getRequest();
                 Map<String, String> map = new HashMap<String, String>();
                 String utoken = request.getHeader("utoken");
@@ -91,11 +90,11 @@ public class FilterInterceptor{
                         }
                         if(redisStringDao.get(serialNumber) == null){
                             //将结果放到redis中。
-                            logger.info("1111111111111111111111111111~~~~~~serialNumber" + serialNumber);
+                            logger.info("this request serialNumber is :" + serialNumber);
                             String result = (String) pjp.proceed();
                             redisStringDao.set(serialNumber,result);
                             logger.info("结束时间:"+sdf.format(new Date()));
-                            logger.info("2222222222222222222222222222~~~~~~~~~~result" + result);
+                            logger.info("the result is :" + result);
                             return result;
                             //return pjp.proceed();
                         }
