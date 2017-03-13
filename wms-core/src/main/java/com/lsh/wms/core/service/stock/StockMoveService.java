@@ -1,7 +1,6 @@
 package com.lsh.wms.core.service.stock;
 
 import com.lsh.base.common.exception.BizCheckedException;
-import com.lsh.base.common.utils.BeanMapTransUtils;
 import com.lsh.base.common.utils.CollectionUtils;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.core.constant.*;
@@ -13,7 +12,6 @@ import com.lsh.wms.core.service.persistence.PersistenceProxy;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.stock.*;
-import com.lsh.wms.model.system.SysLog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +22,7 @@ import java.math.BigDecimal;
 import java.util.*;
 
 /**
- * Created by mali on 16/7/11.ck
+ * Created by wuhao on 16/7/11.ck
  */
 
 @Component
@@ -197,6 +195,34 @@ public class StockMoveService {
 
         stockSummaryService.changeStock(move);
 
+        //冲销，记录到商品进销存中
+        if (move.getTaskId().compareTo(WriteOffConstant.WRITE_OFF_TASK_ID) ==0) {
+            ItemInventoryDetail itemInventoryDetail = new ItemInventoryDetail();
+
+            BaseinfoLocation tolocation = locationService.getLocation(move.getToLocationId());
+
+            BaseinfoItem item = itemService.getItem(move.getItemId());
+
+
+            if(tolocation.getType().compareTo(LocationConstant.NULL_AREA)==0) {
+                itemInventoryDetail.setType(7);
+                itemInventoryDetail.setQty(BigDecimal.ZERO.subtract(move.getQty()));
+            }else {
+                itemInventoryDetail.setType(8);
+                itemInventoryDetail.setQty(move.getQty());
+            }
+
+            itemInventoryDetail.setItemId(item.getItemId());
+            itemInventoryDetail.setBusinessId(move.getTaskId());
+            itemInventoryDetail.setSkuName(item.getSkuName());
+            itemInventoryDetail.setSkuCode(item.getSkuCode());
+
+            itemInventoryDetail.setCreatedAt(DateUtils.getCurrentSeconds());
+            itemInventoryDetail.setCode(item.getCode());
+            itemInventoryDetail.setCodeType(item.getCodeType());
+            quantService.insertItemInventory(itemInventoryDetail);
+        }
+
         //库存转移 转残 转退 货主为物美的 都需要回传sap
         if(CsiConstan.OWNER_WUMART == move.getOwnerId()){
             BaseinfoLocation fromLocation = locationService.getLocation(move.getFromLocationId());
@@ -326,5 +352,21 @@ public class StockMoveService {
             }
         }
         return locationList;
+    }
+    public List<StockMove> getStockTakingMovedList(){
+        Map<String,Object> map = new HashMap<String, Object>();
+        List<StockMove> lists = moveDao.getTakingStock(0l);
+        if (CollectionUtils.isEmpty(lists)){
+            return new ArrayList<StockMove>();
+        }
+        return lists;
+    }
+    public List<StockMove> getInitializationStockList(){
+        Map<String,Object> map = new HashMap<String, Object>();
+        List<StockMove> lists = moveDao.getInitializationStock(0l);
+        if (CollectionUtils.isEmpty(lists)){
+            return new ArrayList<StockMove>();
+        }
+        return lists;
     }
 }
