@@ -11,6 +11,9 @@ import com.lsh.wms.core.service.container.ContainerService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.po.PoReceiptService;
+import com.lsh.wms.core.service.po.ReceiveService;
+import com.lsh.wms.core.service.so.SoDeliveryService;
+import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.stock.StockLotService;
 import com.lsh.wms.core.service.stock.StockMoveService;
 import com.lsh.wms.core.service.stock.StockQuantService;
@@ -19,8 +22,10 @@ import com.lsh.wms.core.service.taking.StockTakingService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.csi.CsiSku;
-import com.lsh.wms.model.po.InbReceiptDetail;
-import com.lsh.wms.model.po.InbReceiptHeader;
+import com.lsh.wms.model.po.*;
+import com.lsh.wms.model.so.ObdHeader;
+import com.lsh.wms.model.so.OutbDeliveryDetail;
+import com.lsh.wms.model.so.OutbDeliveryHeader;
 import com.lsh.wms.model.stock.*;
 import net.sf.json.JSONArray;
 import org.apache.commons.beanutils.PropertyUtils;
@@ -51,7 +56,18 @@ public class StockQuantRpcService implements IStockQuantRpcService {
     private LocationService locationService;
 
     @Autowired
+    private StockMoveService stockMoveService;
+
+    @Autowired
+    private SoDeliveryService soDeliveryService;
+
+    @Autowired
     private ItemService itemService;
+    @Autowired
+    private SoOrderService soOrderService;
+
+    @Autowired
+    private ReceiveService receiveService;
     @Autowired
     private ContainerService containerService;
 
@@ -307,7 +323,7 @@ public class StockQuantRpcService implements IStockQuantRpcService {
         }
         quantService.initializeStockInfoList(updateStockQuantInfos,insertStockQuantInfos);
 
-        logger.info("stock_begin_time"+beginDate+",stock_end_time" + DateUtils.getCurrentSeconds());
+        logger.info("stock_begin_time" + beginDate + ",stock_end_time" + DateUtils.getCurrentSeconds());
 
     }
     public void updateStockLocationInfoList() {
@@ -445,6 +461,185 @@ public class StockQuantRpcService implements IStockQuantRpcService {
         return quantService.getQuants(mapQuery);
     }
 
+    public Integer countItemInventoryList(Map<String, Object> mapQuery) {
+        return quantService.countItemInventoryDetail(mapQuery);
+    }
+
+    public List<ItemInventoryDetail> getItemInventoryList(Map<String, Object> mapQuery) {
+        return quantService.getItemInventoryDetail(mapQuery);
+    }
+
+    public void fixItemInventoryList() {
+        Map<Long,BaseinfoItem> itemMap = new HashMap<Long, BaseinfoItem>();
+        Map<String,BaseinfoItem> itemCodeMap = new HashMap<String, BaseinfoItem>();
+        Map<Long,Long> orderOwnerMap = new HashMap<Long, Long>();
+        Map<Long,ReceiveHeader> receiveHeaderMap = new HashMap<Long, ReceiveHeader>();
+        Map<Long,ObdHeader> obdHeaderMap = new HashMap<Long, ObdHeader>();
+
+        //初始化发货头
+        List<ObdHeader> obdHeaders = soOrderService.getObdHeaderList(new HashMap<String, Object>());
+
+        for(ObdHeader obdHeader:obdHeaders){
+            obdHeaderMap.put(obdHeader.getOrderId(),obdHeader);
+        }
+        //初始化itemMap,itemCodeMap
+        List<BaseinfoItem> baseinfoItems = itemService.searchItem(new HashMap<String, Object>());
+        for(BaseinfoItem item:baseinfoItems){
+            itemMap.put(item.getItemId(),item);
+            String key = String.format("skuCode:[%s],ownerId:[%d]",item.getSkuCode(),item.getOwnerId());
+            itemCodeMap.put(key,item);
+        }
+
+        //收货
+        List<ReceiveDetail> receiveDetailList =  receiveService.getReceiveDetailList(new HashMap<String, Object>());
+
+        List<ItemInventoryDetail> details = new ArrayList<ItemInventoryDetail>();
+
+        for(ReceiveDetail detail: receiveDetailList){
+            ItemInventoryDetail itemInventoryDetail = new ItemInventoryDetail();
+            Long ownerId = 0L;
+            ReceiveHeader header = null;
+            if (orderOwnerMap.containsKey(detail.getReceiveId())){
+                ownerId = orderOwnerMap.get(detail.getReceiveId());
+                header = receiveHeaderMap.get(detail.getReceiveId());
+            }else {
+                header = receiveService.getReceiveHeaderByReceiveId(detail.getReceiveId());
+                receiveHeaderMap.put(detail.getReceiveId(),header);
+                ownerId = header.getOwnerUid();
+                orderOwnerMap.put(header.getReceiveId(),header.getOwnerUid());
+            }
+            if(header.getOrderType().compareTo(1)==0 || header.getOrderType().compareTo(2)==0) {
+                String key = String.format("skuCode:[%s],ownerId:[%d]", detail.getSkuCode(), ownerId);
+                BaseinfoItem item = null;
+                if (itemCodeMap.containsKey(key)) {
+                    item = itemCodeMap.get(key);
+                } else {
+                    item = itemService.getItemsBySkuCode(ownerId, detail.getSkuCode());
+                    itemCodeMap.put(key, item);
+                    itemMap.put(item.getItemId(), item);
+                }
+
+                itemInventoryDetail.setItemId(item.getItemId());
+                itemInventoryDetail.setBusinessId(header.getOrderId());
+                itemInventoryDetail.setSkuName(detail.getSkuName());
+                itemInventoryDetail.setSkuCode(detail.getSkuCode());
+                itemInventoryDetail.setQty(detail.getInboundQty());
+                itemInventoryDetail.setCreatedAt(detail.getCreatedAt());
+                itemInventoryDetail.setCode(item.getCode());
+                itemInventoryDetail.setCodeType(item.getCodeType());
+                itemInventoryDetail.setType(header.getOrderType());
+                details.add(itemInventoryDetail);
+            }
+        }
+
+
+        //发货
+        List<OutbDeliveryDetail> outbDeliveryDetails = soDeliveryService.getOutbDeliveryDetailList(new HashMap<String, Object>());
+
+        for(OutbDeliveryDetail deliveryDetail:outbDeliveryDetails){
+            ItemInventoryDetail itemInventoryDetail = new ItemInventoryDetail();
+            ObdHeader obdHeader = null;
+            BaseinfoItem item = null;
+            if(obdHeaderMap.containsKey(deliveryDetail.getOrderId())){
+                obdHeader = obdHeaderMap.get(deliveryDetail.getOrderId());
+            }else {
+                obdHeader = soOrderService.getObdHeaderByOrderId(deliveryDetail.getOrderId());
+            }
+            if(obdHeader.getOrderType().compareTo(1)==0){
+                itemInventoryDetail.setType(3);
+            }else if(obdHeader.getOrderType().compareTo(2)==0){
+                itemInventoryDetail.setType(4);
+            }
+
+            if (itemMap.containsKey(deliveryDetail.getItemId())){
+                item = itemMap.get(deliveryDetail.getItemId());
+            }else {
+                item = itemService.getItem(deliveryDetail.getItemId());
+                itemMap.put(item.getItemId(),item);
+            }
+            logger.info("itemId:"+deliveryDetail.getItemId());
+            itemInventoryDetail.setItemId(item.getItemId());
+            itemInventoryDetail.setBusinessId(obdHeader.getOrderId());
+            itemInventoryDetail.setSkuName(deliveryDetail.getSkuName());
+            itemInventoryDetail.setSkuCode(item.getSkuCode());
+            itemInventoryDetail.setQty(BigDecimal.ZERO.subtract(deliveryDetail.getDeliveryNum()));
+            itemInventoryDetail.setCreatedAt(deliveryDetail.getInserttime().getTime() / 1000);
+            itemInventoryDetail.setCode(item.getCode());
+            itemInventoryDetail.setCodeType(item.getCodeType());
+            details.add(itemInventoryDetail);
+        }
+        //冲销,报损报益
+        List<StockMove> stockMoves = stockMoveService.getStockTakingMovedList();
+
+        for(StockMove stockMove:stockMoves){
+            BaseinfoItem item = null;
+            ItemInventoryDetail itemInventoryDetail = new ItemInventoryDetail();
+
+            if (itemMap.containsKey(stockMove.getItemId())){
+                item = itemMap.get(stockMove.getItemId());
+            }else {
+                item = itemService.getItem(stockMove.getItemId());
+                itemMap.put(item.getItemId(),item);
+            }
+
+            BaseinfoLocation tolocation = locationService.getLocation(stockMove.getToLocationId());
+
+            if(stockMove.getTaskId().compareTo(10001l)==0){
+                if(tolocation.getType().compareTo(LocationConstant.NULL_AREA)==0) {
+                    itemInventoryDetail.setType(7);
+                }else {
+                    itemInventoryDetail.setType(8);
+                }
+            }else {
+                if(tolocation.getType().compareTo(LocationConstant.INVENTORYLOST)==0) {
+                    itemInventoryDetail.setType(5);
+                }else {
+                    itemInventoryDetail.setType(6);
+                }
+            }
+
+            itemInventoryDetail.setItemId(item.getItemId());
+            itemInventoryDetail.setBusinessId(stockMove.getTaskId());
+            itemInventoryDetail.setSkuName(item.getSkuName());
+            itemInventoryDetail.setSkuCode(item.getSkuCode());
+            itemInventoryDetail.setQty(stockMove.getQty());
+            itemInventoryDetail.setCreatedAt(stockMove.getCreatedAt());
+            itemInventoryDetail.setCode(item.getCode());
+            itemInventoryDetail.setCodeType(item.getCodeType());
+            details.add(itemInventoryDetail);
+        }
+
+        //初始化库存
+
+        List<StockMove> InitializationstockMoves = stockMoveService.getInitializationStockList();
+
+        for(StockMove stockMove:InitializationstockMoves){
+            BaseinfoItem item = null;
+            ItemInventoryDetail itemInventoryDetail = new ItemInventoryDetail();
+
+            if (itemMap.containsKey(stockMove.getItemId())){
+                item = itemMap.get(stockMove.getItemId());
+            }else {
+                item = itemService.getItem(stockMove.getItemId());
+                itemMap.put(item.getItemId(),item);
+            }
+
+            itemInventoryDetail.setType(9);
+
+
+            itemInventoryDetail.setItemId(item.getItemId());
+            itemInventoryDetail.setBusinessId(stockMove.getTaskId());
+            itemInventoryDetail.setSkuName(item.getSkuName());
+            itemInventoryDetail.setSkuCode(item.getSkuCode());
+            itemInventoryDetail.setQty(stockMove.getQty());
+            itemInventoryDetail.setCreatedAt(stockMove.getCreatedAt());
+            itemInventoryDetail.setCode(item.getCode());
+            itemInventoryDetail.setCodeType(item.getCodeType());
+            details.add(itemInventoryDetail);
+        }
+
+        quantService.insertItemInventoryList(details);
+    }
     public List<StockMove> traceQuant(Long quantId) {
         return moveService.traceQuant(quantId);
     }
