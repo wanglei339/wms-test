@@ -9,7 +9,9 @@ JAVA_OPTS="-server -Xms1024m -Xmx1024m -Xmn384m -XX:MaxPermSize=128m \
 -Xss256k -XX:+UseConcMarkSweepGC \
 -XX:+UseParNewGC -XX:CMSFullGCsBeforeCompaction=5 \
 -XX:+UseCMSCompactAtFullCollection \
--XX:+PrintGC -Xloggc:/data/logs/${APP}/gc_$1.log"
+-XX:+PrintGC -Xloggc:/data/logs/${APP}/gc_$1.log \
+-Dlogs.dir=~/lsh-wms/$APP/log \
+-Ddubbo.registry.file=/home/work/.dubbo/$APP.cache -Duser.timezone=GMT+08"
 #-Djava.rmi.server.hostname=114.215.143.54 \
 #-Dcom.sun.management.jmxremote \
 #-Dcom.sun.management.jmxremote.port=$JMX_PORT \
