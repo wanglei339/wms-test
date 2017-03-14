@@ -367,6 +367,7 @@ public class PickRestService implements IPickRestService {
             if (needPickDetail.getRefDetailId().equals(0L)/* && taskInfo.getSubType().equals(PickConstant.SHELF_TASK_TYPE)*/) {
                 List<WaveDetail> splitWaveDetails = new ArrayList<WaveDetail>();
                 Long lastOrder = needPickDetail.getPickOrder();
+                pickDetails = waveService.getOrderedDetailsByPickTaskIds(taskIds); // 需要重新取一下,否则会分错
                 for (WaveDetail pickDetail: pickDetails) {
                     // 判断是否少拣
                     if (pickDetail.getAllocQty().compareTo(pickDetail.getPickQty()) == 1) {
