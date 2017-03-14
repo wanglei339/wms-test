@@ -135,6 +135,11 @@ public class PickTaskService {
         Map<String, Object> quantParams = new HashMap<String, Object>();
         quantParams.put("locationId", locationId);
         quantParams.put("itemId", itemId);
+        // wave_detail加锁
+        pickDetail = waveService.lockWaveDetail(pickDetail);
+        if (!pickDetail.getPickAt().equals(0L)) {
+            throw new BizCheckedException("2060028");
+        }
         List<StockQuant> quants = stockQuantService.getQuants(quantParams);
         if (quants.size() > 0) {
             BigDecimal quantQty = BigDecimal.ZERO;
