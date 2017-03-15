@@ -47,7 +47,8 @@ public class CsiRestService implements ICsiRestService {
     @GET
     @Path("getCatInfo")
     public String getCatInfo(@QueryParam("catId") long iCatId)throws BizCheckedException {
-        return JsonUtils.SUCCESS(csiRpcService.getCatInfo(iCatId));
+        CsiCategory csiCategory = csiRpcService.getCatInfo(iCatId);
+        return JsonUtils.SUCCESS(csiCategory ==null ? new CsiCategory(): csiCategory);
     }
 
     @GET
@@ -89,14 +90,16 @@ public class CsiRestService implements ICsiRestService {
     @GET
     @Path("getSku")
     public String getSku(@QueryParam("skuId") long iSkuId) throws BizCheckedException{
-        return JsonUtils.SUCCESS(csiRpcService.getSku(iSkuId));
+        CsiSku sku = csiRpcService.getSku(iSkuId);
+        return JsonUtils.SUCCESS(sku == null ? new CsiSku() : sku);
     }
 
 
     @GET
     @Path("getSkuByCode")
     public String getSkuByCode(@QueryParam("codeType") int iCodeType, @QueryParam("code") String sCode) throws BizCheckedException{
-        return JsonUtils.SUCCESS(csiRpcService.getSkuByCode(iCodeType, sCode));
+        CsiSku sku = csiRpcService.getSkuByCode(iCodeType, sCode);
+        return JsonUtils.SUCCESS(sku == null ? new CsiSku() : sku);
     }
     @POST
     @Path("insertSku")
@@ -131,7 +134,8 @@ public class CsiRestService implements ICsiRestService {
     @GET
     @Path("getOwner")
     public String getOwner(@QueryParam("ownerId") long iOwnerId) throws BizCheckedException{
-        return JsonUtils.SUCCESS(csiRpcService.getOwner(iOwnerId));
+        CsiOwner owner =csiRpcService.getOwner(iOwnerId);
+        return JsonUtils.SUCCESS(owner==null ? new CsiOwner() : owner);
     }
 
 
@@ -172,7 +176,8 @@ public class CsiRestService implements ICsiRestService {
     @GET
     @Path("getSupplier")
     public String getSupplier(@QueryParam("supplierId") long iSupplierId) throws BizCheckedException{
-        return JsonUtils.SUCCESS(csiRpcService.getSupplier(iSupplierId));
+        CsiSupplier supplier = csiRpcService.getSupplier(iSupplierId);
+        return JsonUtils.SUCCESS(supplier==null ? new CsiSupplier() : supplier);
     }
 
 
@@ -244,7 +249,8 @@ public class CsiRestService implements ICsiRestService {
     @GET
     @Path("getCustomerByCodeAndOwnerId")
     public String getCustomerByCustomerCode(@QueryParam("customerCode") String customerCode,@QueryParam("ownerId") Long ownerId)throws BizCheckedException{
-        return JsonUtils.SUCCESS(customerService.getCustomerByCustomerCode(customerCode,ownerId));
+        CsiCustomer csiCustomer = customerService.getCustomerByCustomerCode(customerCode,ownerId);
+        return JsonUtils.SUCCESS(csiCustomer== null ? new CsiCustomer() : csiCustomer    );
     }
 
     @POST
@@ -294,7 +300,8 @@ public class CsiRestService implements ICsiRestService {
     @GET
     @Path("getCustomerById")
     public String getCustomerByCustomerId(@QueryParam("customerId")Long customerId) throws BizCheckedException{
-        return JsonUtils.SUCCESS(customerService.getCustomerByCustomerId(customerId));
+        CsiCustomer csiCustomer = customerService.getCustomerByCustomerId(customerId);
+        return JsonUtils.SUCCESS(csiCustomer ==null ? new CsiCustomer() :csiCustomer);
     }
     @POST
     @Path("insertCustomer")

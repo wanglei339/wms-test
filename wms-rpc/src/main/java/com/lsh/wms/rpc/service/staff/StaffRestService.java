@@ -263,7 +263,8 @@ public class StaffRestService implements IStaffRestService {
     @GET
     @Path("getJob")
     public String getJob(@QueryParam("jobId") Long iJobId){
-        return JsonUtils.SUCCESS(staffRpcService.getJobById(iJobId));
+        BaseinfoStaffJob staffJob = staffRpcService.getJobById(iJobId);
+        return JsonUtils.SUCCESS(staffJob ==null ? new BaseinfoStaffJob(): staffJob);
     }
 
     @GET
@@ -291,7 +292,8 @@ public class StaffRestService implements IStaffRestService {
     @GET
     @Path("getStaff")
     public String getStaffById(@QueryParam("staffId") Long iStaffId) {
-        return JsonUtils.SUCCESS(staffRpcService.getStaffById(iStaffId));
+        BaseinfoStaffInfo staffInfo = staffRpcService.getStaffById(iStaffId);
+        return JsonUtils.SUCCESS(staffInfo == null ? new BaseinfoStaffInfo() : staffInfo);
     }
 
     @POST

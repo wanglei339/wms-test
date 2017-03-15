@@ -79,7 +79,8 @@ public class SysUserRestService implements ISysUserRestService {
     @GET
     @Path("getSysUserById")
     public String getSysUserById(@QueryParam("uid") Long iUid){
-        return JsonUtils.SUCCESS(sysUserRpcService.getSysUserById(iUid));
+        SysUser sysUser = sysUserRpcService.getSysUserById(iUid);
+        return JsonUtils.SUCCESS(sysUser==null ? new SysUser() : sysUser);
     }
 
     @POST
