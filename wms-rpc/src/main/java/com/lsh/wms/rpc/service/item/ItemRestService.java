@@ -53,28 +53,28 @@ public class ItemRestService implements IItemRestService {
     @Path("getItem")
     public String getItem(@QueryParam("itemId") long itemId) {
         BaseinfoItem baseinfoItem = itemRpcService.getItem(itemId);
-        return JsonUtils.SUCCESS(baseinfoItem);
+        return JsonUtils.SUCCESS(baseinfoItem ==null ? new BaseinfoItem() : baseinfoItem);
     }
 
     @GET
     @Path("getBaseInfo")
     public String getSku(@QueryParam("skuId") long iSkuId) {
         CsiSku csiSku = itemRpcService.getSku(iSkuId);
-        return JsonUtils.SUCCESS(csiSku);
+        return JsonUtils.SUCCESS(csiSku == null ? new CsiSku() : csiSku);
     }
 
     @GET
     @Path("getSkuByCode")
     public String getSkuByCode(@QueryParam("codeType") int iCodeType,@QueryParam("code")  String sCode) {
         CsiSku csiSku = itemRpcService.getSkuByCode(iCodeType, sCode);
-        return JsonUtils.SUCCESS(csiSku);
+        return JsonUtils.SUCCESS(csiSku == null ? new CsiSku() : csiSku);
     }
 
     @GET
     @Path("getItemsBySkuCode")
     public String getItemsBySkuCode(@QueryParam("ownerId") long iOwnerId,@QueryParam("skuCode")  String sSkuCode) {
         BaseinfoItem baseinfoItem = itemRpcService.getItemsBySkuCode(iOwnerId, sSkuCode);
-        return  JsonUtils.SUCCESS(baseinfoItem);
+        return  JsonUtils.SUCCESS(baseinfoItem ==null ? new BaseinfoItem() : baseinfoItem);
     }
 
     @POST

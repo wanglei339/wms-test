@@ -91,9 +91,9 @@ public class TaskRestService implements ITaskRestService {
     public String getTaskType(@QueryParam("taskId") long taskId) throws BizCheckedException{
         TaskInfo info = baseTaskService.getTaskInfoById(taskId);
         if(info == null){
-            return JsonUtils.SUCCESS(0);
+            return JsonUtils.SUCCESS(new TaskInfo());
         }
-        return JsonUtils.SUCCESS(info.getType());
+        return JsonUtils.SUCCESS(info);
     }
     @GET
     @Path("getOldTask")

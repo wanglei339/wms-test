@@ -804,4 +804,9 @@ public class WaveService {
         return waveDetails == null ? new ArrayList<WaveDetail>() : waveDetails;
     }
 
+    @Transactional(readOnly = false)
+    public WaveDetail lockWaveDetail(WaveDetail waveDetail){
+        return detailDao.lockWaveDetailById(waveDetail.getId());
+    }
+
 }

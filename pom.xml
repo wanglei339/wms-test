@@ -275,6 +275,18 @@
     <build>
         <pluginManagement>
             <plugins>
+                <!-- compiler插件，设定JDK版本 -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.1</version>
+                    <configuration>
+                        <source>1.7</source>
+                        <target>1.7</target>
+                        <showWarnings>true</showWarnings>
+                        <encoding>UTF-8</encoding>
+                    </configuration>
+                </plugin>
                 <!-- resource插件 -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>

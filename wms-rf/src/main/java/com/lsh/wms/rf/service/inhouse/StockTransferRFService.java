@@ -208,7 +208,6 @@ public class StockTransferRFService implements IStockTransferRFService{
             if (taskInfo.getStep()==1) {
                 type = 1L;
                 uomQty = PackUtil.EAQty2UomQty(taskInfo.getQty(), taskInfo.getPackName());
-
             } else {
                 type = 2L;
                 uomQty = PackUtil.EAQty2UomQty(taskInfo.getQtyDone(), taskInfo.getPackName());

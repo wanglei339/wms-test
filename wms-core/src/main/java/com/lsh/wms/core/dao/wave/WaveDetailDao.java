@@ -18,6 +18,8 @@ public interface WaveDetailDao {
 	
 	WaveDetail getWaveDetailById(Long id);
 
+	WaveDetail lockWaveDetailById(Long id);
+
     Integer countWaveDetail(Map<String, Object> params);
 
     List<WaveDetail> getWaveDetailList(Map<String, Object> params);

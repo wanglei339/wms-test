@@ -98,6 +98,13 @@
             <resource>
                 <directory>src/main/resources</directory>
                 <includes>
+                    <include>META-INF/dubbo/*</include>
+                </includes>
+                <filtering>false</filtering>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
                     <include>props/*</include>
                     <include>log4j.properties</include>
                 </includes>

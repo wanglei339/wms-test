@@ -242,7 +242,7 @@ public class StockMoveService {
     }
 
     @Transactional(readOnly = false)
-    public void moveToContainer(Long itemId, Long operator, Long fromContainer, Long toContainer, Long locationId, BigDecimal qty) throws BizCheckedException {
+    public void moveToContainer(Long itemId, Long operator, Long fromContainer, Long toContainer, Long locationId, BigDecimal qty, Long taskId) throws BizCheckedException {
         if (qty.compareTo(BigDecimal.ZERO) <= 0) {
             throw new BizCheckedException("1550001");
         }
@@ -274,6 +274,7 @@ public class StockMoveService {
         move.setFromContainerId(fromContainer);
         move.setToContainerId(toContainer);
         move.setOperator(operator);
+        move.setTaskId(taskId);
         this.move(move);
     }
 
